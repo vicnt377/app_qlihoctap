@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Hệ Thống Quản Lý Tiến Độ Học Tập</title>
+    <title>Đăng Ký - Hệ Thống Quản Lý Tiến Độ Học Tập</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <style>
@@ -14,15 +14,15 @@
             justify-content: center;
             align-items: center;
         }
-        .login-container {
-            max-width: 400px;
+        .register-container {
+            width: 30vw;
             padding: 30px;
             background: white;
             border-radius: 10px;
             box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
         }
-        .login-header {
+        .register-header {
             font-size: 26px;
             font-weight: bold;
             color: #764ba2;
@@ -33,7 +33,7 @@
             padding: 10px;
             text-align: center;
         }
-        .btn-login {
+        .btn-register {
             background: linear-gradient(90deg, #667eea, #764ba2);
             color: white;
             font-weight: bold;
@@ -41,50 +41,43 @@
             padding: 10px;
             transition: transform 0.2s;
         }
-        .btn-login:hover {
+        .btn-register:hover {
             transform: scale(1.05);
         }
-        .icon {
-            font-size: 20px;
-            margin-right: 10px;
-        }
-        .login-links {
+        .register-links {
             margin-top: 15px;
             font-size: 14px;
         }
-        .login-links a {
+        .register-links a {
             color: #667eea;
             text-decoration: none;
             font-weight: bold;
         }
-        .login-links a:hover {
+        .register-links a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">Hệ Thống Quản Lý Tiến Độ Học Tập</div>
-        <form method="POST" action="/login">
-            {{#if success_msg}}
-            <div class="alert alert-success">{{success_msg}}</div>
-            {{/if}}
-            {{#if error_msg}}
-            <div class="alert alert-danger">{{error_msg}}</div>
-            {{/if}}
-
+    <div class="register-container">
+        <div class="register-header">Đăng Ký Tài Khoản</div>
+        <form method="POST" action="/register">
             <div class="mb-3 input-group">
                 <span class="input-group-text"><i class="fas fa-user icon"></i></span>
                 <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập" required>
             </div>
             <div class="mb-3 input-group">
+                <span class="input-group-text"><i class="fas fa-envelope icon"></i></span>
+                <input type="email" class="form-control" name="email" placeholder="Email" required>
+            </div>
+            <div class="mb-3 input-group">
                 <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
                 <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
             </div>
-            <button type="submit" class="btn btn-login w-100">Đăng Nhập</button>
+            <button type="submit" class="btn btn-register w-100">Đăng Ký</button>
         </form>
-        <div class="login-links">
-            <a href="/register">Đăng ký</a> | <a href="/forgot-password">Quên mật khẩu?</a>
+        <div class="register-links">
+            <a href="/login">Đã có tài khoản? Đăng nhập</a>
         </div>
     </div>
 </body>

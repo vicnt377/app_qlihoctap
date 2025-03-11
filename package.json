@@ -19,8 +19,13 @@
   "homepage": "https://github.com/vicnt377/app_qlihoctap#readme",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "connect-flash": "^0.1.1",
     "express": "^4.21.2",
     "express-handlebars": "^8.0.1",
+    "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.11.0",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.9"

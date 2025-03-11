@@ -2,6 +2,8 @@ const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
 const { engine } = require('express-handlebars')
+const session = require('express-session');
+const flash = require('connect-flash');
 
 const mongoose = require ('mongoose')
 
@@ -21,7 +23,25 @@ app.engine('.hbs', engine({
 app.set('view engine', '.hbs') 
 app.set('views',  path.join(__dirname, 'resources/views'))
 
+app.use(express.urlencoded({
+  extended: true
+}))
+app.use(express.json())
+app.use(session({
+  secret: 'my_secret_key',
+  resave: false,
+  saveUninitialized: true
+}));
 
+
+// Middleware để truyền flash messages đến views
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    next();
+});
 
 const route = require('../routes')
 route(app)
