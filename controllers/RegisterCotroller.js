@@ -18,7 +18,7 @@ class RegisterController{
             }
 
             // Lưu người dùng vào database
-            const newUser = new User({ username, email, password: password });
+            const newUser = new User({ username, email, password });
             await newUser.save();
 
             // Thêm thông báo thành công

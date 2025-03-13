@@ -7,28 +7,59 @@ class LoginController {
         res.render('login', { error: null });
     }
 
+    showResetPassword(req, res) {
+        res.render('reset-password', { messages: {} });
+    }
+
     async login(req, res) {
         try {
             const { username, password } = req.body;
-            console.log("Nhận dữ liệu:", username, password); // Debug
-
+            console.log("Nhận dữ liệu:", username, password);
+    
             const user = await User.findOne({ username });
-            console.log("User tìm thấy:", user); // Debug
-
+            console.log("User tìm thấy:", user);
+    
             if (!user) {
-                console.log("Không tìm thấy user!");
-                return res.render('login', { error: "Tên đăng nhập hoặc mật khẩu không đúng!" });
+                req.flash('error_msg', 'Tên đăng nhập hoặc mật khẩu không đúng!');
+                return res.redirect('/login');
             }
-
-            req.session.user = mongooseToObject(user);
-            console.log("Lưu session:", req.session.user); // Debug
-
+    
+            if (user.password !== password) {
+                req.flash('error_msg', 'Tên đăng nhập hoặc mật khẩu không đúng!');
+                return res.redirect('/login');
+            }
+    
+            req.session.user = { _id: user._id, username: user.username };
+            console.log("Lưu session:", req.session.user);
+    
             res.redirect('/home');
         } catch (error) {
             console.error("Lỗi server:", error);
             res.status(500).send("Lỗi máy chủ!");
         }
     }
+    
+    async updatePassword(req, res) {
+        const { username, newPassword } = req.body;
+
+        try {
+            // Tìm user theo username
+            const user = await User.findOne({ username });
+            if (!user) {
+                return res.render('reset-password', { messages: { error: "Tài khoản không tồn tại!" } });
+            }
+
+            // Cập nhật mật khẩu
+            user.password = newPassword;
+            await user.save({ validateBeforeSave: false });
+            res.redirect('/login?message=Đổi mật khẩu thành công');
+
+        } catch (error) {
+            console.error("Lỗi khi cập nhật mật khẩu:", error);
+            res.render('reset-password', { messages: { error: 'Có lỗi xảy ra khi cập nhật mật khẩu!' } });
+        }
+    }
+    
 }
 
 module.exports = new LoginController();

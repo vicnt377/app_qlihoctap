@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const { engine } = require('express-handlebars')
 const session = require('express-session');
 const flash = require('connect-flash');
+const eflash = require('express-flash');
 
 const mongoose = require ('mongoose')
 
@@ -42,6 +43,11 @@ app.use((req, res, next) => {
     res.locals.error_msg = req.flash('error_msg');
     next();
 });
+app.use((req, res, next) => {
+  res.locals.message = req.query.message || null;
+  next();
+});
+
 
 const route = require('../routes')
 route(app)
