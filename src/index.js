@@ -1,10 +1,12 @@
 const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
+const handlebars = require ('handlebars')
 const { engine } = require('express-handlebars')
-const session = require('express-session');
-const flash = require('connect-flash');
-const eflash = require('express-flash');
+const session = require('express-session')
+const flash = require('connect-flash')
+const eflash = require('express-flash')
+const bodyParser = require('body-parser');
 
 const mongoose = require ('mongoose')
 
@@ -16,13 +18,21 @@ db.connect()
 
 app.use(morgan('combined'))
 
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.engine('.hbs', engine({
-  extname: '.hbs'
+  extname: '.hbs',
+  helpers: {
+    shortId: function (id) {
+        return id ? id.toString().slice(-4) : '';
+    }
+}
 }))
 app.set('view engine', '.hbs') 
 app.set('views',  path.join(__dirname, 'resources/views'))
+
 
 app.use(express.urlencoded({
   extended: true
@@ -34,6 +44,13 @@ app.use(session({
   saveUninitialized: true
 }));
 
+handlebars.registerHelper('shortId', function(id) {
+  if (id && typeof id.toString === 'function') {
+    const idString = id.toString(); // Chuyển id thành chuỗi
+    return idString.substring(idString.length - 4); // Lấy 4 ký tự cuối cùng
+  }
+  return ''; // Trả về chuỗi rỗng nếu id không hợp lệ
+});
 
 // Middleware để truyền flash messages đến views
 app.use(flash());
@@ -47,6 +64,10 @@ app.use((req, res, next) => {
   res.locals.message = req.query.message || null;
   next();
 });
+
+
+
+
 
 
 const route = require('../routes')
