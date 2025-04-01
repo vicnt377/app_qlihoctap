@@ -41,7 +41,8 @@ app.use(express.json())
 app.use(session({
   secret: 'my_secret_key',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 1000 * 60 * 60 }
 }));
 
 handlebars.registerHelper('shortId', function(id) {
@@ -65,6 +66,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  console.log("Session hiện tại:", req.session);
+  next();
+});
 
 
 

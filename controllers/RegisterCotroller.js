@@ -3,22 +3,22 @@ const { mongooseToObject } = require('../src/util/mongoose');
 
 class RegisterController{
     index(req, res, next){
-        res.render('register')
+        res.render('register',{ layout: "auth" });
     }
     async register(req, res) {
         try {
-            const { username, email, password } = req.body;
-            console.log("Dữ liệu nhận được:", username, email, password);
+            const { username, email, password, phone } = req.body;
+            console.log("Dữ liệu nhận được:", username, email, password, phone);
 
             // Kiểm tra tài khoản đã tồn tại chưa
             const existingUser = await User.findOne({ username });
             if (existingUser) {
                 console.log("Tên đăng nhập đã tồn tại!");
-                return res.render('register', { error: "Tên đăng nhập đã tồn tại!" });
+                return res.render('register',  {layout: "auth", error: "Tên đăng nhập đã tồn tại!" });
             }
 
             // Lưu người dùng vào database
-            const newUser = new User({ username, email, password });
+            const newUser = new User({ username, email, password, phone });
             await newUser.save();
 
             // Thêm thông báo thành công

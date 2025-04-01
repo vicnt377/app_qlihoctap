@@ -4,7 +4,13 @@ const { mongooseToObject } = require('../src/util/mongoose');
 
 class LoginController {
     index(req, res) {
-        res.render('login', { error: null });
+        res.render('login', {layout: "auth", error: null });
+    }
+
+    logout(req, res) {
+        req.session.destroy(() => {
+            res.redirect("/login", {layout: "auth"});
+        });
     }
 
     showResetPassword(req, res) {
@@ -29,10 +35,15 @@ class LoginController {
                 return res.redirect('/login');
             }
     
-            req.session.user = { _id: user._id, username: user.username };
+            req.session.user = {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                phone: user.phone
+            };
             console.log("Lưu session:", req.session.user);
     
-            res.redirect('/home');
+            res.redirect("/account");
         } catch (error) {
             console.error("Lỗi server:", error);
             res.status(500).send("Lỗi máy chủ!");
