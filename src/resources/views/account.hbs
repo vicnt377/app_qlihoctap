@@ -1,17 +1,31 @@
-{{!-- account.handlebars --}}
+{{#if successMessage}}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{successMessage}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
+
+{{#if errorMessage}}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{errorMessage}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
+
 <h4 class="mb-4 dashboard-title">⚙️ Cài Đặt Tài Khoản</h4>
 <div class="row">
     <!-- profile -->
     <div class="col-md-4">
         <div class="profile-card text-center">
             <img src="{{user.avatar}}" alt="Avatar" class="profile-img">
+
             <div class="profile-info">
                 <h3>{{user.username}}</h3>
                 <p><strong>Email:</strong> {{user.email}}</p>
                 <p><strong>Số điện thoại:</strong> {{user.phone}}</p>
             </div>
-            <div class="btn-container">
-                <a href="/logout" class="btn btn-custom btn-logout"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a>
+            <div class="form-button">
+                <a href="/logout" class="btn btn-custom btnlogout"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a>
             </div>
         </div>
     </div>
@@ -20,7 +34,7 @@
     <div class="col-md-8">
         <div class="edit-profile-form p-4">
             <h4 style="color: #333"> Chỉnh sửa tài khoản</h4>
-            <form>
+            <form action="/account/update" method="POST">
                 <div class="mb-3">
                     <label for="username" class="form-label"><i class="fas fa-user"></i> Tên người dùng</label>
                     <input type="text" class="form-control" id="username" value="{{user.username}}">
@@ -38,7 +52,7 @@
                     <input type="password" class="form-control" id="password">
                 </div>
                 <div class="form-button">
-                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    <button type="submit" class="btn btn-primary ">Lưu thay đổi</button>
                 </div>
 
             </form>
@@ -97,7 +111,18 @@
     .btn-primary:hover {
         background: linear-gradient(135deg, #5643cc, #3b2ba3);
     }
-    .btn-logout{
+    .btnlogout{
         color: red;
+        border: none;
+        width: auto; 
+        padding: 8px 20px;
+        text-align: center;
+    }
+    .btnlogout:hover{
+        color: rgb(255, 255, 255);
+        background:  #eb2323;
+        display: flex;
+        justify-content: center;
+
     }
 </style>

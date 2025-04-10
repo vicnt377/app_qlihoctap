@@ -10,6 +10,12 @@ class AccountController {
             user: req.session.user, 
         });
     }
+
+    async updateProfile(req, res) {
+        
+    }
+    
 }
+
 
 module.exports = new AccountController();

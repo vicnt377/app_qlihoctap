@@ -6,7 +6,7 @@ const { engine } = require('express-handlebars')
 const session = require('express-session')
 const flash = require('connect-flash')
 const eflash = require('express-flash')
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
 
 const mongoose = require ('mongoose')
 
@@ -18,16 +18,21 @@ db.connect()
 
 app.use(morgan('combined'))
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(express.static(path.join(__dirname, 'public')))
+
+app.use('/img', express.static(path.join(__dirname, 'public/img')))
+
+
 
 app.engine('.hbs', engine({
   extname: '.hbs',
   helpers: {
     shortId: function (id) {
-        return id ? id.toString().slice(-4) : '';
-    }
+        return id ? id.toString().slice(-4) : ''
+    },
+    eq: (a, b) => a === b
 }
 }))
 app.set('view engine', '.hbs') 
@@ -41,33 +46,37 @@ app.use(express.json())
 app.use(session({
   secret: 'my_secret_key',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: { secure: false, maxAge: 1000 * 60 * 60 }
 }));
 
 handlebars.registerHelper('shortId', function(id) {
   if (id && typeof id.toString === 'function') {
-    const idString = id.toString(); // Chuyển id thành chuỗi
-    return idString.substring(idString.length - 4); // Lấy 4 ký tự cuối cùng
+    const idString = id.toString(); 
+    return idString.substring(idString.length - 4)
   }
-  return ''; // Trả về chuỗi rỗng nếu id không hợp lệ
+  return ''
 });
 
 // Middleware để truyền flash messages đến views
 app.use(flash());
 
 app.use((req, res, next) => {
-    res.locals.success_msg = req.flash('success_msg');
-    res.locals.error_msg = req.flash('error_msg');
+    res.locals.success_msg = req.flash('success_msg')
+    res.locals.error_msg = req.flash('error_msg')
     next();
 });
 app.use((req, res, next) => {
-  res.locals.message = req.query.message || null;
+  res.locals.message = req.query.message || null
   next();
 });
 
+
 app.use((req, res, next) => {
-  console.log("Session hiện tại:", req.session);
+  res.locals.successMessage = req.session.successMessage;
+  res.locals.errorMessage = req.session.errorMessage;
+  delete req.session.successMessage;
+  delete req.session.errorMessage;
   next();
 });
 

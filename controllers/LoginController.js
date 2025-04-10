@@ -9,7 +9,7 @@ class LoginController {
 
     logout(req, res) {
         req.session.destroy(() => {
-            res.redirect("/login", {layout: "auth"});
+            res.redirect("/login",);
         });
     }
 
@@ -39,8 +39,10 @@ class LoginController {
                 id: user._id,
                 username: user.username,
                 email: user.email,
-                phone: user.phone
+                phone: user.phone,
+                avatar: user.avatar
             };
+            req.session.userId = user._id;
             console.log("Lưu session:", req.session.user);
     
             res.redirect("/account");
