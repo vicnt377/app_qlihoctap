@@ -14,7 +14,7 @@ class LoginController {
     }
 
     showResetPassword(req, res) {
-        res.render('reset-password', { messages: {} });
+        res.render('reset-password', {layout: "auth", messages: {} });
     }
 
     async login(req, res) {

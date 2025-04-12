@@ -1,0 +1,18 @@
+<main class="container mt-4">
+  <h2 class="mb-4">📈 Tiến Độ Học Tập</h2>
+
+  <div class="card p-4 mb-4">
+    <h5 style="color: black;">🎯 Tổng số tín chỉ đã hoàn thành: <strong>{{totalCredits}}/152</strong></h5>
+  </div>
+
+  <div class="card p-4">
+    <h5 style="color: black;">📚 Danh sách học phần đã học</h5>
+    <ul class="list-group">
+      {{#each scores}}
+        <li class="list-group-item">
+          ✅ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ | Điểm: {{diemSo}} ({{diemChu}})
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</main>

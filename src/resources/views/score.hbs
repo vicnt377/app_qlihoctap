@@ -44,9 +44,9 @@
                 <tbody>
                     {{#each score}}
                     <tr>
-                        <td>{{maHocPhan}}</td>
-                        <td>{{tenHocPhan}}</td>
-                        <td>{{soTinChi}}</td>
+                        <td>{{HocPhan.maHocPhan}}</td>
+                        <td>{{HocPhan.tenHocPhan}}</td>
+                        <td>{{HocPhan.soTinChi}}</td>
                         <td>{{diemSo}}</td>
                         <td>{{diemChu}}</td>
                     </tr>
@@ -64,7 +64,7 @@
     </div>
 </main>
 
-<script>
+{{!-- <script>
     // Hàm parseFloatSafe để chuyển đổi giá trị sang số thực an toàn
     function parseFloatSafe(val) {
         const num = parseFloat(val);
@@ -125,6 +125,6 @@
 
     // Chạy hàm tính GPA và TBTL khi DOM đã load
     document.addEventListener("DOMContentLoaded", calculateGPAandCumulative);
-</script>
+</script> --}}
 
 

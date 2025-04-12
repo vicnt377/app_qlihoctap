@@ -32,7 +32,8 @@ app.engine('.hbs', engine({
     shortId: function (id) {
         return id ? id.toString().slice(-4) : ''
     },
-    eq: (a, b) => a === b
+    eq: (a, b) => a === b,
+    ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this))
 }
 }))
 app.set('view engine', '.hbs') 
