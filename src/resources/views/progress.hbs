@@ -1,18 +1,43 @@
 <main class="container mt-4">
   <h2 class="mb-4">📈 Tiến Độ Học Tập</h2>
 
-  <div class="card p-4 mb-4">
-    <h5 style="color: black;">🎯 Tổng số tín chỉ đã hoàn thành: <strong>{{totalCredits}}/152</strong></h5>
-  </div>
+  <div class="row">
+    <!-- Cột bên trái: Tổng tín chỉ & môn nợ -->
+    <div class="col-md-6">
+      <div class="card p-4 mb-4">
+        <h5 style="color: black;">🎯 Tổng số tín chỉ đã hoàn thành:</h5>
+        <p><strong>{{totalCredits}} / 156 tín chỉ</strong></p>
+      </div>
 
-  <div class="card p-4">
-    <h5 style="color: black;">📚 Danh sách học phần đã học</h5>
-    <ul class="list-group">
-      {{#each scores}}
-        <li class="list-group-item">
-          ✅ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ | Điểm: {{diemSo}} ({{diemChu}})
-        </li>
-      {{/each}}
-    </ul>
+      <div class="card p-4 mb-4">
+        <h5 style="color: black;">❌ Danh sách môn bị nợ (điểm F)</h5>
+        {{#if monNo.length}}
+          <ul class="list-group">
+            {{#each monNo}}
+              <li class="list-group-item">
+                ⚠️ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ | Điểm: {{diemSo}} ({{diemChu}})
+              </li>
+            {{/each}}
+          </ul>
+        {{else}}
+          <p class="text-success">🎉 Bạn không bị nợ môn nào!</p>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Cột bên phải: Môn đã học -->
+    <div class="col-md-6">
+      <div class="card p-4 mb-4">
+        <h5 style="color: black;">📚 Danh sách học phần đã học</h5>
+        <ul class="list-group overflow-auto" style="max-height: 400px;">
+          {{#each scores}}
+            <li class="list-group-item">
+              ✅ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ | Điểm: {{diemSo}} ({{diemChu}})
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+
   </div>
 </main>
