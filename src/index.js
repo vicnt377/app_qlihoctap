@@ -43,7 +43,9 @@ app.set('views',  path.join(__dirname, 'resources/views'))
 app.use(express.urlencoded({
   extended: true
 }))
+
 app.use(express.json())
+
 app.use(session({
   secret: 'my_secret_key',
   resave: false,

@@ -4,30 +4,40 @@ const Score = require('../models/Score');
 class ClassController {
     async getClass(req, res) {
         try {
-            const { semester, year } = req.query;
+            const year = req.query.year || '2021 - 2022';
+            const semester = req.query.semester || 'Học Kỳ 1';
 
-            // Lấy học kỳ được chọn
-            const semesterDoc = await Semester.findOne({
-                tenHocKy: semester,
-                namHoc: year
-            }).populate({
-                path: 'score',
-                populate: { path: 'HocPhan' } // Lấy chi tiết tên học phần
-            }).lean();
+            const filter = {};
+            if (year && year !== 'Tất cả') filter.namHoc = year;
+            if (semester && semester !== 'Tất cả') filter.tenHocKy = semester;
 
-            const classes = semesterDoc ? semesterDoc.score : [];
+            // Tìm các học kỳ thỏa điều kiện (có thể là nhiều)
+            const semesterDocs = await Semester.find(filter)
+                .populate({
+                    path: 'score',
+                    populate: { path: 'HocPhan' }
+                })
+                .lean();
 
-            // Lấy danh sách tất cả năm học và học kỳ để dùng cho dropdown
+            const classesGroupedBySemester = semesterDocs.map(sem => ({
+                tenHocKy: sem.tenHocKy,
+                namHoc: sem.namHoc,
+                scores: sem.score || []
+            }));
+                
+
+            // Dropdown data
             const years = await Semester.distinct('namHoc');
             const semestersList = await Semester.distinct('tenHocKy');
 
             res.render('class', {
-                classes,
+                classesGroupedBySemester,
                 selectedSemester: semester,
                 selectedYear: year,
                 years,
                 semestersList
             });
+            
 
         } catch (error) {
             console.error('Lỗi lấy lịch học:', error.message);

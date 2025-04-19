@@ -3,8 +3,8 @@ const Course = require('./Course')
 
 const scoreSchema = new mongoose.Schema({
     HocPhan: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-    diemSo: { type: String, required: true,},
-    diemChu: { type: String, required: true, },
+    diemSo: { type: String, required: false,},
+    diemChu: { type: String, required: false, },
 
     gioHoc: { type: String,required: true, },
     thu: {type: String,required: true, }

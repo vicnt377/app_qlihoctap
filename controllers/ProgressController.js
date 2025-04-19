@@ -14,17 +14,20 @@ class ProgressController {
             scores.forEach(score => {
                 if (score.HocPhan) {
                     totalCredits += score.HocPhan.soTinChi;
-
-                    // Đếm điểm chữ
-                    const diemChu = score.diemChu.toUpperCase();
-                    diemChuStats[diemChu] = (diemChuStats[diemChu] || 0) + 1;
-
-                    // Môn nợ (F)
-                    if (diemChu === 'F') {
-                        monNo.push(score);
+            
+                    // Kiểm tra nếu có điểm chữ
+                    if (score.diemChu) {
+                        const diemChu = score.diemChu.toUpperCase();
+                        diemChuStats[diemChu] = (diemChuStats[diemChu] || 0) + 1;
+            
+                        // Môn nợ (F)
+                        if (diemChu === 'F') {
+                            monNo.push(score);
+                        }
                     }
                 }
             });
+            
 
             res.render('progress', {
                 scores,

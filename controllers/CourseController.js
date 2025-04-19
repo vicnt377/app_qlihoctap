@@ -1,74 +1,52 @@
 const Course = require('../models/Course');
 const Score = require('../models/Score');
-const { mongooseToObject } = require('../src/util/mongoose');
 
 class CourseController {
-  // Hiển thị danh sách khóa học
+  // Lấy danh sách khóa học
   async getCourses(req, res) {
     try {
-      const courses = await Course.find()
+      // Lấy tất cả các khóa học
+      const courses = await Course.find();
+
+      // Lấy danh sách các học phần đã có trong bảng điểm (Score)
+      const scores = await Score.find({}, 'HocPhan').lean();
+      const existingCourseIds = scores.map(score => String(score.HocPhan));
+
+      // Truyền các dữ liệu cần thiết vào template
       res.render('course', {
         courses,
         coursesJSON: JSON.stringify(courses),
-        semesterId: req.query.semesterId || "",
+        existingCourseIdsJSON: JSON.stringify(existingCourseIds),
       });
+
     } catch (err) {
       console.error("Lỗi khi lấy danh sách khóa học:", err);
       res.status(500).send("Lỗi khi lấy danh sách khóa học");
     }
   }
 
-  // Thêm khóa học
+  // Thêm học phần vào bảng điểm
   async addCourseToScore(req, res) {
+    const { HocPhan, gioHoc, thu } = req.body;
+    console.log('Body:', req.body); // <--- thêm dòng này
     try {
-      const { courseId } = req.body;
-  
-      const course = await Course.findById(courseId);
+      // Kiểm tra học phần có tồn tại không
+      const course = await Course.findById(HocPhan);
       if (!course) {
-        return res.status(404).json({ message: 'Không tìm thấy học phần!' });
+        return res.status(404).json({ message: 'Không tìm thấy học phần.' });
       }
-  
-      // Tạo Score mặc định, bạn có thể thay đổi logic tính điểm tuỳ ý
-      const score = new Score({
-        HocPhan: course._id,
-        diemSo: '',
-        diemChu: ''
-      });
-  
-      await score.save();
-  
-      return res.status(200).json({ message: 'Thêm học phần thành công!', score });
-    } catch (err) {
-      console.error('Lỗi khi thêm học phần vào bảng điểm:', err);
-      return res.status(500).json({ message: 'Lỗi máy chủ!' });
-    }
-    
-  }
 
-  // Xóa khóa học
-  async deleteCourse(req, res) {
-    try {
-      const { id } = req.params;
-      await Course.findByIdAndDelete(id);
-      res.redirect('/course');
+      // Tạo mới một điểm và lưu vào cơ sở dữ liệu
+      const newScore = new Score({ HocPhan, gioHoc, thu });
+      await newScore.save();
+
+      // Trả về thông báo thành công
+      res.json({ message: '✅ Thêm học phần thành công!' });
     } catch (error) {
-      console.error(error);
-      res.status(500).send('Lỗi khi xóa khóa học');
+      console.error('Lỗi khi thêm học phần vào bảng điểm:', error);
+      res.status(500).json({ message: 'Lỗi server!' });
     }
   }
-
-  // Cập nhật tiến độ
-  async updateCourse(req, res) {
-    try {
-        const { id } = req.params;
-        const { courseName, instructor, tinchi } = req.body;
-        await Course.findByIdAndUpdate(id, { courseName, instructor, tinchi });
-        res.redirect('/course');
-    } catch (error) {
-        console.error('Lỗi khi cập nhật khóa học:', error);
-        res.status(500).send('Lỗi khi cập nhật khóa học');
-    }
-    }
 }
 
 module.exports = new CourseController();
