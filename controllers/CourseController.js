@@ -42,6 +42,7 @@ class CourseController {
 
       // Trả về thông báo thành công
       res.json({ message: '✅ Thêm học phần thành công!' });
+      
     } catch (error) {
       console.error('Lỗi khi thêm học phần vào bảng điểm:', error);
       res.status(500).json({ message: 'Lỗi server!' });

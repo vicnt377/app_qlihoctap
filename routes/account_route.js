@@ -1,12 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const accountController = require('../controllers/AccountCotroller')
-const multer = require('multer')
-const path = require('path')
-const User = require('../models/User')
+const accountController = require('../controllers/AccountController')
 
-
-router.get('/account', accountController.index)
-router.post('/account/update', accountController.updateProfile)
+router.get('/', accountController.index);
+router.post('/update', accountController.updateProfile);
 
 module.exports = router

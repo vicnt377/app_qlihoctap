@@ -7,6 +7,7 @@ const session = require('express-session')
 const flash = require('connect-flash')
 const eflash = require('express-flash')
 const bodyParser = require('body-parser')
+const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
 const mongoose = require ('mongoose')
 
@@ -28,6 +29,7 @@ app.use('/img', express.static(path.join(__dirname, 'public/img')))
 
 app.engine('.hbs', engine({
   extname: '.hbs',
+  handlebars: allowInsecurePrototypeAccess(handlebars),
   helpers: {
     shortId: function (id) {
         return id ? id.toString().slice(-4) : ''

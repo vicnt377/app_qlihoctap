@@ -3,7 +3,8 @@ const router = express.Router()
 const semesterController = require('../controllers/SemesterController')
 const scoreController = require('../controllers/ScoreController')
 
-// router.get('/semester', semesterController.getSemester);
-router.post('/:semesterId/add-score', semesterController.addScoreToSemester);
+
+router.get('/', semesterController.getClass)
+router.post('/add', semesterController.addNewSemester);
 
 module.exports = router

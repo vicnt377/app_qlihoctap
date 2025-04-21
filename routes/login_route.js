@@ -2,8 +2,8 @@ const express = require('express')
 const router = express.Router()
 const loginController = require('../controllers/LoginController')
 
-router.get('/login', loginController.index)
-router.post('/login', loginController.login)
+router.get('/', loginController.index)
+router.post('/', loginController.login)
 
 router.get('/logout', loginController.logout)
 

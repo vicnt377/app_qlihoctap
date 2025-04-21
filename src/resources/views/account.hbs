@@ -37,19 +37,19 @@
             <form action="/account/update" method="POST">
                 <div class="mb-3">
                     <label for="username" class="form-label"><i class="fas fa-user"></i> Tên người dùng</label>
-                    <input type="text" class="form-control" id="username" value="{{user.username}}">
+                    <input type="text" class="form-control" id="username" name="username" value="{{user.username}}">
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label"><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" class="form-control" id="email" value="{{user.email}}">
+                    <input type="email" class="form-control" id="email" name="email" value="{{user.email}}">
                 </div>
                 <div class="mb-3">
                     <label for="phone" class="form-label"><i class="fas fa-phone"></i> Số điện thoại</label>
-                    <input type="text" class="form-control" id="phone" value="{{user.phone}}">
+                    <input type="text" class="form-control" id="phone" name="phone" value="{{user.phone}}">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label"><i class="fas fa-lock"></i> Mật khẩu mới</label>
-                    <input type="password" class="form-control" id="password">
+                    <input type="password" class="form-control" id="password" name="password">
                 </div>
                 <div class="form-button">
                     <button type="submit" class="btn btn-primary "> 💾Lưu </button>
