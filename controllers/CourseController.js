@@ -5,49 +5,72 @@ class CourseController {
   // Lấy danh sách khóa học
   async getCourses(req, res) {
     try {
+      if (!req.session.user) {
+        return res.status(401).send('Bạn chưa đăng nhập!');
+      }
+  
+      const userId = req.session.user._id;
+  
       // Lấy tất cả các khóa học
       const courses = await Course.find();
-
-      // Lấy danh sách các học phần đã có trong bảng điểm (Score)
-      const scores = await Score.find({}, 'HocPhan').lean();
+  
+      // Lấy danh sách học phần đã đăng ký của user hiện tại
+      const scores = await Score.find({ username: userId }, 'HocPhan').lean();
       const existingCourseIds = scores.map(score => String(score.HocPhan));
-
-      // Truyền các dữ liệu cần thiết vào template
+  
       res.render('course', {
         courses,
         coursesJSON: JSON.stringify(courses),
         existingCourseIdsJSON: JSON.stringify(existingCourseIds),
       });
-
+  
     } catch (err) {
       console.error("Lỗi khi lấy danh sách khóa học:", err);
       res.status(500).send("Lỗi khi lấy danh sách khóa học");
     }
   }
+  
 
   // Thêm học phần vào bảng điểm
   async addCourseToScore(req, res) {
-    const { HocPhan, gioHoc, thu } = req.body;
-    console.log('Body:', req.body); // <--- thêm dòng này
     try {
-      // Kiểm tra học phần có tồn tại không
+      const { HocPhan, gioHoc, thu, diemSo, diemChu } = req.body;
+      console.log('Body:', req.body);
+  
+      const userId = req.user?._id || req.session?.user?._id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
+      }
+  
+      // Kiểm tra học phần có tồn tại
       const course = await Course.findById(HocPhan);
       if (!course) {
         return res.status(404).json({ message: 'Không tìm thấy học phần.' });
       }
-
-      // Tạo mới một điểm và lưu vào cơ sở dữ liệu
-      const newScore = new Score({ HocPhan, gioHoc, thu });
+  
+      // Tạo Score mới
+      const newScore = new Score({
+        HocPhan,
+        gioHoc,
+        thu,
+        diemSo: diemSo ? parseFloat(diemSo) : null,
+        diemChu: diemChu || '',
+        username: userId
+      });
+  
       await newScore.save();
-
-      // Trả về thông báo thành công
-      res.json({ message: '✅ Thêm học phần thành công!' });
-      
+  
+      res.json({ message: '✅ Thêm học phần thành công! Bạn có thể thêm học phần vào học kỳ mới!!!' });
+  
     } catch (error) {
       console.error('Lỗi khi thêm học phần vào bảng điểm:', error);
       res.status(500).json({ message: 'Lỗi server!' });
     }
   }
+
+
+  
+  
 }
 
 module.exports = new CourseController();

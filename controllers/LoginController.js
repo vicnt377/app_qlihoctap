@@ -45,7 +45,7 @@ class LoginController {
             req.session.userId = user._id;
             console.log("Lưu session:", req.session.user);
     
-            res.redirect("/account");
+            res.redirect("/home");
         } catch (error) {
             console.error("Lỗi server:", error);
             res.status(500).send("Lỗi máy chủ!");

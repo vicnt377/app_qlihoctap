@@ -6,4 +6,6 @@ router.get('/', courseController.getCourses)
 router.post('/add-course', courseController.addCourseToScore);
 
 
+
+
 module.exports = router

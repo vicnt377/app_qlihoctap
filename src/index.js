@@ -19,8 +19,6 @@ db.connect()
 
 app.use(morgan('combined'))
 
-app.use(bodyParser.urlencoded({ extended: true }))
-
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/img', express.static(path.join(__dirname, 'public/img')))
@@ -35,7 +33,8 @@ app.engine('.hbs', engine({
         return id ? id.toString().slice(-4) : ''
     },
     eq: (a, b) => a === b,
-    ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this))
+    ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
+    default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback
 }
 }))
 app.set('view engine', '.hbs') 

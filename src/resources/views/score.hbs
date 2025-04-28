@@ -1,124 +1,166 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <h2 class="dashboard-title mb-4">🎓 Kết quả học tập</h2>
-<main class="col-md-9 col-lg-10 content">
-            <form method="GET" action="/score" class="row g-3 mb-4">
-                <div class="col-md-4">
-                        <select name="year" class="form-select">
-                            <option value="Tất cả" {{#if (eq selectedYear 'Tất cả')}}selected{{/if}}>Tất cả</option>
-                            {{#each years}}
-                                <option value="{{this}}" {{#if (eq ../selectedYear this)}}selected{{/if}}>{{this}}</option>
-                            {{/each}}
-                        </select>
-                </div>
-                <div class="col-md-4">
-                        <select name="semester" class="form-select">
-                            <option value="Tất cả" {{#if (eq selectedSemester 'Tất cả')}}selected{{/if}}>Tất cả</option>
-                            {{#each semestersList}}
-                                <option value="{{this}}" {{#if (eq ../selectedSemester this)}}selected{{/if}}>{{this}}</option>
-                            {{/each}}
-                        </select>
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary"> 🔍 </button>
-                </div>
+<main class="row g-3 mb-4">
+    <form method="GET" action="/score" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <select name="year" class="form-select">
+                <option value="Tất cả" {{#if (eq selectedYear 'Tất cả')}}selected{{/if}}>Tất cả</option>
+                    {{#each years}}
+                        <option value="{{this}}" {{#if (eq ../selectedYear this)}}selected{{/if}}>{{this}}</option>
+                    {{/each}}
+                </select>
+        </div>
+        <div class="col-md-4">
+            <select name="semester" class="form-select">
+                <option value="Tất cả" {{#if (eq selectedSemester 'Tất cả')}}selected{{/if}}>Tất cả</option>
+                    {{#each semestersList}}
+                        <option value="{{this}}" {{#if (eq ../selectedSemester this)}}selected{{/if}}>{{this}}</option>
+                    {{/each}}
+                </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary"> 🔍 </button>
+        </div>
 
-            </form>
+    </form>
+
+    <!-- Cột Tổng Kết Toàn Khóa (Chiếm 30% chiều rộng) -->
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h5>📌 Tổng Kết Toàn Khoá</h5>
+            <p><strong>Trung Bình Tích Lũy:</strong><span class="badge bg-info"> {{cumulative}}</span></p>
+            <p><strong>Xếp loại học lực:</strong><span class="badge bg-warning text-dark"> {{hocLuc}}</span></p>
+        </div>
+    </div>
+
+    <!-- Cột Bảng Điểm (Chiếm 70% chiều rộng) -->
+    <div class="col-md-8">
         <div class="card p-4">
             {{#each semesters}}
-            <h4 style="color:#0D6EFD">{{tenHocKy}} - {{namHoc}}</h4>
-            <table class="table table-bordered" data-semester>
-                <thead>
-                    <tr>
-                        <th>Mã Học Phần</th>
-                        <th>Tên Học Phần</th>
-                        <th>Số Tín Chỉ</th>
-                        <th>Điểm Số</th>
-                        <th>Điểm Chữ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each score}}
-                    <tr>
-                        <td>{{HocPhan.maHocPhan}}</td>
-                        <td>{{HocPhan.tenHocPhan}}</td>
-                        <td>{{HocPhan.soTinChi}}</td>
-                        <td>{{diemSo}}</td>
-                        <td>{{diemChu}}</td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
+            <h4 style="color: #17a2b8">{{tenHocKy}} - {{namHoc}}</h4>
+            <form method="POST" action="/score/update">
+                <table class="table table-bordered" data-semester>
+                    <thead>
+                        <tr>
+                            <th>Mã Học Phần</th>
+                            <th>Tên Học Phần</th>
+                            <th>Số Tín Chỉ</th>
+                            <th>Điểm Số</th>
+                            <th>Điểm Chữ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each score}}
+                        <tr>
+                            <td>{{HocPhan.maHocPhan}}</td>
+                            <td>{{HocPhan.tenHocPhan}}</td>
+                            <td>{{HocPhan.soTinChi}}</td>
+                            <td>
+                                <input type="number" step="0.1" min="0" max="10" name="scores[{{_id}}][diemSo]" class="form-control" value="{{default diemSo 0}}">
+                            </td>
+                            <td>
+                                <input type="text" name="scores[{{_id}}][diemChu]" class="form-control" value="{{diemChu}}">
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-success mt-2">💾 Lưu điểm</button>
+            </form>
             {{/each}}
-
-            <div class="mt-4 p-3 bg-light text-dark rounded">
-                <h5>📌 Tổng Kết</h5>
-                <p><strong>Trung Bình Học Kỳ (GPA):</strong> <span id="gpaDisplay">--</span></p>
-                <p><strong>Trung Bình Tích Lũy:</strong> <span id="cumulativeDisplay">--</span></p>
-            </div>
         </div>
+    </div>
 </main>
 
+<script>
+    function convertDiemSoToDiemChu(diemSo) {
+        const score = parseFloat(diemSo);
+        if (isNaN(score)) return '';
+
+        if (score >= 9.0) return 'A';
+        if (score >= 8.0) return 'B+';
+        if (score >= 7.0) return 'B';
+        if (score >= 6.0) return 'C+';
+        if (score >= 5.0) return 'C';
+        if (score >= 4.0) return 'D';
+        return 'F';
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('input[name^="scores"][name$="[diemSo]"]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const scoreInput = e.target;
+                const diemChuInput = scoreInput.closest('tr').querySelector('input[name$="[diemChu]"]');
+
+                const diemSo = scoreInput.value;
+                diemChuInput.value = convertDiemSoToDiemChu(diemSo);
+            });
+        });
+    });
+</script>
 {{!-- <script>
-    // Hàm parseFloatSafe để chuyển đổi giá trị sang số thực an toàn
     function parseFloatSafe(val) {
         const num = parseFloat(val);
         return isNaN(num) ? 0 : num;
     }
 
-    // Hàm chuyển đổi điểm số sang hệ điểm 4
     function convertTo4Scale(diemSo) {
         if (diemSo >= 9) return 4.0;
         if (diemSo >= 8) return 3.5;
         if (diemSo >= 7) return 3.0;
         if (diemSo >= 6) return 2.5;
         if (diemSo >= 5) return 2.0;
-        if (diemSo >= 4) return 1.5;
-        if (diemSo >= 3) return 1.0;
+        if (diemSo >= 4) return 1.0;
         return 0.0;
     }
 
-    // Hàm tính GPA và TBTL
     function calculateGPAandCumulative() {
         const semesterTables = document.querySelectorAll('table[data-semester]');
         
-        // === Tính GPA cho học kỳ cuối ===
         let gpaCredits = 0, gpaPoints = 0;
+        let totalCredits = 0, totalPoints = 0;
 
-        semesterTables.forEach(table => {
+        semesterTables.forEach((table, index) => {
             const rows = table.querySelectorAll('tbody tr');
+
+            let semCredits = 0, semPoints = 0;
 
             rows.forEach(row => {
                 const tinChi = parseFloatSafe(row.children[2]?.textContent.trim());
-                const diemSo = parseFloatSafe(row.children[3]?.textContent.trim());
-                const diem4 = convertTo4Scale(diemSo); // Chuyển đổi điểm số sang điểm hệ 4
-                gpaCredits += tinChi;
-                gpaPoints += tinChi * diem4;
+                const diemSo = parseFloatSafe(row.querySelector('input[name$="[diemSo]"]')?.value || row.children[3]?.textContent.trim());
+                const diem4 = convertTo4Scale(diemSo);
+
+                semCredits += tinChi;
+                semPoints += diem4 * tinChi;
             });
+
+            // GPA for this semester (last rendered is assumed to be latest)
+            if (index === semesterTables.length - 1) {
+                gpaCredits = semCredits;
+                gpaPoints = semPoints;
+            }
+
+            totalCredits += semCredits;
+            totalPoints += semPoints;
         });
 
         const gpa = gpaCredits > 0 ? (gpaPoints / gpaCredits).toFixed(2) : "0.00";
-        document.getElementById("gpaDisplay").innerText = gpa;
-
-        // === Tính Trung Bình Tích Lũy ===
-        let totalCredits = 0, totalPoints = 0;
-
-        semesterTables.forEach(table => {
-            const rows = table.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const tinChi = parseFloatSafe(row.children[2]?.textContent.trim());
-                const diemSo = parseFloatSafe(row.children[3]?.textContent.trim());
-                const diem4 = convertTo4Scale(diemSo); // Chuyển đổi điểm số sang điểm hệ 4
-                totalCredits += tinChi;
-                totalPoints += tinChi * diem4;
-            });
-        });
-
         const cumulative = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+
+        document.getElementById("gpaDisplay").innerText = gpa;
         document.getElementById("cumulativeDisplay").innerText = cumulative;
     }
 
-    // Chạy hàm tính GPA và TBTL khi DOM đã load
-    document.addEventListener("DOMContentLoaded", calculateGPAandCumulative);
+    document.addEventListener("DOMContentLoaded", () => {
+        calculateGPAandCumulative();
+
+        // Tự động cập nhật GPA & TBTL khi chỉnh điểm
+        document.querySelectorAll('input[name^="scores"][name$="[diemSo]"]').forEach(input => {
+            input.addEventListener('input', () => {
+                calculateGPAandCumulative();
+            });
+        });
+    });
 </script> --}}
 
 

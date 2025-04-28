@@ -5,8 +5,15 @@
     <div class="col-md-6">
       <div class="card p-4 mb-4">
         <h5 style="color: black;">🎯 Tổng số tín chỉ đã hoàn thành:</h5>
-        <p><strong>{{totalCredits}} / 156 tín chỉ</strong></p>
+        <p><strong>{{totalCredits}} / 152 tín chỉ</strong></p>
+
+        {{#if totalCreditsExceeded}}
+          <div class="alert alert-warning mt-2" role="alert">
+            ⚠️ Số tín chỉ vượt quá giới hạn cho phép!
+          </div>
+        {{/if}}
       </div>
+
 
       <div class="card p-4 mb-4">
         <h5 style="color: black;">❌ Danh sách môn bị nợ (điểm F)</h5>
@@ -31,7 +38,7 @@
         <ul class="list-group overflow-auto" style="max-height: 400px;">
           {{#each scores}}
             <li class="list-group-item">
-              ✅ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ | Điểm: {{diemSo}} ({{diemChu}})
+              ✅ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ 
             </li>
           {{/each}}
         </ul>

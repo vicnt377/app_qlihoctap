@@ -90,55 +90,52 @@
   const addScoreModalElement = document.getElementById('addScoreModal');
   const addScoreModal = new bootstrap.Modal(addScoreModalElement);
 
-  function renderTablePage(page) {
-    const start = (page - 1) * rowsPerPage;
-    const tbody = document.getElementById('courseBody');
-    tbody.innerHTML = '';
+function renderTablePage(page) {
+  const start = (page - 1) * rowsPerPage;
+  const tbody = document.getElementById('courseBody');
+  tbody.innerHTML = '';
 
-    const filteredCourses = allCourses.filter(course => 
-      !existingCourseIds.includes(String(course._id))
-    );
+  const paginatedCourses = allCourses.slice(start, start + rowsPerPage);
 
-    const paginatedCourses = filteredCourses.slice(start, start + rowsPerPage);
+  paginatedCourses.forEach((course, index) => {
+    const daThem = existingCourseIds.includes(String(course._id));
+    const actionCell = daThem
+      ? '<span class="text-success fw-bold">✅ Đã thêm</span>'
+      : `<button class="btn btn-sm btn-primary" onclick="openAddScoreModal('${course._id}', '${course.tenHocPhan}')">
+          <i class="fas fa-plus"></i>
+        </button>`;
 
-    paginatedCourses.forEach((course, index) => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${start + index + 1}</td>
-          <td>${course.maHocPhan}</td>
-          <td>${course.tenHocPhan}</td>
-          <td>${course.soTinChi}</td>
-          <td>
-            <button class="btn btn-sm btn-primary" onclick="openAddScoreModal('${course._id}', '${course.tenHocPhan}')">
-              <i class="fas fa-plus"></i>
-            </button>
-          </td>
-        </tr>
-      `;
-    });
+    tbody.innerHTML += `
+      <tr>
+        <td>${start + index + 1}</td>
+        <td>${course.maHocPhan}</td>
+        <td>${course.tenHocPhan}</td>
+        <td>${course.soTinChi}</td>
+        <td>${actionCell}</td>
+      </tr>
+    `;
+  });
 
-    document.getElementById('pageIndicator').innerText =
-      `${page} / ${Math.ceil(filteredCourses.length / rowsPerPage)}`;
+  document.getElementById('pageIndicator').innerText =
+    `${page} / ${Math.ceil(allCourses.length / rowsPerPage)}`;
+}
+
+
+function nextPage() {
+  const totalPages = Math.ceil(allCourses.length / rowsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderTablePage(currentPage);
   }
+}
 
-  function prevPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      renderTablePage(currentPage);
-    }
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderTablePage(currentPage);
   }
+}
 
-  function nextPage() {
-    const filteredCourses = allCourses.filter(course =>
-      !existingCourseIds.includes(String(course._id))
-    );
-    const totalPages = Math.ceil(filteredCourses.length / rowsPerPage);
-
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderTablePage(currentPage);
-    }
-  }
 
   function openAddScoreModal(courseId, courseName) {
     document.getElementById('modalCourseId').value = courseId;
@@ -164,6 +161,7 @@
 
       const result = await response.json();
       alert(result.message);
+      existingCourseIds.push(courseId);
 
       addScoreModal.hide();
       renderTablePage(currentPage);
@@ -174,6 +172,51 @@
 
   // Khởi tạo trang đầu tiên khi load
   renderTablePage(currentPage);
+</script>
+{{!-- Tim kiem hoc phan --}}
+<script>
+  const searchInput = document.getElementById('searchInput');
+
+  searchInput.addEventListener('input', () => {
+    const keyword = searchInput.value.toLowerCase();
+
+    // Lọc lại danh sách học phần theo từ khóa
+    const filteredCourses = allCourses.filter(course => {
+      return course.tenHocPhan.toLowerCase().includes(keyword) ||
+             course.maHocPhan.toLowerCase().includes(keyword);
+    });
+
+    // Render lại bảng với kết quả tìm kiếm
+    renderFilteredCourses(filteredCourses);
+  });
+
+  function renderFilteredCourses(courses) {
+    const tbody = document.getElementById('courseBody');
+    tbody.innerHTML = '';
+
+    courses.slice(0, rowsPerPage).forEach((course, index) => {
+      const daThem = existingCourseIds.includes(String(course._id));
+      const actionCell = daThem
+        ? '<span class="text-success fw-bold">✅ Đã thêm</span>'
+        : `<button class="btn btn-sm btn-primary" onclick="openAddScoreModal('${course._id}', '${course.tenHocPhan}')">
+            <i class="fas fa-plus"></i>
+          </button>`;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${course.maHocPhan}</td>
+          <td>${course.tenHocPhan}</td>
+          <td>${course.soTinChi}</td>
+          <td>${actionCell}</td>
+        </tr>
+      `;
+    });
+
+    // Cập nhật chỉ số phân trang khi tìm kiếm
+    document.getElementById('pageIndicator').innerText =
+      `1 / ${Math.ceil(courses.length / rowsPerPage)}`;
+  }
 </script>
 
 
