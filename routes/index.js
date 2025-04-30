@@ -12,6 +12,7 @@ function route(app) {
     app.use('/login', loginRouter);
     app.use('/progress', progressRouter);
     app.use('/home', homeRouter);
+    app.use('/', homeRouter);
     app.use('/course', courseRouter);
     app.use('/account', accountRouter); 
     app.use('/register', registerRouter);
