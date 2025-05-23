@@ -6,9 +6,9 @@ class CourseController {
   async getCourses(req, res) {
     try {
       if (!req.session.user) {
-        return res.status(401).send('Bạn chưa đăng nhập!');
+        return res.render('login');    
       }
-  
+
       const userId = req.session.user._id;
   
       // Lấy tất cả các khóa học
@@ -19,6 +19,7 @@ class CourseController {
       const existingCourseIds = scores.map(score => String(score.HocPhan));
   
       res.render('course', {
+        user: req.session.user,
         courses,
         coursesJSON: JSON.stringify(courses),
         existingCourseIdsJSON: JSON.stringify(existingCourseIds),

@@ -3,12 +3,12 @@ const Score = require('../models/Score');
 class ProgressController {
     async getProgress(req, res) {
         try {
-            if (!req.session.user) {
-                return res.status(401).send('Bạn chưa đăng nhập!');
+            const userId = req.user?._id || req.session?.user?._id;
+            if (!userId) {
+                return res.render('login'); 
             }
     
-            const userId = req.session.user._id;   // lấy _id
-            console.log('User info:', req.session.user);
+            // const userId = req.session.user._id;   // lấy _id
     
             const scores = await Score.find({ username: userId })  // tìm theo ObjectId
                 .populate('HocPhan')
@@ -36,6 +36,7 @@ class ProgressController {
             const totalCreditsExceeded = totalCredits > maxCredits;
     
             res.render('progress', {
+                user: req.session.user,
                 scores,
                 totalCredits,
                 diemChuStats,

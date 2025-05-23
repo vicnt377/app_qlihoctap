@@ -7,7 +7,7 @@ async getClass(req, res) {
     try {
       const userId = req.user?._id || req.session?.user?._id;
       if (!userId) {
-        return res.status(401).send('Bạn chưa đăng nhập');
+        return res.render('login'); 
       }
 
       const year = req.query.year || '2021 - 2022';
@@ -49,6 +49,7 @@ async getClass(req, res) {
         .lean();
 
       res.render('semester', {
+        user: req.session.user,
         classesGroupedBySemester,
         selectedSemester: semester,
         selectedYear: year,
@@ -119,6 +120,7 @@ async getClass(req, res) {
       }];
 
       res.render('semester', {
+        user: req.session.user,
         classesGroupedBySemester,
         selectedSemester: tenHocKy,
         selectedYear: namHoc,

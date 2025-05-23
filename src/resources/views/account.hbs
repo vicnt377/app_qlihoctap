@@ -17,7 +17,8 @@
     <!-- profile -->
     <div class="col-md-4">
         <div class="profile-card text-center">
-            <img src="{{user.avatar}}" alt="Avatar" class="profile-img">
+            <img src="{{user.avatar}}" alt="Avatar" class="profile-img"
+                onerror="this.onerror=null;this.src='/img/avatar.png';"/>
 
             <div class="profile-info">
                 <h3>{{user.username}}</h3>

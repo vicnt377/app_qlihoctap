@@ -28,10 +28,9 @@ class ScoreController {
   async getScore(req, res) {
     try {
       const userId = req.user?._id || req.session?.user?._id;
-      console.log("user hien diem: ", userId);
   
       if (!userId) {
-        return res.status(401).send('Chưa đăng nhập');
+        return res.render('login'); 
       }
   
       const year = req.query.year || '2021 - 2022';
@@ -74,6 +73,7 @@ class ScoreController {
       const hocLuc = xepLoaiHocLuc(gpa);
   
       res.render('score', {
+        user: req.session.user,
         semesters: userSemesters,
         years,
         semestersList,

@@ -1,5 +1,25 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<h2 class="dashboard-title mb-4">🎓 Kết quả học tập</h2>
+
+
+<div class="dashboard-header">
+  <h2 class="dashboard-title mb-0"><i class="fas fa-graduation-cap"></i> Kết Quả Học Tập</h2>
+
+  <div class="user-info position-relative">
+    <img src="{{user.avatar}}" alt="Avatar" class="user-avatar dropdown-toggle"
+         onerror="this.onerror=null;this.src='/img/avatar.png';"
+         id="avatarDropdown" />
+
+    <span class="user-name">{{user.username}}</span>
+
+    <!-- Menu dropdown -->
+    <div class="dropdown-menu-user" id="userMenu">
+      <a href="/account" class="dropdown-item"><i class="fas fa-pen"></i> Chỉnh sửa thông tin</a>
+      <a href="/login/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+    </div>
+  </div>
+</div>
+
+
 <main class="row g-3 mb-4">
     <form method="GET" action="/score" class="row g-3 mb-4">
         <div class="col-md-4">
@@ -98,69 +118,105 @@
         });
     });
 </script>
-{{!-- <script>
-    function parseFloatSafe(val) {
-        const num = parseFloat(val);
-        return isNaN(num) ? 0 : num;
+
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        transition: 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     }
 
-    function convertTo4Scale(diemSo) {
-        if (diemSo >= 9) return 4.0;
-        if (diemSo >= 8) return 3.5;
-        if (diemSo >= 7) return 3.0;
-        if (diemSo >= 6) return 2.5;
-        if (diemSo >= 5) return 2.0;
-        if (diemSo >= 4) return 1.0;
-        return 0.0;
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 15px 20px;
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 24px;
+  }
+
+  .user-name {
+    font-weight: 500;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+  }
+
+  .dropdown-menu-user {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: white;
+    color: #333;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    display: none;
+    min-width: 180px;
+    z-index: 999;
+  }
+
+  .dropdown-menu-user a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .dropdown-menu-user a:hover {
+    background-color: #f2f2f2;
+  }
+</style>
+
+
+<script>
+  const avatar = document.getElementById('avatarDropdown');
+  const menu = document.getElementById('userMenu');
+  const userInfo = avatar.parentElement;
+
+  function isChildOf(parent, child) {
+    while (child) {
+      if (child === parent) return true;
+      child = child.parentElement;
     }
+    return false;
+  }
 
-    function calculateGPAandCumulative() {
-        const semesterTables = document.querySelectorAll('table[data-semester]');
-        
-        let gpaCredits = 0, gpaPoints = 0;
-        let totalCredits = 0, totalPoints = 0;
+  userInfo.addEventListener('mouseover', () => {
+    menu.style.display = 'block';
+  });
 
-        semesterTables.forEach((table, index) => {
-            const rows = table.querySelectorAll('tbody tr');
-
-            let semCredits = 0, semPoints = 0;
-
-            rows.forEach(row => {
-                const tinChi = parseFloatSafe(row.children[2]?.textContent.trim());
-                const diemSo = parseFloatSafe(row.querySelector('input[name$="[diemSo]"]')?.value || row.children[3]?.textContent.trim());
-                const diem4 = convertTo4Scale(diemSo);
-
-                semCredits += tinChi;
-                semPoints += diem4 * tinChi;
-            });
-
-            // GPA for this semester (last rendered is assumed to be latest)
-            if (index === semesterTables.length - 1) {
-                gpaCredits = semCredits;
-                gpaPoints = semPoints;
-            }
-
-            totalCredits += semCredits;
-            totalPoints += semPoints;
-        });
-
-        const gpa = gpaCredits > 0 ? (gpaPoints / gpaCredits).toFixed(2) : "0.00";
-        const cumulative = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-
-        document.getElementById("gpaDisplay").innerText = gpa;
-        document.getElementById("cumulativeDisplay").innerText = cumulative;
+  userInfo.addEventListener('mouseout', (e) => {
+    if (!isChildOf(userInfo, e.relatedTarget)) {
+      menu.style.display = 'none';
     }
+  });
 
-    document.addEventListener("DOMContentLoaded", () => {
-        calculateGPAandCumulative();
+  // Đảm bảo menu không biến mất khi chuột đang ở trong menu
+  menu.addEventListener('mouseover', () => {
+    menu.style.display = 'block';
+  });
 
-        // Tự động cập nhật GPA & TBTL khi chỉnh điểm
-        document.querySelectorAll('input[name^="scores"][name$="[diemSo]"]').forEach(input => {
-            input.addEventListener('input', () => {
-                calculateGPAandCumulative();
-            });
-        });
-    });
-</script> --}}
+  menu.addEventListener('mouseout', (e) => {
+    if (!isChildOf(userInfo, e.relatedTarget)) {
+      menu.style.display = 'none';
+    }
+  });
+</script>
 
 
