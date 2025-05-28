@@ -16,20 +16,32 @@
 <div class="row">
     <!-- profile -->
     <div class="col-md-4">
-        <div class="profile-card text-center">
-            <img src="{{user.avatar}}" alt="Avatar" class="profile-img"
-                onerror="this.onerror=null;this.src='/img/avatar.png';"/>
+    <div class="profile-card text-center">
+        <img src="{{user.avatar}}" alt="Avatar" class="profile-img mb-3"
+            onerror="this.onerror=null;this.src='/img/avatar.png';"/>
 
-            <div class="profile-info">
-                <h3>{{user.username}}</h3>
-                <p><strong>Email:</strong> {{user.email}}</p>
-                <p><strong>Số điện thoại:</strong> {{user.phone}}</p>
-            </div>
-            <div class="form-button">
-                <a href="/login/logout" class="btn btn-custom btnlogout"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a>
-            </div>
+        <!-- Nút chỉnh sửa avatar -->
+        <form action="/account/update" method="POST" enctype="multipart/form-data" class="mb-3">
+        <input type="file" name="avatar" accept="image/*" id="avatarInput" style="display: none;" onchange="this.form.submit()">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('avatarInput').click()">
+            <i class="fas fa-camera"></i> Thay đổi ảnh đại diện
+        </button>
+        </form>
+
+        <div class="profile-info">
+        <h3>{{user.username}}</h3>
+        <p><strong>Email:</strong> {{user.email}}</p>
+        <p><strong>Số điện thoại:</strong> {{user.phone}}</p>
+        </div>
+
+        <div class="form-button">
+        <a href="/login/logout" class="btn btn-custom btnlogout">
+            <i class="fas fa-sign-out-alt"></i> Đăng Xuất
+        </a>
         </div>
     </div>
+    </div>
+
 
     <!-- edit profile -->
     <div class="col-md-8">

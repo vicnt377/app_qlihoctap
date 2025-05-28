@@ -8,7 +8,6 @@
 
     <span class="user-name">{{user.username}}</span>
 
-    <!-- Menu dropdown -->
     <div class="dropdown-menu-user" id="userMenu">
       <a href="/account" class="dropdown-item"><i class="fas fa-pen"></i> Chỉnh sửa thông tin</a>
       <a href="/login/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
@@ -16,14 +15,14 @@
   </div>
 </div>
 
-
 <main class="container mt-4">
   <div class="row">
-    <!-- Cột bên trái: Tổng tín chỉ & môn nợ -->
+    <!-- Cột bên trái -->
     <div class="col-md-6">
       <div class="card p-4 mb-4">
         <h5 style="color: black;">🎯 Tổng số tín chỉ đã hoàn thành:</h5>
         <p><strong>{{totalCredits}} / 152 tín chỉ</strong></p>
+        <canvas id="creditChart" height="180"></canvas>
 
         {{#if totalCreditsExceeded}}
           <div class="alert alert-warning mt-2" role="alert">
@@ -31,7 +30,6 @@
           </div>
         {{/if}}
       </div>
-
 
       <div class="card p-4 mb-4">
         <h5 style="color: black;">❌ Danh sách môn bị nợ (điểm F)</h5>
@@ -49,7 +47,7 @@
       </div>
     </div>
 
-    <!-- Cột bên phải: Môn đã học -->
+    <!-- Cột bên phải -->
     <div class="col-md-6">
       <div class="card p-4 mb-4">
         <h5 style="color: black;">📚 Danh sách học phần đã học</h5>
@@ -62,17 +60,39 @@
         </ul>
       </div>
     </div>
-
   </div>
 </main>
 
-<style>
-    .hover-shadow:hover {
-        transform: translateY(-5px);
-        transition: 0.3s ease;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    }
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const totalCredits = {{totalCredits}};
+  const remainingCredits = 152 - totalCredits;
 
+  const ctx = document.getElementById('creditChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Đã hoàn thành', 'Còn lại'],
+      datasets: [{
+        label: 'Tín chỉ',
+        data: [totalCredits, remainingCredits],
+        backgroundColor: ['#4CAF50', '#e0e0e0'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+</script>
+
+<style>
   .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -82,10 +102,6 @@
     border-radius: 12px;
     color: white;
     margin-bottom: 24px;
-  }
-
-  .user-name {
-    font-weight: 500;
   }
 
   .user-info {
@@ -127,8 +143,14 @@
   .dropdown-menu-user a:hover {
     background-color: #f2f2f2;
   }
-</style>
 
+  #creditChart {
+    max-width: 260px;
+    max-height: 260px;
+    margin: 0 auto;
+    display: block;
+  }
+</style>
 
 <script>
   const avatar = document.getElementById('avatarDropdown');
@@ -153,7 +175,6 @@
     }
   });
 
-  // Đảm bảo menu không biến mất khi chuột đang ở trong menu
   menu.addEventListener('mouseover', () => {
     menu.style.display = 'block';
   });

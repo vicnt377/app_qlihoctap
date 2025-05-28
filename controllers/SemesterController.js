@@ -42,11 +42,25 @@ async getClass(req, res) {
       const years = await Semester.distinct('namHoc', { username: userId });
       const semestersList = await Semester.distinct('tenHocKy', { username: userId });
       
+// const allScores = await Score.find({ username: userId })
+//   .populate('HocPhan')
+//   .lean();
 
-      // Lấy tất cả các Score của user (cho việc chọn thêm học phần)
-      const allScores = await Score.find({ username: userId })
-        .populate('HocPhan')
-        .lean();
+
+      // 1. Lấy tất cả scoreId đã nằm trong các học kỳ
+      const semesterScores = await Semester.find({ username: userId }).select('score').lean();
+      const usedScoreIds = new Set(
+        semesterScores.flatMap(s => s.score.map(id => id.toString()))
+      );
+
+      // 2. Lấy các Score chưa nằm trong bất kỳ học kỳ nào
+      const allScores = await Score.find({
+        username: userId,
+        _id: { $nin: Array.from(usedScoreIds) }
+      })
+      .populate('HocPhan')
+      .lean();
+
 
       res.render('semester', {
         user: req.session.user,
@@ -119,6 +133,30 @@ async getClass(req, res) {
         )
       }];
 
+      // res.render('semester', {
+      //   user: req.session.user,
+      //   classesGroupedBySemester,
+      //   selectedSemester: tenHocKy,
+      //   selectedYear: namHoc,
+      //   years,
+      //   semestersList,
+      //   scores: [] // Sau khi thêm xong, thường làm trống hoặc reload lại nếu cần
+      // });
+
+      // Lấy tất cả scoreId đã nằm trong các học kỳ
+      const semesterScores = await Semester.find({ username: userId }).select('score').lean();
+      const usedScoreIds = new Set(
+        semesterScores.flatMap(s => s.score.map(id => id.toString()))
+      );
+
+      // Lấy các Score chưa nằm trong bất kỳ học kỳ nào
+      const availableScores = await Score.find({
+        username: userId,
+        _id: { $nin: Array.from(usedScoreIds) }
+      })
+      .populate('HocPhan')
+      .lean();
+
       res.render('semester', {
         user: req.session.user,
         classesGroupedBySemester,
@@ -126,8 +164,9 @@ async getClass(req, res) {
         selectedYear: namHoc,
         years,
         semestersList,
-        scores: [] // Sau khi thêm xong, thường làm trống hoặc reload lại nếu cần
+        scores: availableScores // Chỉ hiển thị các Score chưa được thêm vào bất kỳ học kỳ nào
       });
+
 
     } catch (error) {
       console.error('Lỗi thêm học kỳ:', error);

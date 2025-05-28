@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const path = require('path');
+
 
 class AccountController {
     index(req, res, next) {
@@ -18,7 +20,7 @@ class AccountController {
             }
 
             const userId = req.session.user._id;
-            console.log("Trước khi update - Session ID:", req.session.user._id);
+            
             const { username, email, phone, password } = req.body;
             let updateData = {};
 
@@ -27,7 +29,13 @@ class AccountController {
             if (username) updateData.username = username;
             if (password) updateData.password = password;
 
-            console.log("Update Data:", updateData);
+            if (req.file) {
+                const ext = path.extname(req.file.originalname);
+                const avatarPath = '/img/' + req.session.user._id + ext;
+                updateData.avatar = avatarPath;
+            }
+
+
 
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
@@ -46,8 +54,6 @@ class AccountController {
             };
 
             // Ghi đè session và đảm bảo được lưu
-           
-            console.log("Sau khi update - User:", updatedUser);
             req.session.save(err => {
                 if (err) {
                     console.error('Lỗi khi lưu session:', err);
