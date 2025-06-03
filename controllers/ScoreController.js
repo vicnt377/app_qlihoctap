@@ -72,7 +72,7 @@ class ScoreController {
       const gpa = tongTinChi > 0 ? (tongDiem / tongTinChi) : 0;
       const hocLuc = xepLoaiHocLuc(gpa);
   
-      res.render('score', {
+      res.render('user/score', {
         user: req.session.user,
         semesters: userSemesters,
         years,

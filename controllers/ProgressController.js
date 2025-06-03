@@ -35,7 +35,7 @@ class ProgressController {
     
             const totalCreditsExceeded = totalCredits > maxCredits;
     
-            res.render('progress', {
+            res.render('user/progress', {
                 user: req.session.user,
                 scores,
                 totalCredits,

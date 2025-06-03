@@ -38,7 +38,7 @@ app.engine('.hbs', engine({
 }
 }))
 app.set('view engine', '.hbs') 
-app.set('views',  path.join(__dirname, 'resources/views'))
+app.set('views',  path.join(__dirname, 'resources/views/'))
 
 
 app.use(express.urlencoded({

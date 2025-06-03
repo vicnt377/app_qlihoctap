@@ -62,7 +62,7 @@ async getClass(req, res) {
       .lean();
 
 
-      res.render('semester', {
+      res.render('user/semester', {
         user: req.session.user,
         classesGroupedBySemester,
         selectedSemester: semester,
@@ -157,7 +157,7 @@ async getClass(req, res) {
       .populate('HocPhan')
       .lean();
 
-      res.render('semester', {
+      res.render('user/semester', {
         user: req.session.user,
         classesGroupedBySemester,
         selectedSemester: tenHocKy,

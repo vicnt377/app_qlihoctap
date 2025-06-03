@@ -1,0 +1,172 @@
+<div class="dashboard-header">
+  <h2 class="dashboard-title mb-0"><i class="fas fa-home"></i> Trang Chủ</h2>
+
+  <div class="user-info position-relative">
+    <img src="{{user.avatar}}" alt="Avatar" class="user-avatar dropdown-toggle"
+         onerror="this.onerror=null;this.src='/img/avatar.png';"
+         id="avatarDropdown" />
+
+    <span class="user-name">{{user.username}}</span>
+
+    <!-- Menu dropdown -->
+    <div class="dropdown-menu-user" id="userMenu">
+      <a href="/account" class="dropdown-item"><i class="fas fa-pen"></i> Chỉnh sửa thông tin</a>
+      <a href="/login/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row g-4">
+    <a href="/course" class="col-md-3 col-sm-6 text-decoration-none text-dark">
+        <div class="card p-4 text-center shadow-sm hover-shadow">
+            <div class="icon-box text-primary fs-1"><i class="fas fa-book"></i></div>
+            <h6 class="mt-3">Học Phần</h6>
+        </div>
+    </a>
+
+    <a href="/document" class="col-md-3 col-sm-6 text-decoration-none text-dark">
+        <div class="card p-4 text-center shadow-sm hover-shadow">
+            <div class="icon-box text-warning fs-1"><i class="fas fa-file" style="color: #63E6BE;"></i></div>
+            <h6 class="mt-3">Tài liệu học tập</h6>
+        </div>
+    </a>
+
+    <a href="/progress" class="col-md-3 col-sm-6 text-decoration-none text-dark">
+        <div class="card p-4 text-center shadow-sm hover-shadow">
+            <div class="icon-box text-success fs-1"><i class="fas fa-chart-line"></i></div>
+            <h6 class="mt-3">Tiến Độ Học Tập</h6>
+        </div>
+    </a>
+
+    <a href="/semester" class="col-md-3 col-sm-6 text-decoration-none text-dark">
+        <div class="card p-4 text-center shadow-sm hover-shadow">
+            <div class="icon-box text-danger fs-1"><i class="fas fa-calendar-alt"></i></div>
+            <h6 class="mt-3">Lịch Học</h6>
+        </div>
+    </a>
+
+    <a href="/score" class="col-md-3 col-sm-6 text-decoration-none text-dark">
+        <div class="card p-4 text-center shadow-sm hover-shadow">
+            <div class="icon-box text-warning fs-1"><i class="fas fa-graduation-cap"></i></div>
+            <h6 class="mt-3">Kết Quả Học Tập</h6>
+        </div>
+    </a>
+
+    <a href="/video" class="col-md-3 col-sm-6 text-decoration-none text-dark">
+        <div class="card p-4 text-center shadow-sm hover-shadow">
+            <div class="icon-box text-warning fs-1"><i class="fas fa-video" style="color: #cf4408;"></i></div>
+            <h6 class="mt-3">Các Khóa Học Tham Khảo</h6>
+        </div>
+    </a>
+
+    <a href="/account" class="col-md-3 col-sm-6 text-decoration-none text-dark">
+        <div class="card p-4 text-center shadow-sm hover-shadow">
+            <div class="icon-box text-warning fs-1"><i class="fas fa-user" style="color: #531aff;"></i></div>
+            <h6 class="mt-3">Tài Khoản</h6>
+        </div>
+    </a>
+
+</div>
+
+
+<style>
+  .hover-shadow:hover {
+    transform: translateY(-5px);
+    transition: 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 15px 20px;
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 24px;
+  }
+
+  .user-name {
+    font-weight: 500;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+  }
+
+  .dropdown-menu-user {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: white;
+    color: #333;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    display: none;
+    min-width: 180px;
+    z-index: 999;
+  }
+
+  .dropdown-menu-user a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .dropdown-menu-user a:hover {
+    background-color: #f2f2f2;
+  }
+</style>
+
+
+<script>
+  const avatar = document.getElementById('avatarDropdown');
+  const menu = document.getElementById('userMenu');
+  const userInfo = avatar.parentElement;
+
+  function isChildOf(parent, child) {
+    while (child) {
+      if (child === parent) return true;
+      child = child.parentElement;
+    }
+    return false;
+  }
+
+  userInfo.addEventListener('mouseover', () => {
+    menu.style.display = 'block';
+  });
+
+  userInfo.addEventListener('mouseout', (e) => {
+    if (!isChildOf(userInfo, e.relatedTarget)) {
+      menu.style.display = 'none';
+    }
+  });
+
+  // Đảm bảo menu không biến mất khi chuột đang ở trong menu
+  menu.addEventListener('mouseover', () => {
+    menu.style.display = 'block';
+  });
+
+  menu.addEventListener('mouseout', (e) => {
+    if (!isChildOf(userInfo, e.relatedTarget)) {
+      menu.style.display = 'none';
+    }
+  });
+</script>
+

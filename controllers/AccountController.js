@@ -8,7 +8,7 @@ class AccountController {
             return res.redirect('/login'); 
         }
 
-        res.render('account', {
+        res.render('user/account', {
             user: req.session.user, 
         });
     }

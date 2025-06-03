@@ -7,16 +7,16 @@ class HomeController {
       const userId = req.session.userId;
 
       if (!userId) {
-        return res.redirect('/login');
+        return res.redirect('/login-user');
       }
 
       const user = await User.findById(userId).lean(); // dùng .lean() để dễ render vào Handlebars
 
       if (!user) {
-        return res.redirect('/login');
+        return res.redirect('/login-user');
       }
 
-      res.render('home', { user });
+      res.render('user/home', { user });
     } catch (error) {
       next(error);
     }

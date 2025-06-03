@@ -18,7 +18,7 @@ class CourseController {
       const scores = await Score.find({ username: userId }, 'HocPhan').lean();
       const existingCourseIds = scores.map(score => String(score.HocPhan));
   
-      res.render('course', {
+      res.render('user/course', {
         user: req.session.user,
         courses,
         coursesJSON: JSON.stringify(courses),
@@ -69,9 +69,6 @@ class CourseController {
     }
   }
 
-
-  
-  
 }
 
 module.exports = new CourseController();

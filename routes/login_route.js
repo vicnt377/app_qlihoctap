@@ -9,7 +9,7 @@ router.get('/login-admin', loginController.login_admin)
 router.post('/login-admin', loginController.login)
 
 router.get('/login-user', loginController.login_user)
-router.post('/login', loginController.login)
+router.post('/login-user', loginController.login)
 
 router.get('/logout', loginController.logout)
 
