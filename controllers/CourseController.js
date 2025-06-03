@@ -6,7 +6,7 @@ class CourseController {
   async getCourses(req, res) {
     try {
       if (!req.session.user) {
-        return res.render('login');    
+        return res.render('login',{ layout:'auth' });    
       }
 
       const userId = req.session.user._id;

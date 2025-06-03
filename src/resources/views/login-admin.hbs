@@ -1,9 +1,9 @@
 {{!< auth}}
-    <title>Đăng Nhập - Hệ Thống Quản Lý Tiến Độ Học Tập</title>
+    <title>Admin - Hệ Thống Quản Lý Tiến Độ Học Tập</title>
    
     <style>
         body {
-            background: linear-gradient(150deg, #667eea, #764ba2,  #667eea, #764ba2);
+            background: linear-gradient(150deg, #c5a85f,  #ea9b66, #a2894b,  #e7894b);
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -20,7 +20,7 @@
         .login-header {
             font-size: 26px;
             font-weight: bold;
-            color: #764ba2;
+            color: #ea9b66;
             margin-bottom: 20px;
         }
         .form-control {
@@ -29,7 +29,7 @@
             text-align: center;
         }
         .btn-login {
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #c5a85f,  #ea9b66);
             color: white;
             font-weight: bold;
             border-radius: 25px;
@@ -59,7 +59,7 @@
 <body>
     <div class="login-container">
         <div class="login-header">Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</div>
-        <form method="POST" action="/login">
+        <form method="POST" action="/login-admin">
             {{#if success_msg}}
             <div class="alert alert-success">{{success_msg}}</div>
             {{/if}}
@@ -71,7 +71,7 @@
             {{/if}}
             <div class="mb-3 input-group">
                 <span class="input-group-text"><i class="fas fa-user icon"></i></span>
-                <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập" required>
+                <input type="text" class="form-control" name="username" value="admin" required>
             </div>
             <div class="mb-3 input-group">
                 <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
@@ -79,9 +79,7 @@
             </div>
             <button type="submit" class="btn btn-login w-100">Đăng Nhập</button>
         </form>
-        <div class="login-links">
-            <a href="/register">Đăng ký</a> | <a href="/login/reset-password">Quên mật khẩu?</a>
-        </div>
+    
     </div>
 </body>
 </html>

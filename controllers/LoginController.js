@@ -3,13 +3,21 @@ const User = require('../models/User');
 const { mongooseToObject } = require('../src/util/mongoose');
 
 class LoginController {
-    index(req, res) {
+    re_login(req, res){
+        res.render('re-login', {layout: "auth", error: null });
+    }
+
+    login_admin(req, res) {
+        res.render('login-admin', {layout: "auth", error: null });
+    }
+
+    login_user(req, res) {
         res.render('login', {layout: "auth", error: null });
     }
 
     logout(req, res) {
         req.session.destroy(() => {
-            res.redirect("/login",);
+            res.redirect("/",);
         });
     }
 
@@ -40,12 +48,18 @@ class LoginController {
                 username: user.username,
                 email: user.email,
                 phone: user.phone,
-                avatar: user.avatar
+                avatar: user.avatar,
+                role: user.role
             };
             req.session.userId = user._id;
             console.log("Lưu session:", req.session.user);
     
-            res.redirect("/home");
+            if (user.role === 'admin') {
+                res.redirect('/admin/dashboard');
+            } else {
+                res.redirect('/home');
+            }
+
         } catch (error) {
             console.error("Lỗi server:", error);
             res.status(500).send("Lỗi máy chủ!");

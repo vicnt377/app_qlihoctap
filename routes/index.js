@@ -6,22 +6,19 @@ const courseRouter = require('./course_route')
 const accountRouter = require('./account_route')
 const registerRouter = require ('./register_route')
 const semesterRouter = require ('./semester_route')
+const adminRouter = require('./admin_route');
+
 
 function route(app) {
+    app.use('/', loginRouter);
+    app.use('/admin', adminRouter);
     app.use('/score', scoreRouter);
-    app.use('/login', loginRouter);
     app.use('/progress', progressRouter);
     app.use('/home', homeRouter);
-    app.use('/', homeRouter);
     app.use('/course', courseRouter);
     app.use('/account', accountRouter); 
     app.use('/register', registerRouter);
     app.use('/semester', semesterRouter);
 }
-
-module.exports = route;
-
-
-
 
 module.exports = route;

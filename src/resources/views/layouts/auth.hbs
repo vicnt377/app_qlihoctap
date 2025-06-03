@@ -1,12 +1,53 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title >Admin - Hệ Thống Quản Lý Tiến Độ Học Tập</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-    
+    <style>
+    body {
+        margin: 20px;
+        font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+        background: linear-gradient(150deg, #c5a85f,  #ea9b66, #a2894b,  #e7894b);
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+
+    .content {
+        margin-left: 60px;
+        padding: 20px;
+        transition: margin-left 0.3s;
+    }
+
+    .content.shifted {
+        margin-left: 240px;
+    }
+
+    .card-box {
+      background-color: white;
+      color: #333;
+      border: none;
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    </style>
 </head>
 <body> 
     {{{body}}}
