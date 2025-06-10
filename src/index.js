@@ -23,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/img', express.static(path.join(__dirname, 'public/img')))
 
+app.use('/file', express.static(path.join(__dirname, 'public/file')));
 
 
 app.engine('.hbs', engine({

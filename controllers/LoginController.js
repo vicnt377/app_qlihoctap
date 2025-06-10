@@ -35,12 +35,12 @@ class LoginController {
     
             if (!user) {
                 req.flash('error_msg', 'Tên đăng nhập hoặc mật khẩu không đúng!');
-                return res.redirect('/login');
+                return res.redirect('/login-user');
             }
     
             if (user.password !== password) {
                 req.flash('error_msg', 'Tên đăng nhập hoặc mật khẩu không đúng!');
-                return res.redirect('/login');
+                return res.redirect('/login-user');
             }
     
             req.session.user = {
