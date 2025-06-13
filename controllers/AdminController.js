@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Course = require('../models/Course');
 
 class AdminController {
     async dashboard(req, res) {
@@ -18,12 +19,19 @@ class AdminController {
     }
 
     async courses(req, res) {
+        try {
         const users = await User.find();
+        const courses = await Course.find(); // Lấy tất cả học phần
+
         res.render('admin/courses', {
             user: req.session.user,
             users,
-            layout: 'auth',
+            courses: JSON.stringify(courses), // truyền vào view
+            layout: 'auth'
         });
+        } catch (err) {
+        res.status(500).send('Lỗi server');
+        }
     }
 
     async promoteUser(req, res) {

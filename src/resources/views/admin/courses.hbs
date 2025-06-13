@@ -24,9 +24,117 @@
   </div>
 </nav>
 
-<main>
-    course sẽ hiện ở đây 
+<main class="container mt-4">
+  <h3 class="mb-4">Danh Sách Học Phần</h3>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>STT</th>
+        <th>Mã Học Phần</th>
+        <th>Tên Học Phần</th>
+        <th>Số Tín Chỉ</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody id="courseBody">
+      <!-- Dữ liệu sẽ được JS thêm vào -->
+    </tbody>
+  </table>
+
+  <nav>
+    <ul id="pagination" class="pagination justify-content-center mt-4">
+      <!-- Các nút phân trang sẽ hiện ở đây -->
+    </ul>
+  </nav>
+
 </main>
+
+<script>
+  const courses = {{{courses}}}; // lấy từ server
+  const limit = 5;
+  let currentPage = 1;
+
+  function renderCourses() {
+    const tbody = document.getElementById("courseBody");
+    tbody.innerHTML = "";
+
+    const start = (currentPage - 1) * limit;
+    const end = start + limit;
+    const currentCourses = courses.slice(start, end);
+
+    if (currentCourses.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Không có học phần nào.</td></tr>`;
+    } else {
+      currentCourses.forEach((course, index) => {
+        const row = `<tr class="hover-shadow">
+                      <td>${start + index + 1}</td>
+                      <td>${course.maHocPhan}</td>
+                      <td>${course.tenHocPhan}</td>
+                      <td>${course.soTinChi}</td>
+                      <td>
+                        <button class="btn btn-sm btn-warning me-2" onclick="editCourse('${course._id}')">Sửa</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCourse('${course._id}')">Xóa</button>
+                      </td>
+                    </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+  }
+
+  function nextPage() {
+    const totalPages = Math.ceil(courses.length / limit);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderCourses();
+      renderPagination();
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderCourses();
+      renderPagination();
+    }
+  }
+nnerHTML = "";
+  function renderPagination() {
+    const totalPages = Math.ceil(courses.length / limit);
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
+
+    // Nút Trước
+    const prevLi = document.createElement("li");
+    prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
+    prevLi.innerHTML = `<a class="page-link" href="#">Trước</a>`;
+    prevLi.addEventListener("click", (e) => {
+      e.preventDefault();
+      prevPage();
+    });
+    pagination.appendChild(prevLi);
+
+    // Hiển thị số trang hiện tại
+    const pageInfoLi = document.createElement("li");
+    pageInfoLi.className = "page-item disabled"; // không click được
+    pageInfoLi.innerHTML = `<span class="page-link">Trang ${currentPage} / ${totalPages}</span>`;
+    pagination.appendChild(pageInfoLi);
+
+    // Nút Sau
+    const nextLi = document.createElement("li");
+    nextLi.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
+    nextLi.innerHTML = `<a class="page-link" href="#">Sau</a>`;
+    nextLi.addEventListener("click", (e) => {
+      e.preventDefault();
+      nextPage();
+    });
+    pagination.appendChild(nextLi);
+  }
+
+  renderCourses();
+  renderPagination();
+</script>
+
 
 <style>
   .hover-shadow:hover {
