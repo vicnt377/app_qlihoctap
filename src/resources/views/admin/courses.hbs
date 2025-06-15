@@ -1,57 +1,140 @@
+<!-- Giao diện danh sách học phần với tab học phần & học phần đã xóa -->
 {{!< auth}}
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 rounded">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="/admin/dashboard">Admin Panel</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="adminNavbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link" href="/admin/users">Người Dùng</a>
         </li>
         <li class="nav-item">
-          <a style="color:aliceblue" class="nav-link" href="/admin/courses">Học Phần</a>
+          <a class="nav-link active" href="/admin/courses">Học Phần</a>
         </li>
       </ul>
-      <span class="navbar-text me-3 text-white">
-        {{user.role}}
-      </span>
+      <span class="navbar-text me-3 text-white">{{user.role}}</span>
       <a href="/logout" class="btn btn-outline-light btn-sm btnlogout"><i class="fas fa-sign-out-alt"></i></a>
     </div>
   </div>
 </nav>
 
 <main class="container mt-4">
-  <h3 class="mb-4">Danh Sách Học Phần</h3>
+  <!-- Tabs -->
+  <ul class="nav nav-pills mb-3" id="courseTabs">
+    <li class="nav-item">
+      <a class="nav-link active" id="tab-active" onclick="switchTab('active')">Học Phần</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-deleted" onclick="switchTab('deleted')">Đã Xóa</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="tab-add" onclick="switchTab('add')">Thêm Học Phần</a>
+    </li>
+  </ul>
 
-  <table class="table table-bordered table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>STT</th>
-        <th>Mã Học Phần</th>
-        <th>Tên Học Phần</th>
-        <th>Số Tín Chỉ</th>
-        <th>Hành Động</th>
-      </tr>
-    </thead>
-    <tbody id="courseBody">
-      <!-- Dữ liệu sẽ được JS thêm vào -->
-    </tbody>
-  </table>
+  <!-- Danh sách học phần -->
+  <div id="activeCoursesSection">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>STT</th>
+          <th>Mã Học Phần</th>
+          <th>Tên Học Phần</th>
+          <th>Số Tín Chỉ</th>
+          <th>Hành Động</th>
+        </tr>
+      </thead>
+      <tbody id="courseBody"></tbody>
+    </table>
+    <nav>
+      <ul id="pagination" class="pagination justify-content-center mt-4"></ul>
+    </nav>
+  </div>
 
-  <nav>
-    <ul id="pagination" class="pagination justify-content-center mt-4">
-      <!-- Các nút phân trang sẽ hiện ở đây -->
-    </ul>
-  </nav>
+  <!-- Danh sách học phần đã xóa -->
+  <div id="deletedCoursesSection" style="display: none;">
+    <table class="table table-bordered table-hover">
+      <thead class="table-secondary">
+        <tr>
+          <th>STT</th>
+          <th>Mã Học Phần</th>
+          <th>Tên Học Phần</th>
+          <th>Số Tín Chỉ</th>
+          <th>Khôi Phục</th>
+        </tr>
+      </thead>
+      <tbody id="deletedCourseBody"></tbody>
+    </table>
+  </div>
 
+  <!-- Form thêm học phần -->
+  <div id="addCoursesSection" style="display: none;">
+    <div class="card shadow-sm p-4">
+      <h5 class="card-title mb-4 text-primary text-center">Thêm Học Phần Mới</h5>
+      <form onsubmit="addCourse(event)">
+        <div class="mb-3">
+          <label for="maHocPhan" class="form-label fw-bold">Mã học phần</label>
+          <input type="text" class="form-control" id="maHocPhan" placeholder="VD: CT101" required>
+        </div>
+        <div class="mb-3">
+          <label for="tenHocPhan" class="form-label fw-bold">Tên học phần</label>
+          <input type="text" class="form-control" id="tenHocPhan" placeholder="VD: Nhập môn Công nghệ thông tin" required>
+        </div>
+        <div class="mb-3">
+          <label for="soTinChi" class="form-label fw-bold">Số tín chỉ</label>
+          <input type="number" min="1" class="form-control" id="soTinChi" placeholder="VD: 3" required>
+        </div>
+        <div class="d-flex justify-content-center">
+          <button type="submit" class="btn btn-primary btn-sm px-3">➕ Thêm học phần</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <!-- Modal Sửa -->
+  <div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="editCourseForm" method="POST">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-dark">Sửa Học Phần</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editCourseId" name="id" />
+            <div class="mb-3">
+              <label for="editMaHocPhan" class="form-label text-dark">Mã Học Phần</label>
+              <input type="text" class="form-control" id="editMaHocPhan" name="maHocPhan" required>
+            </div>
+            <div class="mb-3">
+              <label for="editTenHocPhan" class="form-label text-dark">Tên Học Phần</label>
+              <input type="text" class="form-control" id="editTenHocPhan" name="tenHocPhan" required>
+            </div>
+            <div class="mb-3">
+              <label for="editSoTinChi" class="form-label text-dark">Số Tín Chỉ</label>
+              <input type="number" class="form-control" id="editSoTinChi" name="soTinChi" required min="1">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </main>
 
 <script>
-  const courses = {{{courses}}}; // lấy từ server
+  const allCourses = {{{courses}}};
+  let courses = allCourses.filter(c => !c.daXoa);
+  let deletedCourses = allCourses.filter(c => c.daXoa);
   const limit = 5;
   let currentPage = 1;
 
@@ -60,81 +143,216 @@
     tbody.innerHTML = "";
 
     const start = (currentPage - 1) * limit;
-    const end = start + limit;
-    const currentCourses = courses.slice(start, end);
+    const currentCourses = courses.slice(start, start + limit);
 
-    if (currentCourses.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Không có học phần nào.</td></tr>`;
-    } else {
-      currentCourses.forEach((course, index) => {
-        const row = `<tr class="hover-shadow">
-                      <td>${start + index + 1}</td>
-                      <td>${course.maHocPhan}</td>
-                      <td>${course.tenHocPhan}</td>
-                      <td>${course.soTinChi}</td>
-                      <td>
-                        <button class="btn btn-sm btn-warning me-2" onclick="editCourse('${course._id}')">Sửa</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCourse('${course._id}')">Xóa</button>
-                      </td>
-                    </tr>`;
-        tbody.innerHTML += row;
-      });
-    }
+    currentCourses.forEach((course, index) => {
+      tbody.innerHTML += `<tr>
+        <td>${start + index + 1}</td>
+        <td>${course.maHocPhan}</td>
+        <td>${course.tenHocPhan}</td>
+        <td>${course.soTinChi}</td>
+        <td>
+          <button class="btn btn-warning btn-sm me-2" onclick="editCourse('${course._id}')">Sửa</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCourse('${course._id}')">Xóa</button>
+        </td>
+      </tr>`;
+    });
   }
 
-  function nextPage() {
-    const totalPages = Math.ceil(courses.length / limit);
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderCourses();
-      renderPagination();
+  function renderDeletedCourses() {
+    const tbody = document.getElementById("deletedCourseBody");
+    tbody.innerHTML = "";
+
+    if (deletedCourses.length === 0) {
+      tbody.innerHTML = `<tr>
+        <td colspan="5" class="text-center text-muted">Không có học phần đã xóa</td>
+      </tr>`;
+      return;
     }
+    
+    deletedCourses.forEach((course, index) => {
+      tbody.innerHTML += `<tr>
+        <td>${index + 1}</td>
+        <td>${course.maHocPhan}</td>
+        <td>${course.tenHocPhan}</td>
+        <td>${course.soTinChi}</td>
+        <td><button class="btn btn-success btn-sm" onclick="restoreCourse('${course._id}')">Khôi phục</button></td>
+      </tr>`;
+    });
   }
 
-  function prevPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      renderCourses();
-      renderPagination();
-    }
-  }
-nnerHTML = "";
   function renderPagination() {
-    const totalPages = Math.ceil(courses.length / limit);
     const pagination = document.getElementById("pagination");
     pagination.innerHTML = "";
+    const totalPages = Math.ceil(courses.length / limit);
 
-    // Nút Trước
-    const prevLi = document.createElement("li");
-    prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
-    prevLi.innerHTML = `<a class="page-link" href="#">Trước</a>`;
-    prevLi.addEventListener("click", (e) => {
-      e.preventDefault();
-      prevPage();
+    pagination.innerHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+      <a class="page-link" onclick="prevPage()">Trước</a>
+    </li>`;
+
+    pagination.innerHTML += `<li class="page-item disabled">
+      <span class="page-link">Trang ${currentPage} / ${totalPages}</span>
+    </li>`;
+
+    pagination.innerHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+      <a class="page-link" onclick="nextPage()">Sau</a>
+    </li>`;
+  }
+
+  window.switchTab = function(tab) {
+    document.getElementById('activeCoursesSection').style.display = (tab === 'active') ? '' : 'none';
+    document.getElementById('deletedCoursesSection').style.display = (tab === 'deleted') ? '' : 'none';
+    document.getElementById('addCoursesSection').style.display = (tab === 'add') ? '' : 'none';
+
+    document.getElementById('tab-active').classList.toggle('active', tab === 'active');
+    document.getElementById('tab-deleted').classList.toggle('active', tab === 'deleted');
+    document.getElementById('tab-add').classList.toggle('active', tab === 'add');
+
+    if (tab === 'active') {
+      renderCourses();
+      renderPagination();
+    } else if (tab === 'deleted') {
+      renderDeletedCourses();
+    } else if (tab === 'add') {
+      renderCreateCourses();
+    }
+  }
+
+
+  window.editCourse = function(id) {
+    const course = courses.find(c => c._id === id);
+    if (!course) return;
+    document.getElementById('editCourseId').value = course._id;
+    document.getElementById('editMaHocPhan').value = course.maHocPhan;
+    document.getElementById('editTenHocPhan').value = course.tenHocPhan;
+    document.getElementById('editSoTinChi').value = course.soTinChi;
+    new bootstrap.Modal(document.getElementById('editCourseModal')).show();
+  }
+
+  window.restoreCourse = async function(id) {
+    try {
+      const res = await fetch(`/admin/courses/restore/${id}`, { method: 'POST' });
+      if (!res.ok) throw new Error('Restore failed');
+
+      const index = allCourses.findIndex(c => c._id === id);
+      if (index !== -1) {
+        allCourses[index].daXoa = false;
+
+        // Cập nhật lại 2 danh sách từ allCourses
+        deletedCourses = allCourses.filter(c => c.daXoa);
+        courses = allCourses.filter(c => !c.daXoa);
+      }
+
+      renderDeletedCourses();
+      renderCourses();
+      renderPagination();
+    } catch (error) {
+      console.error("Lỗi khi khôi phục học phần:", error);
+    }
+  }
+
+  window.deleteCourse = async function(id) {
+    if (!confirm("Bạn có chắc chắn muốn xóa học phần này không?")) return;
+
+    const res = await fetch(`/admin/courses/delete/${id}`, { method: 'POST' });
+
+    if (res.ok) {
+      const index = courses.findIndex(c => c._id === id);
+      const deleted = courses.splice(index, 1)[0];
+      deleted.daXoa = true;
+      deletedCourses.push(deleted);
+      renderCourses();
+      renderDeletedCourses();
+      renderPagination();
+    } else {
+      alert("Không thể xóa học phần.");
+    }
+  }
+
+function renderCreateCourses() {
+  // Reset form khi vào tab thêm học phần
+  document.getElementById('maHocPhan').value = '';
+  document.getElementById('tenHocPhan').value = '';
+  document.getElementById('soTinChi').value = '';
+}
+
+
+  async function addCourse(event) {
+    event.preventDefault(); // Ngăn reload trang
+
+    const maHocPhan = document.getElementById('maHocPhan').value.trim();
+    const tenHocPhan = document.getElementById('tenHocPhan').value.trim();
+    const soTinChi = parseInt(document.getElementById('soTinChi').value.trim());
+
+    if (!maHocPhan || !tenHocPhan || isNaN(soTinChi)) {
+      alert("Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+
+    try {
+      const res = await fetch('/admin/courses/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maHocPhan, tenHocPhan, soTinChi })
+      });
+
+      if (res.status === 201) {
+        const newCourse = await res.json();
+
+        // Cập nhật danh sách học phần
+        allCourses.push(newCourse);
+        courses.push(newCourse);
+
+        // Reset form
+        document.getElementById('maHocPhan').value = '';
+        document.getElementById('tenHocPhan').value = '';
+        document.getElementById('soTinChi').value = '';
+
+        // Chuyển về tab "Học phần"
+        switchTab('active');
+        renderCourses();
+        renderPagination();
+      } else {
+        const result = await res.json();
+        alert(result.message || 'Thêm học phần thất bại.');
+      }
+    } catch (err) {
+      console.error("Lỗi khi gửi yêu cầu tạo học phần:", err);
+      alert("Có lỗi xảy ra khi gửi yêu cầu.");
+    }
+  }
+
+
+  document.getElementById('editCourseForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('editCourseId').value;
+    const maHocPhan = document.getElementById('editMaHocPhan').value;
+    const tenHocPhan = document.getElementById('editTenHocPhan').value;
+    const soTinChi = document.getElementById('editSoTinChi').value;
+    const res = await fetch(`/admin/courses/edit/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ maHocPhan, tenHocPhan, soTinChi })
     });
-    pagination.appendChild(prevLi);
+    if (res.ok) {
+      const index = courses.findIndex(c => c._id === id);
+      courses[index] = { _id: id, maHocPhan, tenHocPhan, soTinChi };
+      renderCourses();
+      bootstrap.Modal.getInstance(document.getElementById('editCourseModal')).hide();
+    } else {
+      alert('Lỗi khi cập nhật học phần');
+    }
+  });
 
-    // Hiển thị số trang hiện tại
-    const pageInfoLi = document.createElement("li");
-    pageInfoLi.className = "page-item disabled"; // không click được
-    pageInfoLi.innerHTML = `<span class="page-link">Trang ${currentPage} / ${totalPages}</span>`;
-    pagination.appendChild(pageInfoLi);
-
-    // Nút Sau
-    const nextLi = document.createElement("li");
-    nextLi.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
-    nextLi.innerHTML = `<a class="page-link" href="#">Sau</a>`;
-    nextLi.addEventListener("click", (e) => {
-      e.preventDefault();
-      nextPage();
-    });
-    pagination.appendChild(nextLi);
+  function prevPage() { if (currentPage > 1) { currentPage--; renderCourses(); renderPagination(); } }
+  function nextPage() {
+    const totalPages = Math.ceil(courses.length / limit);
+    if (currentPage < totalPages) { currentPage++; renderCourses(); renderPagination(); }
   }
 
   renderCourses();
   renderPagination();
 </script>
-
 
 <style>
   .hover-shadow:hover {
@@ -169,4 +387,6 @@ nnerHTML = "";
 
     }
 
+  .btnlogout { color: red; border: none; padding: 8px 20px; }
+  .btnlogout:hover { color: white; background: #eb2323; }
 </style>
