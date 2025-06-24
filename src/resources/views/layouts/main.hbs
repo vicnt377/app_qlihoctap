@@ -10,21 +10,21 @@
     body {
       margin: 0;
       font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
-      background: linear-gradient(150deg, #667eea, #764ba2,  #667eea, #764ba2);
-      height: 100vh;
-      justify-content: center;
-      align-items: center;
-      color: white;
+      background: url('/img/background/Modern Linktree.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #212529;
     }
+
     .sidebar {
       position: fixed;
       top: 0;
       left: 0;
       height: 100vh;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: #f6f6f6;
       padding-top: 60px;
       transition: width 0.3s;
       z-index: 1000;
+      overflow-x: hidden;
     }
 
     .sidebar.collapsed {
@@ -32,22 +32,23 @@
     }
 
     .sidebar.expanded {
-      width: 240px;
+      width: 220px;
     }
 
     .sidebar a {
-      color: white;
+      color: #005dba;
       padding: 12px 20px;
       display: flex;
       align-items: center;
       gap: 12px;
       font-size: 16px;
-      transition: background 0.3s;
       text-decoration: none;
+      transition: background 0.3s;
     }
 
     .sidebar a:hover {
-      background-color: #495057;
+      color: #f6f6f6;
+      background-color: #005dba;
       border-radius: 8px;
     }
 
@@ -64,6 +65,11 @@
       top: 10px;
       left: 10px;
       z-index: 1100;
+      background-color: #f6f6f6;
+      color: #005dba;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
     }
 
     .content {
@@ -73,27 +79,88 @@
     }
 
     .content.shifted {
-      margin-left: 240px;
+      margin-left: 220px;
     }
 
-    .card-box {
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-radius: 12px;
       background-color: white;
-      color: #333;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 24px;
+    }
+
+    .dashboard-title {
+      color:#005dba ;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #005dba;
+    }
+
+    .dropdown-menu-user {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background-color: white;
+      color: #212529;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      display: none;
+      min-width: 180px;
+      z-index: 999;
+    }
+
+    .dropdown-menu-user a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #212529;
+    }
+
+    .dropdown-menu-user a:hover {
+      background-color: #f1f3f5;
+    }
+
+    .card {
+      background: white;
+      color: #212529;
       border: none;
       border-radius: 15px;
-      padding: 25px;
-      text-align: center;
       transition: transform 0.3s, box-shadow 0.3s;
     }
 
-    .card-box:hover {
+    .card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .card-icon {
-      font-size: 36px;
-      margin-bottom: 10px;
+    .icon-box {
+      font-size: 40px;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4); /* lớp mờ tối */
+      z-index: -1;
     }
 
     @media (max-width: 768px) {
@@ -109,30 +176,61 @@
   </style>
 </head>
 <body>
-  <!-- Toggle Button -->
-  <button class="btn btn-dark toggle-btn" id="toggleSidebar">
-    <i class="fas fa-bars">Quản Lý Học Tập</i>
+  <button class="toggle-btn" id="toggleSidebar">
+    <i class="fas fa-bars me-2"></i> 
   </button>
 
-  <!-- Sidebar -->
-
-  <nav id="sidebar" class="sidebar collapsed  ">
+  <nav id="sidebar" class="sidebar collapsed">
     <a href="/home"><i class="fas fa-home"></i> <span class="sidebar-text">Trang Chủ</span></a>
     <a href="/document"><i class="fas fa-file"></i><span class="sidebar-text">Tài Liệu</span></a>
     <a href="/course"><i class="fas fa-book"></i> <span class="sidebar-text">Học Phần</span></a>
     <a href="/progress"><i class="fas fa-chart-line"></i> <span class="sidebar-text">Tiến Độ</span></a>
     <a href="/semester"><i class="fas fa-calendar-alt"></i> <span class="sidebar-text">Lịch Học</span></a>
     <a href="/score"><i class="fas fa-graduation-cap"></i> <span class="sidebar-text">Kết Quả</span></a>
-    <a href="/video"><i class="fas fa-video"></i> <span class="sidebar-text">Các Khóa Học Tham Khảo</span></a>
+    <a href="/video"><i class="fas fa-video"></i> <span class="sidebar-text">Khóa Học</span></a>
     <a href="/account"><i class="fas fa-user"></i> <span class="sidebar-text">Tài Khoản</span></a>
   </nav>
-
   <!-- Content -->
   <main id="mainContent" class="content">
     {{{body}}}
   </main>
 
   <!-- Script -->
+  <script>
+    const avatar = document.getElementById('avatarDropdown');
+    const menu = document.getElementById('userMenu');
+    const userInfo = avatar.parentElement;
+
+    function isChildOf(parent, child) {
+      while (child) {
+        if (child === parent) return true;
+        child = child.parentElement;
+      }
+      return false;
+    }
+
+    userInfo.addEventListener('mouseover', () => {
+      menu.style.display = 'block';
+    });
+
+    userInfo.addEventListener('mouseout', (e) => {
+      if (!isChildOf(userInfo, e.relatedTarget)) {
+        menu.style.display = 'none';
+      }
+    });
+
+    // Đảm bảo menu không biến mất khi chuột đang ở trong menu
+    menu.addEventListener('mouseover', () => {
+      menu.style.display = 'block';
+    });
+
+    menu.addEventListener('mouseout', (e) => {
+      if (!isChildOf(userInfo, e.relatedTarget)) {
+        menu.style.display = 'none';
+      }
+    });
+  </script>
+
   <script>
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('mainContent');
@@ -144,5 +242,6 @@
       content.classList.toggle('shifted');
     });
   </script>
+
 </body>
 </html>

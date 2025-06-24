@@ -1,9 +1,9 @@
-function checkLogin(req, res, next) {
-    if (req.session && req.session.user) {
-        next(); // Cho phép đi tiếp
-    } else {
-        return res.render('login'); 
-    }
+function isUser(req, res, next) {
+  if (req.session.user && req.session.user.role === 'user') {
+    next();
+  } else {
+    res.render('login', {layout: 'auth'})
+  }
 }
 
-module.exports = { checkLogin };
+module.exports = { isUser };

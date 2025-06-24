@@ -1,19 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const documentController = require('../controllers/DocumentController');
+const documentController = require('../controllers/DocumentController')
+const { isUser } = require('../middlewares/authMiddleware')
 
-router.get('/', documentController.getDocument);
+router.get('/', isUser, documentController.getDocument);
 
 // Giao diện upload
 router.get('/upload', (req, res) => {
-  res.render('user/upload', { user: req.session.user });
-});
+  res.render('user/upload', { user: req.session.user })
+})
 
 // Gọi handleUpload thay vì trực tiếp dùng middleware trong route
-router.post('/upload', (req, res, next) => {
-  documentController.handleUpload(req, res, next);
-});
+router.post('/upload', isUser, documentController.handleUpload)
 
-router.post('/delete/:id', documentController.deleteDocument)
+router.post('/delete/:id',isUser, documentController.deleteDocument)
 
 module.exports = router;

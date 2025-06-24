@@ -1,9 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const progressController = require('../controllers/ProgressController')
-const { checkLogin } = require('../middlewares/authMiddleware');
+const { isUser } = require('../middlewares/authMiddleware');
 
-router.get('/', checkLogin,
-    progressController.getProgress)
+router.get('/', isUser, progressController.getProgress)
 
 module.exports = router

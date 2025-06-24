@@ -1,89 +1,32 @@
-{{!< auth}}
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 rounded">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="/admin/dashboard">Admin Panel</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="adminNavbar">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a style="color:aliceblue" class="nav-link" href="/admin/users">Người Dùng</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/courses">Học Phần</a>
-        </li>
-      </ul>
-      <span class="navbar-text me-3 text-white">
-        {{user.role}}
-      </span>
-      <a href="/logout" class="btn btn-outline-light btn-sm btnlogout"><i class="fas fa-sign-out-alt"></i></a>
-    </div>
-  </div>
-</nav>
-
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Email</th>
-      <th>Phone</th>
-      <th>Vai trò</th>
-      <th>Thao tác</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each users}}
-    <tr>
-      <td>{{this.username}}</td>
-      <td>{{this.email}}</td>
-      <td>{{this.phone}}</td>
-      <td>{{this.role}}</td>
-      <td>
-        {{#if (eq this.role 'user')}}
-        <a href="/admin/promote/{{this._id}}" class="btn btn-sm btn-success">👑 Cấp quyền Admin</a>
-        {{else}}
-        <span class="text-muted">Đã là Admin</span>
-        {{/if}}
-      </td>
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
-
-<style>
-  .hover-shadow:hover {
-    transform: translateY(-5px);
-    transition: 0.3s ease;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  }
-
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.85);
-    padding: 15px 20px;
-    border-radius: 12px;
-    color: white;
-    margin-bottom: 24px;
-  }
-
-  .btnlogout{
-        color: red;
-        border: none;
-        width: auto; 
-        padding: 8px 20px;
-        text-align: center;
-    }
-    .btnlogout:hover{
-        color: rgb(255, 255, 255);
-        background:  #eb2323;
-        display: flex;
-        justify-content: center;
-
-    }
-
-</style>
+{{!< admin}}
+<title>Admin-Users</title>
+<main class="container">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Vai trò</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each users}}
+      <tr>
+        <td>{{this.username}}</td>
+        <td>{{this.email}}</td>
+        <td>{{this.phone}}</td>
+        <td>{{this.role}}</td>
+        <td>
+          {{#if (eq this.role 'user')}}
+          <a href="/admin/promote/{{this._id}}" class="btn btn-sm btn-success">👑 Cấp quyền Admin</a>
+          {{else}}
+          <span class="text-muted">Đã là Admin</span>
+          {{/if}}
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</main>

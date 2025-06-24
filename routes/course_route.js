@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const courseController = require('../controllers/CourseController')
+const { isUser } = require('../middlewares/authMiddleware')
 
-router.get('/', courseController.getCourses)
-router.post('/add-course', courseController.addCourseToScore);
+router.get('/', isUser, courseController.getCourses)
+router.post('/add-course', isUser, courseController.addCourseToScore);
 
 
 

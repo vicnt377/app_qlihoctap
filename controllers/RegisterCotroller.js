@@ -23,7 +23,7 @@ class RegisterController{
 
             // Thêm thông báo thành công
             req.flash('success_msg', 'Đăng ký thành công! Hãy đăng nhập.');
-            res.redirect('/login'); 
+            res.redirect('/login-user'); 
         } catch (error) {
             console.error("Lỗi server:", error);
             res.status(500).send("Lỗi máy chủ!");

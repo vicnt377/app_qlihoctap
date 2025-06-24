@@ -5,7 +5,7 @@ class AdminController {
     async dashboard(req, res) {
         res.render('admin/dashboard', { 
             user: req.session.user,
-            layout: 'auth',
+            layout: 'admin',
         });
     }
 
@@ -16,7 +16,7 @@ class AdminController {
         res.render('admin/users', {
             user: req.session.user,
             users,
-            layout: 'auth',
+            layout: 'admin',
         });
     }
 
@@ -42,7 +42,7 @@ class AdminController {
             user: req.session.user,
             users,
             courses: JSON.stringify(courses), // truyền vào view
-            layout: 'auth'
+            layout: 'admin'
         });
         } catch (err) {
         res.status(500).send('Lỗi server');
@@ -75,7 +75,7 @@ class AdminController {
         } catch (err) {
             res.sendStatus(500);
         }
-        }
+    }
 
     async restoreCourse(req, res) {
         try {
@@ -125,6 +125,13 @@ class AdminController {
         }
     }
 
+//Video--------------------------------------------------------------------------------------------------------------------------------------------------------
+    async getVideos(req, res) {
+        res.render('admin/videos', { 
+            user: req.session.user,
+            layout: 'admin',
+        });
+    }
 }
 
 module.exports = new AdminController();

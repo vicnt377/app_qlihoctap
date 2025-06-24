@@ -16,5 +16,7 @@ router.post('/courses/delete/:id', isAdmin, adminController.deleteCourse)
 router.post('/courses/restore/:id', isAdmin, adminController.restoreCourse)
 router.post('/courses/create', isAdmin, adminController.createCourse)
 
+//Video
+router.get("/videos", isAdmin, adminController.getVideos)
 
 module.exports = router

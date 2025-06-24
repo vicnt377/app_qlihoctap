@@ -11,7 +11,7 @@
     <!-- Menu dropdown -->
     <div class="dropdown-menu-user" id="userMenu">
       <a href="/account" class="dropdown-item"><i class="fas fa-pen"></i> Chỉnh sửa thông tin</a>
-      <a href="/login/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+      <a href="/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
     </div>
   </div>
 </div>
@@ -34,106 +34,3 @@
     {{/each}}
   </div>
 </main>
-
-
-
-
-
-<style>
-  .hover-shadow:hover {
-    transform: translateY(-5px);
-    transition: 0.3s ease;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  }
-
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.85);
-    padding: 15px 20px;
-    border-radius: 12px;
-    color: white;
-    margin-bottom: 24px;
-  }
-
-  .user-name {
-    font-weight: 500;
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
-  }
-
-  .dropdown-menu-user {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background-color: white;
-    color: #333;
-    border-radius: 8px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    display: none;
-    min-width: 180px;
-    z-index: 999;
-  }
-
-  .dropdown-menu-user a {
-    display: block;
-    padding: 10px 15px;
-    text-decoration: none;
-    color: #333;
-  }
-
-  .dropdown-menu-user a:hover {
-    background-color: #f2f2f2;
-  }
-</style>
-
-
-<script>
-  const avatar = document.getElementById('avatarDropdown');
-  const menu = document.getElementById('userMenu');
-  const userInfo = avatar.parentElement;
-
-  function isChildOf(parent, child) {
-    while (child) {
-      if (child === parent) return true;
-      child = child.parentElement;
-    }
-    return false;
-  }
-
-  userInfo.addEventListener('mouseover', () => {
-    menu.style.display = 'block';
-  });
-
-  userInfo.addEventListener('mouseout', (e) => {
-    if (!isChildOf(userInfo, e.relatedTarget)) {
-      menu.style.display = 'none';
-    }
-  });
-
-  // Đảm bảo menu không biến mất khi chuột đang ở trong menu
-  menu.addEventListener('mouseover', () => {
-    menu.style.display = 'block';
-  });
-
-  menu.addEventListener('mouseout', (e) => {
-    if (!isChildOf(userInfo, e.relatedTarget)) {
-      menu.style.display = 'none';
-    }
-  });
-</script>

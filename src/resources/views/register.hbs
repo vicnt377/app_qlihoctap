@@ -1,10 +1,8 @@
 {{!< auth}}
-<title>Đăng Ký - Hệ Thống Quản Lý Tiến Độ Học Tập</title>
+<title>Đăng Ký - Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</title>
 
 <style>
-        
         body {
-            background: linear-gradient(135deg, #667eea, #764ba2, #667eea, #764ba2);
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -26,7 +24,7 @@
         .register-header {
             font-size: 26px;
             font-weight: bold;
-            color: #764ba2;
+            color: #005dba;
             margin-bottom: 20px;
         }
 
@@ -37,7 +35,7 @@
         }
 
         .btn-register {
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: #005dba;
             color: white;
             font-weight: bold;
             border-radius: 25px;
@@ -47,6 +45,8 @@
 
         .btn-register:hover {
             transform: scale(1.05);
+            background: #005dba;
+            color: white;
         }
 
         .register-links {
@@ -55,7 +55,7 @@
         }
 
         .register-links a {
-            color: #667eea;
+            color: #005dba;
             text-decoration: none;
             font-weight: bold;
         }
@@ -84,10 +84,10 @@
                 <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
                 <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
             </div>
-            <button type="submit" class="btn btn-register w-100">Đăng Ký</button>
+            <button type="submit" class="btn btn-register btn-sm px-3">Đăng Ký</button>
         </form>
         <div class="register-links">
-            <a href="/login">Đã có tài khoản? Đăng nhập</a>
+            <a href="/login-user">Đã có tài khoản? Đăng nhập</a>
         </div>
     </div>
 
