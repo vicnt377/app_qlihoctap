@@ -1,23 +1,49 @@
 const User = require('../models/User');
+const Score = require('../models/Score');
 
 class HomeController {
   async index(req, res, next) {
     try {
-      // Giả sử bạn lưu ID người dùng trong session
-      const userId = req.session.userId;
+      const userId = req.session.userId || req.session?.user?._id;
 
       if (!userId) {
         return res.redirect('/login-user');
       }
 
-      const user = await User.findById(userId).lean(); // dùng .lean() để dễ render vào Handlebars
-
+      const user = await User.findById(userId).lean();
       if (!user) {
         return res.redirect('/login-user');
       }
 
-      res.render('user/home', { user });
+      const scores = await Score.find({ username: userId }).populate('HocPhan').lean();
+
+      let totalCredits = 0;
+      const maxCredits = 152;
+      let monNo = [];
+
+      scores.forEach(score => {
+        if (score.HocPhan) {
+          totalCredits += score.HocPhan.soTinChi;
+
+          if (score.diemChu && score.diemChu.toUpperCase() === 'F') {
+            monNo.push(score);
+          }
+        }
+      });
+
+      const totalNoSubjects = monNo.length;
+ 
+      const totalCreditsExceeded = totalCredits > maxCredits;
+
+      res.render('user/home', {
+        user,
+        totalCredits,
+        monNo,
+        totalCreditsExceeded,
+        totalNoSubjects
+      });
     } catch (error) {
+      console.error("Lỗi trang chủ:", error);
       next(error);
     }
   }

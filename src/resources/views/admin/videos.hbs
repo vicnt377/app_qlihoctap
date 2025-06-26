@@ -2,5 +2,183 @@
 <title>Admin-Video</title>
 
 <main class="container">
-    <p>video hereeeeee</p>
+    <div class="dashboard-header">
+        <h2>Quản Lý Video Bài Học</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+            <i class="fas fa-plus"></i> Thêm Video
+        </button>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">STT</th>
+                    <th scope="col">Tiêu đề</th>
+                    <th scope="col">Miêu tả</th>
+                    <th scope="col">URL</th>
+                    <th scope="col">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each videos}}
+                <tr>
+                    <td>{{inc @index}}</td>
+                    <td>{{this.title}}</td>
+                    <td>{{this.description}}</td>
+                    <td>
+                        <a href="https://www.youtube.com/watch?v={{this.youtubeId}}" target="_blank">
+                        {{this.youtubeId}}
+                        </a>
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-sm btn-action"
+                            onclick="openEditModal('{{this._id}}', '{{this.title}}', '{{this.description}}', '{{this.youtubeId}}')">
+                        <i class="fas fa-edit"></i> Sửa
+                        </button>
+                        <button class="btn btn-danger btn-sm btn-action" onclick="confirmDelete('{{this._id}}')">
+                        <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Thêm Video -->
+    <div class="modal fade" id="addVideoModal" tabindex="-1" aria-labelledby="addVideoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 style="color: black" class="modal-title" id="addVideoModalLabel">Thêm Video Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVideoForm">
+                        <div class="mb-3">
+                            <label style="color: black" for="title" class="form-label">Tiêu đề</label>
+                            <input type="text" class="form-control" id="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label style="color: black" for="description" class="form-label">Miêu tả</label>
+                            <input type="text" class="form-control" id="description" required>
+                        </div>
+                        <div class="mb-3">
+                            <label style="color: black" for="youtubeId" class="form-label">URL</label>
+                            <input type="url" class="form-control" id="youtubeId" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sửa Video -->
+        <div class="modal fade" id="editVideoModal" tabindex="-1" aria-labelledby="editVideoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 style="color: black" class="modal-title" id="editVideoModalLabel">Sửa Video</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                <div class="modal-body">
+                    <form id="editVideoForm">
+                        <input type="hidden" id="editVideoId">
+                            <div class="mb-3">
+                                <label style="color: black" for="title" class="form-label">Tiêu đề</label>
+                                <input type="text" class="form-control" id="editTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label style="color: black" for="description" class="form-label">Miêu tả</label>
+                                <input type="text" class="form-control" id="editDescription" required>
+                            </div>
+                            <div class="mb-3">
+                                <label style="color: black" for="youtubeId" class="form-label">URL</label>
+                                <input type="text" class="form-control" id="editYoutubeId" required>
+                            </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
+
+<script>
+  // Gửi request xóa
+  async function confirmDelete(id) {
+    if (confirm("Bạn có chắc muốn xóa video này?")) {
+      try {
+        const res = await fetch(`/admin/videos/delete/${id}`, { method: "POST" });
+        if (res.ok) {
+          location.reload();
+        } else {
+          alert("Xóa thất bại!");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi server!");
+      }
+    }
+  }
+
+  // Hiện modal sửa
+  function openEditModal(id, title, description, youtubeId) {
+    document.getElementById("editVideoId").value = id;
+    document.getElementById("editTitle").value = title;
+    document.getElementById("editDescription").value = description;
+    document.getElementById("editYoutubeId").value = youtubeId;
+    new bootstrap.Modal(document.getElementById("editVideoModal")).show();
+  }
+
+  // Gửi form sửa
+  document.getElementById("editVideoForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const id = document.getElementById("editVideoId").value;
+    const title = document.getElementById("editTitle").value;
+    const description = document.getElementById("editDescription").value;
+    const youtubeId = document.getElementById("editYoutubeId").value;
+
+    try {
+      const res = await fetch(`/admin/videos/edit/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description, youtubeId })
+      });
+      if (res.ok) {
+        location.reload();
+      } else {
+        alert("Lỗi khi cập nhật!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi server!");
+    }
+  });
+
+  // Gửi form thêm
+  document.getElementById("addVideoForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const youtubeId = document.getElementById("youtubeId").value;
+
+    try {
+      const res = await fetch(`/admin/videos/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description, youtubeId })
+      });
+      if (res.ok) {
+        location.reload();
+      } else {
+        alert("Không thể thêm video.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi server!");
+    }
+  });
+</script>

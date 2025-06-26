@@ -30,6 +30,9 @@ app.engine('.hbs', engine({
   extname: '.hbs',
   handlebars: allowInsecurePrototypeAccess(handlebars),
   helpers: {
+    inc: function (value) {
+      return parseInt(value) + 1;
+    },
     shortId: function (id) {
         return id ? id.toString().slice(-4) : ''
     },
