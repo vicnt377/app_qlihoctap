@@ -41,11 +41,6 @@ async getClass(req, res) {
       // Các dữ liệu dropdown
       const years = await Semester.distinct('namHoc', { username: userId });
       const semestersList = await Semester.distinct('tenHocKy', { username: userId });
-      
-// const allScores = await Score.find({ username: userId })
-//   .populate('HocPhan')
-//   .lean();
-
 
       // 1. Lấy tất cả scoreId đã nằm trong các học kỳ
       const semesterScores = await Semester.find({ username: userId }).select('score').lean();
@@ -132,16 +127,6 @@ async getClass(req, res) {
           score.username?.toString() === userId.toString()
         )
       }];
-
-      // res.render('semester', {
-      //   user: req.session.user,
-      //   classesGroupedBySemester,
-      //   selectedSemester: tenHocKy,
-      //   selectedYear: namHoc,
-      //   years,
-      //   semestersList,
-      //   scores: [] // Sau khi thêm xong, thường làm trống hoặc reload lại nếu cần
-      // });
 
       // Lấy tất cả scoreId đã nằm trong các học kỳ
       const semesterScores = await Semester.find({ username: userId }).select('score').lean();

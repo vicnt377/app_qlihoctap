@@ -16,6 +16,7 @@ const adminRouter = require('./admin_route');
 
 function route(app) {
     app.use('/', loginRouter);
+    
     //Admin
     app.use('/admin', adminRouter);
 
