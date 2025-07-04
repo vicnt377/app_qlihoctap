@@ -30,7 +30,7 @@ class ScoreController {
       const userId = req.user?._id || req.session?.user?._id;
   
       if (!userId) {
-        return res.render('login'); 
+        return res.render('auth/login'); 
       }
   
       const year = req.query.year || '2021 - 2022';

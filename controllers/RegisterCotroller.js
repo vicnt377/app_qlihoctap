@@ -3,7 +3,7 @@ const { mongooseToObject } = require('../src/util/mongoose');
 
 class RegisterController{
     index(req, res, next){
-        res.render('register',{ layout: "auth" });
+        res.render('auth/register',{ layout: "auth" });
     }
     async register(req, res) {
         try {
@@ -14,7 +14,7 @@ class RegisterController{
             const existingUser = await User.findOne({ username });
             if (existingUser) {
                 console.log("Tên đăng nhập đã tồn tại!");
-                return res.render('register',  {layout: "auth", error: "Tên đăng nhập đã tồn tại!" });
+                return res.render('auth/register',  {layout: "auth", error: "Tên đăng nhập đã tồn tại!" });
             }
 
             // Lưu người dùng vào database

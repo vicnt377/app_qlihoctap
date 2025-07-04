@@ -12,7 +12,7 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 const mongoose = require ('mongoose')
 
 const app = express()
-const port = 3000
+const port = 3100
 
 const db = require('../config/database/db')
 db.connect()
@@ -65,7 +65,19 @@ app.engine('.hbs', engine({
       return tenHocKy?.includes('1')
         ? `${endYear}-01-31`
         : `${endYear}-06-15`;
+    },
+
+    formatDate: (date) => {
+      const d = new Date(date);
+      return d.toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     }
+
   }
 }));
 

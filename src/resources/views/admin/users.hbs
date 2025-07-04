@@ -1,36 +1,95 @@
 {{!< admin}}
-<title>Admin-Users</title>
+<title>Admin - Quản Lý Học Viên</title>
+
+<div class="dashboard-header">
+  <h3 class="dashboard-title mb-0">Quản Lý Học Viên</h3>
+</div>
 
 <main class="container">
-  <div class="dashboard-header">
-        <h2>Quản Lý Người Dùng</h2>
+  <!-- Thống kê nhanh -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-users fa-2x text-primary"></i>
+          <h6 class="mt-2">Tổng học viên</h6>
+          <p class="fs-5 fw-bold">{{studentStats.total}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-eye fa-2x text-success"></i>
+          <h6 class="mt-2">Hoạt động</h6>
+          <p class="fs-5 fw-bold">{{studentStats.active}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-calendar fa-2x text-warning"></i>
+          <h6 class="mt-2">Đăng ký mới</h6>
+          <p class="fs-5 fw-bold">{{studentStats.newThisMonth}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-trophy fa-2x text-danger"></i>
+          <h6 class="mt-2">Tổng đăng ký</h6>
+          <p class="fs-5 fw-bold">{{studentStats.totalEnrollments}}</p>
+        </div>
+      </div>
+    </div>
   </div>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Vai trò</th>
-        <th>Thao tác</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each users}}
-      <tr>
-        <td>{{this.username}}</td>
-        <td>{{this.email}}</td>
-        <td>{{this.phone}}</td>
-        <td>{{this.role}}</td>
-        <td>
-          {{#if (eq this.role 'user')}}
-          <a href="/admin/promote/{{this._id}}" class="btn btn-sm btn-success">👑 Cấp quyền Admin</a>
-          {{else}}
-          <span class="text-muted">Đã là Admin</span>
-          {{/if}}
-        </td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
+
+  <!-- Bảng học viên -->
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Học viên</th>
+          <th>Email</th>
+          <th>Tiến độ</th>
+          <th>Hoàn thành</th>
+          <th>Ngày tham gia</th>
+          <th>Trạng thái</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each students}}
+        <tr>
+          <td>
+            <strong>{{name}}</strong><br />
+            <small class="text-muted">ID: {{_id}}</small>
+          </td>
+          <td>{{email}}</td>
+          <td>{{stats.avgProgress}}%</td>
+          <td>{{stats.completedCourses}}</td>
+          <td>{{formatDate createdAt}}</td>
+          <td>
+            {{#if isActive}}
+              <span class="badge bg-success">Hoạt động</span>
+            {{else}}
+              <span class="badge bg-secondary">Không hoạt động</span>
+            {{/if}}
+          </td>
+          <td>
+            <a href="#" class="btn btn-sm btn-primary">Xem</a>
+            <a href="#" class="btn btn-sm btn-warning">Sửa</a>
+            <form action="/admin/students/{{_id}}/toggle-status?_method=PATCH" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-sm btn-outline-danger">
+                {{#if isActive}}Khóa{{else}}Kích hoạt{{/if}}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 </main>

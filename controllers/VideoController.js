@@ -5,7 +5,7 @@ class VideoController {
     try {
       const userId = req.user?._id || req.session?.user?._id;
       if (!userId) {
-        return res.render('login');
+        return res.render('auth/login');
       }
 
       const videos = await Video.find().sort({ createdAt: -1 });

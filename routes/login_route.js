@@ -4,8 +4,7 @@ const loginController = require('../controllers/LoginController')
 
 router.get('/', loginController.re_login)
 
-router.get('/login-admin', loginController.login_admin)
-router.post('/login-admin', loginController.login)
+
 
 router.get('/login-user', loginController.login_user)
 router.post('/login-user', loginController.login)

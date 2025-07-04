@@ -4,10 +4,13 @@ const adminController = require('../controllers/AdminController')
 const {isAdmin} = require('../middlewares/adminMiddleware');
 
 
+router.get('/login-admin', adminController.login_admin)
+router.post('/login-admin', adminController.login)
+
 router.get("/dashboard",isAdmin, adminController.dashboard)
 //User
-router.get("/users",isAdmin, adminController.users)
-router.get("/promote/:id", isAdmin, adminController.promoteUser)
+router.get("/users",isAdmin, adminController.getUsers)
+
 
 //Course
 router.get("/courses", isAdmin, adminController.getCourses)

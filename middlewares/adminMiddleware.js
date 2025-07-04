@@ -5,4 +5,5 @@ function isAdmin(req, res, next) {
     res.render('login-admin', {layout: 'auth'})
   }
 }
+
 module.exports = { isAdmin };
