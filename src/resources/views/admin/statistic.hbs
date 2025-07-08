@@ -1,0 +1,171 @@
+{{!< admin}}
+<title>Admin - Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</title>
+
+<div class="dashboard-header">
+    <h3 class="dashboard-title mb-0 text-2xl">Báo Cáo - Thống Kê</h3>
+    <div>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+          <i class="fas fa-download"></i> Xuất báo cáo
+      </button>
+    </div>
+</div>
+
+<main class="container">
+    <div class="space-y-8 p-6 bg-gray-50 min-h-screen text-gray-800">
+
+    <!-- Thống kê tổng quan -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Tổng học viên -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
+        <div>
+            <p class="text-2xl font-bold">195</p>
+            <p class="text-sm text-gray-500 mt-1">Tổng học viên</p>
+        </div>
+        <div class="flex flex-col items-end">
+            <div class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-users text-blue-600"></i></div>
+            <span class="text-sm text-green-600 mt-2">+23</span>
+        </div>
+        </div>
+
+        <!-- Tổng khóa học -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
+        <div>
+            <p class="text-2xl font-bold">24</p>
+            <p class="text-sm text-gray-500 mt-1">Tổng khóa học</p>
+        </div>
+        <div class="flex flex-col items-end">
+            <div class="bg-green-100 p-2 rounded-lg"><i class="fas fa-book text-green-600"></i></div>
+            <span class="text-sm text-green-600 mt-2">+3</span>
+        </div>
+        </div>
+
+        <!-- Lượt đăng ký -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
+        <div>
+            <p class="text-2xl font-bold">73</p>
+            <p class="text-sm text-gray-500 mt-1">Lượt đăng ký</p>
+        </div>
+        <div class="flex flex-col items-end">
+            <div class="bg-purple-100 p-2 rounded-lg"><i class="fas fa-chart-line text-purple-600"></i></div>
+            <span class="text-sm text-green-600 mt-2">+15</span>
+        </div>
+        </div>
+
+        <!-- Hoàn thành -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
+        <div>
+            <p class="text-2xl font-bold">58</p>
+            <p class="text-sm text-gray-500 mt-1">Khóa học hoàn thành</p>
+        </div>
+        <div class="flex flex-col items-end">
+            <div class="bg-amber-100 p-2 rounded-lg"><i class="fas fa-trophy text-amber-600"></i></div>
+            <span class="text-sm text-green-600 mt-2">75%</span>
+        </div>
+        </div>
+    </div>
+
+    <!-- Xu hướng đăng ký -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Xu hướng đăng ký</h2>
+        <div class="space-y-2">
+        <!-- Từng dòng T0 -> T5 -->
+        <div class="flex items-center justify-between">
+            <span class="w-10 text-sm font-medium">T0</span>
+            <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
+            <div class="h-2 bg-blue-500 rounded-full" style="width: 40%"></div>
+            </div>
+            <span class="text-sm text-gray-600">45</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="w-10 text-sm font-medium">T1</span>
+            <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
+            <div class="h-2 bg-blue-500 rounded-full" style="width: 50%"></div>
+            </div>
+            <span class="text-sm text-gray-600">52</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="w-10 text-sm font-medium">T2</span>
+            <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
+            <div class="h-2 bg-blue-500 rounded-full" style="width: 58%"></div>
+            </div>
+            <span class="text-sm text-gray-600">61</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="w-10 text-sm font-medium">T3</span>
+            <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
+            <div class="h-2 bg-blue-500 rounded-full" style="width: 62%"></div>
+            </div>
+            <span class="text-sm text-gray-600">68</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="w-10 text-sm font-medium">T4</span>
+            <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
+            <div class="h-2 bg-blue-500 rounded-full" style="width: 80%"></div>
+            </div>
+            <span class="text-sm text-gray-600">87</span>
+        </div>
+        <div class="flex items-center justify-between">
+            <span class="w-10 text-sm font-medium">T5</span>
+            <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
+            <div class="h-2 bg-blue-500 rounded-full" style="width: 70%"></div>
+            </div>
+            <span class="text-sm text-gray-600">73</span>
+        </div>
+        </div>
+    </div>
+
+    <!-- Tiến độ học tập + Tương tác -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Tiến độ học tập -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border text-center">
+        <div class="w-24 h-24 mx-auto bg-blue-50 rounded-full flex items-center justify-center text-2xl font-bold text-blue-600 mb-4">75%</div>
+        <h3 class="font-medium text-gray-900">Tiến độ trung bình</h3>
+        <p class="text-sm text-gray-600">Của tất cả học viên</p>
+        <div class="mt-4 text-sm space-y-1 text-gray-600">
+            <p>Hoàn thành: <strong>58</strong></p>
+            <p>Đang học: <strong>15</strong></p>
+            <p>Tỷ lệ hoàn thành: <strong>75%</strong></p>
+        </div>
+        </div>
+
+        <!-- Mức độ tương tác -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border space-y-4">
+        <div class="flex justify-between">
+            <span class="text-sm text-gray-600">👁️ Lượt xem hàng ngày</span>
+            <span class="font-bold text-gray-900">1,234</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-sm text-gray-600">⏱️ Thời gian học TB</span>
+            <span class="font-bold text-gray-900">2.5h</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-sm text-gray-600">🎯 Tỷ lệ hoàn thành bài tập</span>
+            <span class="font-bold text-gray-900">87%</span>
+        </div>
+        </div>
+    </div>
+
+    <!-- Chỉ số hiệu suất -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white text-center p-6 rounded-xl shadow-sm border">
+        <i class="fas fa-chart-bar text-blue-600 text-3xl mb-2"></i>
+        <h3 class="font-semibold">Tăng trưởng học viên</h3>
+        <p class="text-2xl font-bold text-blue-600 mt-1">+25%</p>
+        <p class="text-sm text-gray-500">So với tháng trước</p>
+        </div>
+        <div class="bg-white text-center p-6 rounded-xl shadow-sm border">
+        <i class="fas fa-bullseye text-green-600 text-3xl mb-2"></i>
+        <h3 class="font-semibold">Tỷ lệ giữ chân</h3>
+        <p class="text-2xl font-bold text-green-600 mt-1">92%</p>
+        <p class="text-sm text-gray-500">Học viên tiếp tục học</p>
+        </div>
+        <div class="bg-white text-center p-6 rounded-xl shadow-sm border">
+        <i class="fas fa-star text-amber-600 text-3xl mb-2"></i>
+        <h3 class="font-semibold">Điểm hài lòng</h3>
+        <p class="text-2xl font-bold text-amber-600 mt-1">4.8/5</p>
+        <p class="text-sm text-gray-500">Đánh giá trung bình</p>
+        </div>
+    </div>
+
+    </div>
+</main>

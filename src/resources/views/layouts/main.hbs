@@ -11,6 +11,9 @@
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v6.5.0/css/all.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
 
   <!-- JS thư viện -->
@@ -20,7 +23,6 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -29,74 +31,20 @@
       background-size: cover;
       color: #212529;
     }
-    button {
-      margin: 3px;
-    }
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      background-color: #f6f6f6;
-      padding-top: 60px;
-      transition: width 0.3s;
-      z-index: 1000;
-      overflow-x: hidden;
-    }
 
-    .sidebar.collapsed {
-      width: 60px;
-    }
-
-    .sidebar.expanded {
-      width: 220px;
-    }
-
-    .sidebar a {
+    .navbar-nav .nav-link {
+      font-weight: 500;
       color: #005dba;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 16px;
-      text-decoration: none;
-      transition: background 0.3s;
     }
 
-    .sidebar a:hover {
-      color: #f6f6f6;
-      background-color: #005dba;
-      border-radius: 8px;
-    }
-
-    .sidebar .sidebar-text {
-      display: none;
-    }
-
-    .sidebar.expanded .sidebar-text {
-      display: inline;
-    }
-
-    .toggle-btn {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 1100;
-      background-color: #f6f6f6;
-      color: #005dba;
-      border: none;
-      padding: 8px 12px;
+    .navbar-nav .nav-link:hover {
+      color: #003f82;
+      background-color: #f1f1f1;
       border-radius: 6px;
     }
 
-    .content {
-      margin-left: 60px;
-      padding: 20px;
-      transition: margin-left 0.3s;
-    }
-
-    .content.shifted {
-      margin-left: 220px;
+    .navbar-brand {
+      font-size: 1.25rem;
     }
 
     .dashboard-header {
@@ -112,6 +60,15 @@
 
     .dashboard-title {
       color:#005dba ;
+    }
+
+    .calendar-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
 
     .user-info {
@@ -130,28 +87,9 @@
       border: 3px solid #005dba;
     }
 
-    .dropdown-menu-user {
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background-color: white;
-      color: #212529;
-      border-radius: 8px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      display: none;
-      min-width: 180px;
-      z-index: 999;
-    }
-
-    .dropdown-menu-user a {
-      display: block;
-      padding: 10px 15px;
-      text-decoration: none;
-      color: #212529;
-    }
-
-    .dropdown-menu-user a:hover {
-      background-color: #f1f3f5;
+    #calendar {
+      max-width: 100%;
+      margin: 0 auto;
     }
 
     .card {
@@ -170,22 +108,6 @@
     .icon-box {
       font-size: 40px;
     }
-
-    .overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.4); /* lớp mờ tối */
-      z-index: -1;
-    }
-
-.hover-shadow:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-        transition: all 0.2s ease-in-out;
-      }
-
     .form-button {
         display: flex;
         justify-content: center;
@@ -232,64 +154,60 @@
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
 
-    #calendar {
-      max-width: 100%;
-      margin: 0 auto;
+    .star {
+      cursor: pointer;
+      color: transparent;
+      -webkit-text-stroke: 1px gold;
+      transition: transform 0.2s, color 0.2s;
     }
-    @media (max-width: 768px) {
-      .sidebar.expanded {
-        width: 100%;
-        height: auto;
-        position: relative;
-      }
-      .content.shifted {
-        margin-left: 0;
-      }
-      
+
+    .star.selected {
+      color: gold;
+      -webkit-text-stroke: 0;
     }
+
+    .star:hover {
+      transform: scale(1.2);
+    }
+
   </style>
 </head>
 <body>
-  <button class="toggle-btn" id="toggleSidebar">
-    <i class="fas fa-bars me-2"></i> 
-  </button>
 
-  <nav id="sidebar" class="sidebar collapsed d-flex flex-column">
-    <div class="flex-grow-1 d-flex flex-column">
-      <a href="/home"><i class="fas fa-home"></i> <span class="sidebar-text">Trang Chủ</span></a>
-      <a href="/document"><i class="fas fa-file"></i><span class="sidebar-text">Tài Liệu</span></a>
-      <a href="/course"><i class="fas fa-book"></i> <span class="sidebar-text">Học Phần</span></a>
-      <a href="/progress"><i class="fas fa-chart-line"></i> <span class="sidebar-text">Tiến Độ</span></a>
-      <a href="/semester"><i class="fas fa-calendar-alt"></i> <span class="sidebar-text">Lịch Học</span></a>
-      <a href="/score"><i class="fas fa-graduation-cap"></i> <span class="sidebar-text">Kết Quả</span></a>
-      <a href="/video"><i class="fas fa-video"></i> <span class="sidebar-text">Khóa Học</span></a>
-      <a href="/account"><i class="fas fa-user"></i> <span class="sidebar-text">Tài Khoản</span></a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
+  <div class="container-fluid px-4">
+    <a style="color: #005dba;" class="navbar-brand fw-bold" href="/home">
+      <i class="fas fa-graduation-cap me-2"></i>Hệ thống QL Tiến Độ
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="topNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="/home">Trang Chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="/document">Tài Liệu</a></li>
+        <li class="nav-item"><a class="nav-link" href="/course">Học Phần</a></li>
+        <li class="nav-item"><a class="nav-link" href="/progress">Tiến Độ</a></li>
+        <li class="nav-item"><a class="nav-link" href="/semester">Lịch Học</a></li>
+        <li class="nav-item"><a class="nav-link" href="/score">Kết Quả</a></li>
+        <li class="nav-item"><a class="nav-link" href="/video">Khóa Học</a></li>
+        <li class="nav-item"><a class="nav-link" href="/account">Tài Khoản</a></li>
+      </ul>
+      <div class="user-info position-relative">
+        <img src="{{user.avatar}}" alt="Avatar" class="user-avatar dropdown-toggle"
+          onerror="this.onerror=null;this.src='/img/avatar.png';" id="avatarDropdown" />
+        <span class="user-name">{{user.username}}</span>
+      </div>
     </div>
-    <div>
-      <a href="/logout"><i class="fas fa-sign-out-alt"></i> <span class="sidebar-text">Đăng Xuất</span></a>
-    </div>
-  </nav>
 
-  <!-- Content -->
-  <main id="mainContent" class="content">
-    {{{body}}}
-  </main>
+  </div>
+</nav>
 
-  <!-- Script -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleSidebar');
-
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-      sidebar.classList.toggle('expanded');
-      content.classList.toggle('shifted');
-    });
-  </script>
-
-<!-- Bootstrap JS (thêm ở cuối file trước </body>) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<main class="container-fluid" style="padding-top: 80px;">
+  {{{body}}}
+</main>
 
 </body>
 </html>
+

@@ -8,7 +8,11 @@ const userSchema = new mongoose.Schema({
     email: {type: String,required: true,  },
     avatar: { type: String, default: '/img/images2.jpg' },
     phone: { type: String },
-    createdAt: { type: Date, default: Date.now }
+    isActive: { type: Boolean, default: true },
+    createdAt: { type: Date, default: Date.now },
+
+    enrolledVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }]
+
 });
 
 

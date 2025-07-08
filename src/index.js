@@ -10,6 +10,8 @@ const bodyParser = require('body-parser')
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
 const mongoose = require ('mongoose')
+const helpers = require('./util/helper');
+
 
 const app = express()
 const port = 3100
@@ -29,56 +31,7 @@ app.use('/file', express.static(path.join(__dirname, 'public/file')));
 app.engine('.hbs', engine({
   extname: '.hbs',
   handlebars: allowInsecurePrototypeAccess(handlebars),
-  helpers: {
-    inc: (value) => parseInt(value) + 1,
-    shortId: (id) => id ? id.toString().slice(-4) : '',
-    eq: (a, b) => a === b,
-    ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
-    default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
-
-    // ✅ Helper chuyển "Thứ 2" thành số (0 là CN, 1 là Thứ 2,...)
-    thuToNumber: (thu) => {
-      const map = {
-        'Chủ Nhật': 0, 'Thứ 2': 1, 'Thứ 3': 2,
-        'Thứ 4': 3, 'Thứ 5': 4, 'Thứ 6': 5, 'Thứ 7': 6
-      };
-      return map[thu] ?? 1;
-    },
-
-    // ✅ Helper tách giờ bắt đầu/kết thúc
-    formatStartTime: (gioHoc) => gioHoc?.split('-')[0]?.trim(),
-    formatEndTime: (gioHoc) => gioHoc?.split('-')[1]?.trim(),
-
-    // ✅ Helper lấy ngày bắt đầu học kỳ
-    getStartDate: (namHoc, tenHocKy) => {
-      const startYear = namHoc?.split(' - ')[0];
-      if (!startYear) return '2024-09-01';
-      return tenHocKy?.includes('1')
-        ? `${startYear}-09-01`
-        : `${parseInt(startYear) + 1}-02-01`;
-    },
-
-    // ✅ Helper lấy ngày kết thúc học kỳ
-    getEndDate: (namHoc, tenHocKy) => {
-      const endYear = namHoc?.split(' - ')[1];
-      if (!endYear) return '2025-01-31';
-      return tenHocKy?.includes('1')
-        ? `${endYear}-01-31`
-        : `${endYear}-06-15`;
-    },
-
-    formatDate: (date) => {
-      const d = new Date(date);
-      return d.toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    }
-
-  }
+  helpers
 }));
 
 

@@ -1,17 +1,8 @@
   <!-- Tiêu đề + Avatar -->
   <div class="dashboard-header mb-4 d-flex justify-content-between align-items-center">
     <h2 class="dashboard-title mb-0">
-      <i class="fas fa-home me-2"></i> Trang Chủ
+      <i class="fas fa-home me-2"></i> Lịch Học
     </h2>
-    <div class="user-info position-relative">
-      <img src="{{user.avatar}}" alt="Avatar" class="user-avatar dropdown-toggle"
-        onerror="this.onerror=null;this.src='/img/avatar.png';" id="avatarDropdown" />
-      <span class="user-name">{{user.username}}</span>
-      <div class="dropdown-menu-user" id="userMenu">
-        <a href="/account" class="dropdown-item"><i class="fas fa-pen"></i> Chỉnh sửa thông tin</a>
-        <a href="/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
-      </div>
-    </div>
   </div>
 
 <main class="container mt-4">

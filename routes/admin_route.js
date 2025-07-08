@@ -7,7 +7,9 @@ const {isAdmin} = require('../middlewares/adminMiddleware');
 router.get('/login-admin', adminController.login_admin)
 router.post('/login-admin', adminController.login)
 
+//Dashboard
 router.get("/dashboard",isAdmin, adminController.dashboard)
+
 //User
 router.get("/users",isAdmin, adminController.getUsers)
 
@@ -25,5 +27,8 @@ router.get("/videos", isAdmin, adminController.getVideos)
 router.post('/videos/create', isAdmin, adminController.createVideo)
 router.post('/videos/edit/:id', isAdmin, adminController.editVideo)
 router.post('/videos/delete/:id', isAdmin, adminController.deleteVideo)
+
+//Statistic
+router.get("/statistic", isAdmin, adminController.statistic)
 
 module.exports = router

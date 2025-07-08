@@ -1,0 +1,148 @@
+<div class="dashboard-header">
+  <h2 class="dashboard-title mb-0"> Chi Tiết Khóa Học</h2>
+</div>
+
+<div class="container my-3">
+    <a href="/video" class="btn btn-primary btn-sm mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Quay lại
+    </a>
+
+
+  <div class="row bg-gradient-to-br from-indigo-600 to-blue-600 text-white rounded-3 overflow-hidden">
+    <div class="card shadow-lg rounded-4 overflow-hidden mb-3">
+    <div class="row g-0">
+        <!-- Thông tin khóa học (bên trái) -->
+        <div class="col-md-8 p-5 d-flex flex-column justify-content-center bg-white">
+        <div class="d-flex gap-2 mb-2">
+            <span class="badge bg-primary text-white">{{video.category}}</span>
+            <span class="badge bg-secondary text-white">{{video.level}}</span>
+        </div>
+
+        <h2 class="fw-bold fs-3 mb-3">{{video.title}}</h2>
+        <p class="text-muted mb-4">{{video.description}}</p>
+
+        <div class="d-flex flex-wrap gap-3 text-muted small mb-4">
+            <span><i class="far fa-clock me-1 text-primary"></i>{{video.duration}} giờ</span>
+            <span><i class="fas fa-list me-1 text-success"></i>{{video.lessons}} bài học</span>
+            <span><i class="fas fa-user-graduate me-1 text-info"></i>{{video.students}} học viên</span>
+            <span><i class="fas fa-star me-1 text-warning"></i>{{video.rating}}</span>
+        </div>
+
+        <p class="mb-0"><strong>Giảng viên:</strong> {{video.instructor}}</p>
+        </div>
+
+        <!-- Ảnh & Đăng ký (bên phải) -->
+        <div class="col-md-4 bg-light d-flex flex-column justify-content-center align-items-center p-4">
+        <img src="/img/thumbnails/{{video.thumbnail}}" class="img-fluid rounded shadow-sm mb-4" alt="{{video.title}}" style="max-height: 200px; object-fit: cover;">
+
+        {{#if enrolled}}
+            <span class="text-success fw-semibold"> Đã đăng ký</span>
+        {{else}}
+            <form action="/video/join/{{video._id}}" method="POST" class="w-100">
+            <button type="submit" class="btn btn-primary w-100 rounded-pill">Đăng ký khóa học</button>
+            </form>
+        {{/if}}
+        </div>
+    </div>
+    </div>
+
+
+
+  <!-- Tabs -->
+  <div class="card mt-2 p-4 shadow-sm">
+    <ul class="nav nav-tabs mb-3" role="tablist">
+      <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#overview">Tổng quan</a></li>
+      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#content">Chương trình học</a></li>
+      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#reviews">Đánh giá</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="overview">
+        <h5>Về khóa học này</h5>
+        <p>{{video.description}}</p>
+        <h6>Bạn sẽ học được gì</h6>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-check-circle text-success me-2"></i> Nắm vững các khái niệm cơ bản</li>
+          <li><i class="fas fa-check-circle text-success me-2"></i> Áp dụng kiến thức vào công việc</li>
+          <li><i class="fas fa-check-circle text-success me-2"></i> Thực hành với các dự án thực tế</li>
+          <li><i class="fas fa-check-circle text-success me-2"></i> Phát triển kỹ năng chuyên môn</li>
+        </ul>
+
+        <h6>Giảng viên</h6>
+        <div class="d-flex align-items-center mt-2">
+          <div class="avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+            {{video.instructor.[0]}}
+          </div>
+          <div>
+            <strong>{{video.instructor}}</strong><br>
+            <small>Chuyên gia {{video.category}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="content">
+        <p>Chương trình học đang được cập nhật...</p>
+      </div>
+
+        <div class="tab-pane fade" id="reviews">
+        <h6>Viết đánh giá của bạn</h6>
+        <form action="/video/{{video._id}}/review" method="POST" class="mb-4">
+            <div class="mb-2">
+            <label class="form-label d-block">Đánh giá của bạn</label>
+            <div id="star-rating" class="fs-4 mb-2">
+                <i class="fa-solid fa-star star" data-value="1"></i>
+                <i class="fa-solid fa-star star" data-value="2"></i>
+                <i class="fa-solid fa-star star" data-value="3"></i>
+                <i class="fa-solid fa-star star" data-value="4"></i>
+                <i class="fa-solid fa-star star" data-value="5"></i>
+            </div>
+            <input type="hidden" name="rating" id="rating-value" />
+
+            <div class="mb-2">
+            <label class="form-label">Nhận xét</label>
+            <textarea name="comment" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Gửi đánh giá</button>
+        </form>
+
+        <h6>Các đánh giá:</h6>
+        {{#each video.reviews}}
+            <div class="border rounded p-2 mb-2 bg-light">
+            <strong>{{this.username}}</strong> - 
+            <span class="text-warning">
+               {{#each (range (lookup this "rating"))}}★{{/each}}
+            </span>
+            <br>
+            <small>{{formatDate this.createdAt}}</small>
+            <p>{{this.comment}}</p>
+            </div>
+        {{else}}
+            <p>Chưa có đánh giá nào.</p>
+        {{/each}}
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('rating-value');
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = star.getAttribute('data-value');
+        ratingInput.value = rating;
+
+        stars.forEach((s, index) => {
+          if (index < rating) {
+            s.classList.add('selected');
+          } else {
+            s.classList.remove('selected');
+          }
+        });
+      });
+    });
+  });
+</script>
+

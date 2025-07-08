@@ -1,93 +1,37 @@
 {{!< auth}}
 <title>Đăng Ký - Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</title>
 
-<style>
-        body {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-        }
+<div class="auth-container">
+    <div class="auth-header">Đăng Ký Tài Khoản</div>
+    {{#if success_msg}}
+      <div class="alert alert-success">{{success_msg}}</div>
+    {{/if}}
 
-        .register-container {
-            width: 100%;
-            max-width: 400px;
-            min-width: 300px;
-            padding: 30px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-        }
+    {{#if error}}
+      <div class="alert alert-danger">{{error}}</div>
+    {{/if}}
 
-        .register-header {
-            font-size: 26px;
-            font-weight: bold;
-            color: #005dba;
-            margin-bottom: 20px;
-        }
-
-        .form-control {
-            border-radius: 25px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .btn-register {
-            background: #005dba;
-            color: white;
-            font-weight: bold;
-            border-radius: 25px;
-            padding: 10px;
-            transition: transform 0.2s;
-        }
-
-        .btn-register:hover {
-            transform: scale(1.05);
-            background: #005dba;
-            color: white;
-        }
-
-        .register-links {
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .register-links a {
-            color: #005dba;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .register-links a:hover {
-            text-decoration: underline;
-        }
-</style>
-
-    <div class="register-container">
-        <div class="register-header">Đăng Ký Tài Khoản</div>
-        <form method="POST" action="/register">
-            <div class="mb-3 input-group">
-                <span class="input-group-text"><i class="fas fa-user icon"></i></span>
-                <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập" required>
-            </div>
-            <div class="mb-3 input-group">
-                <span class="input-group-text"><i class="fas fa-envelope icon"></i></span>
-                <input type="email" class="form-control" name="email" placeholder="Email" required>
-            </div>
-            <div class="mb-3 input-group">
-                <span class="input-group-text"><i class="fas fa-phone icon"></i></span>
-                <input type="text" class="form-control" name="phone" placeholder="Số điện thoại" required>
-            </div>
-            <div class="mb-3 input-group">
-                <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
-                <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
-            </div>
-            <button type="submit" class="btn btn-register btn-sm px-3">Đăng Ký</button>
-        </form>
-        <div class="register-links">
-            <a href="/login-user">Đã có tài khoản? Đăng nhập</a>
+    <form method="POST" action="/register">
+        <div class="mb-3 input-group">
+            <span class="input-group-text"><i class="fas fa-user icon"></i></span>
+            <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập" required>
         </div>
+        <div class="mb-3 input-group">
+            <span class="input-group-text"><i class="fas fa-envelope icon"></i></span>
+            <input type="email" class="form-control" name="email" placeholder="Email" required>
+        </div>
+        <div class="mb-3 input-group">
+            <span class="input-group-text"><i class="fas fa-phone icon"></i></span>
+            <input type="text" class="form-control" name="phone" placeholder="Số điện thoại" required>
+        </div>
+        <div class="mb-3 input-group">
+            <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
+            <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
+        </div>
+        <button type="submit" class="btn btn-auth btn-sm px-3">Đăng Ký</button>
+    </form>
+    <div class="auth-links">
+        <a href="/login-user">Đã có tài khoản? Đăng nhập</a>
     </div>
+</div>
 

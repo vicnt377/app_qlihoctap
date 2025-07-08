@@ -1,36 +1,60 @@
 <div class="dashboard-header">
   <h2 class="dashboard-title mb-0"><i class="fas fa-video"></i> Các Khóa Học Tham Khảo</h2>
-
-  <div class="user-info position-relative">
-    <img src="{{user.avatar}}" alt="Avatar" class="user-avatar dropdown-toggle"
-         onerror="this.onerror=null;this.src='/img/avatar.png';"
-         id="avatarDropdown" />
-
-    <span class="user-name">{{user.username}}</span>
-
-    <!-- Menu dropdown -->
-    <div class="dropdown-menu-user" id="userMenu">
-      <a href="/account" class="dropdown-item"><i class="fas fa-pen"></i> Chỉnh sửa thông tin</a>
-      <a href="/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
-    </div>
-  </div>
 </div>
 
 <main class="container mt-4">
+  <!-- Bộ lọc -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <input type="text" class="form-control" placeholder=" Tìm kiếm khóa học...">
+    </div>
+    <div class="col-md-2">
+      <select class="form-select">
+        <option selected>Tất cả danh mục</option>
+        <option value="lập trình">Lập trình</option>
+        <option value="backend">Backend</option>
+        <option value="database">Database</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select">
+        <option selected>Tất cả cấp độ</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary w-100">Lọc</button>
+    </div>
+  </div>
+
+  <!-- Danh sách khóa học -->
   <div class="row">
     {{#each videos}}
-      <div class="col-md-6 mb-4">
-        <div class="card hover-shadow">
-          <div class="card-body">
-            <h5 class="card-title">{{this.title}}</h5>
-            <p class="card-text">{{this.description}}</p>
-            <div class="ratio ratio-16x9">
-              <iframe src="https://www.youtube.com/embed/{{this.youtubeId}}" 
-                      title="{{this.title}}" allowfullscreen></iframe>
-            </div>
-          </div>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="position-relative">
+          <img src="/img/thumbnails/{{this.thumbnail}}" class="card-img-top" alt="{{this.title}}">
+          <span class="badge bg-{{this.levelColor}} position-absolute top-0 start-0 m-2">{{this.level}}</span>
+          <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">
+            <i class="fas fa-star"></i> {{this.rating}}
+          </span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <small class="text-muted">{{this.category}}</small>
+          <h5 class="card-title mt-1">{{this.title}}</h5>
+          <p class="card-text small">{{this.description}}</p>
+          <ul class="list-inline text-muted small mb-2">
+            <li class="list-inline-item"><i class="far fa-clock"></i> {{this.duration}} giờ</li>
+            <li class="list-inline-item"><i class="fas fa-list"></i> {{this.lessons}} bài</li>
+            <li class="list-inline-item"><i class="fas fa-user-graduate"></i> {{this.students}} học viên</li>
+          </ul>
+          <p class="mb-1"><strong>Giảng viên:</strong> {{this.instructor}}</p>
+          <a href="video/showdetail/{{this._id}}" class="btn btn-primary mt-auto w-100">Xem chi tiết</a>
         </div>
       </div>
+    </div>
     {{/each}}
   </div>
 </main>

@@ -88,34 +88,47 @@ class AdminController {
 
     
 // Người dùng ------------------------------------------------------------------------------------------------------------------------------------
+
     async getUsers(req, res) {
         try {
-            const allUsers = await User.find({ role: 'user' });
+            const { search, status } = req.query;
 
+            let filter = { role: 'user' };
+
+            if (search) {
+            const regex = new RegExp(search, 'i');
+            filter.$or = [{ username: regex }, { email: regex }];
+            }
+
+            // Giả sử bạn lưu trạng thái người dùng theo logic riêng (ví dụ: active = true/false)
+            if (status === 'active') filter.isActive = true;
+            else if (status === 'inactive') filter.isActive = false;
+
+            // Truy vấn danh sách học viên
+            const allUsers = await User.find(filter);
+
+            // Xây dựng mảng học viên
             const students = allUsers.map(user => ({
             _id: user._id,
             name: user.username,
             email: user.email,
             createdAt: user.createdAt,
-            isActive: true, // Giả định tất cả user đều đang hoạt động; bạn có thể sửa theo logic thực tế
+            isActive: user.isActive ?? true, // fallback nếu chưa có trường isActive
             stats: {
-                avgProgress: Math.floor(Math.random() * 100), // hoặc lấy từ CSDL nếu có
-                completedCourses: Math.floor(Math.random() * 10), // hoặc lấy từ CSDL nếu có
+                avgProgress: Math.floor(Math.random() * 100),
+                completedCourses: Math.floor(Math.random() * 10),
             }
             }));
 
-            // Thống kê nhanh
+            const now = new Date();
             const studentStats = {
-            total: allUsers.length,
-            active: allUsers.length, // Giả sử tất cả đang hoạt động, có thể đếm theo điều kiện khác nếu có field trạng thái
-            newThisMonth: allUsers.filter(user => {
-                const now = new Date();
-                const thisMonth = now.getMonth();
-                const thisYear = now.getFullYear();
-                const createdAt = new Date(user.createdAt);
-                return createdAt.getMonth() === thisMonth && createdAt.getFullYear() === thisYear;
+            total: students.length,
+            active: students.filter(s => s.isActive).length,
+            newThisMonth: students.filter(s => {
+                const d = new Date(s.createdAt);
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
             }).length,
-            totalEnrollments: allUsers.length * 3, // Ví dụ: mỗi user trung bình có 3 đăng ký (tuỳ vào schema của bạn)
+            totalEnrollments: students.reduce((sum, s) => sum + s.stats.completedCourses, 0),
             };
 
             res.render('admin/users', {
@@ -123,12 +136,15 @@ class AdminController {
             students,
             studentStats,
             layout: 'admin',
+            query: { search, status }
             });
+
         } catch (err) {
             console.error(err);
             res.status(500).send('Lỗi khi tải danh sách học viên');
         }
     }
+
 
 
 
@@ -229,25 +245,68 @@ class AdminController {
 
 //Video--------------------------------------------------------------------------------------------------------------------------------------------------------
     async getVideos(req, res) {
-        try {
+    try {
+        const { search = '', sort = 'newest', page = 1 } = req.query;
+        const limit = 10;
+        const currentPage = parseInt(page);
+
+        // Lọc video chưa bị xóa
+        const filter = { daXoa: false };
+
+        // Lọc theo tiêu đề hoặc mô tả
+        if (search.trim()) {
+        filter.$or = [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+        ];
+        }
+
+        // Sắp xếp
+        let sortOption = { createdAt: -1 }; // mặc định: mới nhất
+        if (sort === 'oldest') sortOption = { createdAt: 1 };
+        else if (sort === 'az') sortOption = { title: 1 };
+        else if (sort === 'za') sortOption = { title: -1 };
+
+        // Tổng số video
+        const totalVideos = await Video.countDocuments(filter);
+
+        // Lấy video theo trang
+        const videos = await Video.find(filter)
+        .sort(sortOption)
+        .skip((currentPage - 1) * limit)
+        .limit(limit);
+
         const users = await User.find();
-        const videos = await Video.find(); // Lấy tất cả học phần
 
         res.render('admin/videos', {
-            user: req.session.user,
-            users,
-            videos, // truyền vào view
-            layout: 'admin'
+        layout: 'admin',
+        user: req.session.user,
+        users,
+        videos,
+        currentPage,
+        totalPages: Math.ceil(totalVideos / limit),
+        totalVideos,
+        query: { search, sort }
         });
-        } catch (err) {
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Lỗi server');
-        }
     }
+    }
+
 
     async createVideo(req, res) {
         try {
-            const { title, youtubeId, description } = req.body;
-            const video = new Video({ title, youtubeId, description });
+            const {
+                title, youtubeId, description,
+                thumbnail, category, level, rating, duration,lessons,students,instructor,
+            } = req.body;
+
+            const video = new Video({
+                title,youtubeId,description, thumbnail, category, level,
+                rating, duration, lessons,  students, instructor,
+            });
+
             await video.save();
             res.status(201).json({ message: 'Video đã được tạo', video });
         } catch (error) {
@@ -256,15 +315,16 @@ class AdminController {
         }
     }
 
+
     async editVideo(req, res) {
         try {
-            const { title, description, youtubeId } = req.body;
+            const { title, youtubeId, description,
+                thumbnail, category, level, rating, duration,lessons,students,instructor, } = req.body;
             const { id } = req.params;
 
             await Video.findByIdAndUpdate(id, {
-                title,
-                description,
-                youtubeId,
+                title, youtubeId, description,
+                thumbnail, category, level, rating, duration,lessons,students,instructor,
             });
 
             res.sendStatus(200); // Thành công
@@ -283,6 +343,10 @@ class AdminController {
         }
     }
 
+//Báo cáo thông kê-------------------------------------------------------------------------------------------------------------
+    statistic(req, res) {
+        res.render('admin/statistic', {layout: "admin", error: null });
+    }
 }
 
 module.exports = new AdminController();

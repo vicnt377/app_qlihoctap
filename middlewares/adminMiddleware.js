@@ -2,7 +2,7 @@ function isAdmin(req, res, next) {
   if (req.session.user && req.session.user.role === 'admin') {
     next();
   } else {
-    res.render('login-admin', {layout: 'auth'})
+    res.render('auth/login-admin', {layout: 'auth'})
   }
 }
 
