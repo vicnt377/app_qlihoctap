@@ -8,7 +8,7 @@
 <main class="container mt-4">
 <!-- Tìm kiếm học phần -->
 <div class="mb-3">
-  <input type="text" class="form-control shadow-sm" id="searchInput" placeholder="🔍 Tìm kiếm học phần...">
+  <input type="text" class="form-control shadow-sm" id="searchInput" placeholder=" Tìm kiếm học phần...">
 </div>
 
 <p class="text-muted"><small>(*) Là học phần điều kiện, không tính điểm trung bình chung tích lũy.</small></p>
@@ -53,14 +53,21 @@
           <input type="text" class="form-control" id="modalCourseName" disabled>
         </div>
         <div class="mb-3">
-          <label style="color:black" class="form-label">Giờ học</label>
-          <select class="form-select" id="gioHoc" required>
-            <option value="7h - 9h">7h - 9h</option>
-            <option value="9h - 11h">9h - 11h</option>
-            <option value="7h - 11h">7h - 11h</option>
-            <option value="13h - 15h">13h - 15h</option>
-            <option value="15h - 17h">15h - 17h</option>
-            <option value="13h - 17h">13h - 17h</option>
+          <label class="form-label" style="color:black">Giờ bắt đầu</label>
+          <select class="form-select" id="gioBatDau" required>
+            <option value="07:00">07:00</option>
+            <option value="09:00">09:00</option>
+            <option value="13:00">13:00</option>
+            <option value="15:00">15:00</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" style="color:black">Giờ kết thúc</label>
+          <select class="form-select" id="gioKetThuc" required>
+            <option value="09:00">09:00</option>
+            <option value="11:00">11:00</option>
+            <option value="15:00">15:00</option>
+            <option value="17:00">17:00</option>
           </select>
         </div>
         <div class="mb-3">
@@ -76,7 +83,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-success">💾</button>
+        <button type="submit" class="btn btn-success">Lưu</button>
       </div>
     </form>
   </div>
@@ -152,7 +159,8 @@ function prevPage() {
     e.preventDefault();
 
     const courseId = document.getElementById('modalCourseId').value;
-    const gioHoc = document.getElementById('gioHoc').value;
+    const gioBatDau = document.getElementById('gioBatDau').value;
+    const gioKetThuc = document.getElementById('gioKetThuc').value;
     const thu = document.getElementById('thu').value;
 
     try {
@@ -161,7 +169,7 @@ function prevPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ HocPhan: courseId, gioHoc, thu }),
+        body: JSON.stringify({ HocPhan: courseId, thu, gioBatDau, gioKetThuc }),
       });
 
       const result = await response.json();

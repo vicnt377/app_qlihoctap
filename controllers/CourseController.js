@@ -35,7 +35,7 @@ class CourseController {
   // Thêm học phần vào bảng điểm
   async addCourseToScore(req, res) {
     try {
-      const { HocPhan, gioHoc, thu, diemSo, diemChu } = req.body;
+      const { HocPhan, gioBatDau, gioKetThuc, thu, diemSo, diemChu } = req.body;
       console.log('Body:', req.body);
   
       const userId = req.user?._id || req.session?.user?._id;
@@ -52,7 +52,8 @@ class CourseController {
       // Tạo Score mới
       const newScore = new Score({
         HocPhan,
-        gioHoc,
+        gioBatDau,
+        gioKetThuc,
         thu,
         diemSo: diemSo ? parseFloat(diemSo) : null,
         diemChu: diemChu || '',

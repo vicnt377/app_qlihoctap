@@ -47,6 +47,19 @@
       font-size: 1.25rem;
     }
 
+    .nav-tabs .nav-link {
+      border: 1px solid #dee2e6;
+      color: #000;
+      background-color: #fff;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .nav-tabs .nav-link.active {
+      background-color: #0d6efd;
+      color: #fff;
+      border-color: #0d6efd #0d6efd #fff;
+    }
+
     .dashboard-header {
       display: flex;
       justify-content: space-between;
@@ -87,9 +100,13 @@
       border: 3px solid #005dba;
     }
 
+    
+
     #calendar {
-      max-width: 100%;
-      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
     .card {
@@ -170,6 +187,10 @@
       transform: scale(1.2);
     }
 
+    .form-label {
+      font-weight: 600;
+      color: #333;
+    }
   </style>
 </head>
 <body>

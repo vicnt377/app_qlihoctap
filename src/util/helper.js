@@ -1,3 +1,6 @@
+const Handlebars = require('handlebars');
+
+
 module.exports = {
   inc: (value) => parseInt(value) + 1,
   shortId: (id) => id ? id.toString().slice(-4) : '',
@@ -5,13 +8,17 @@ module.exports = {
   ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
 
-  thuToNumber: (thu) => {
+  thuToNumber: function (thu) {
     const map = {
-      'Chủ Nhật': 0, 'Thứ 2': 1, 'Thứ 3': 2,
-      'Thứ 4': 3, 'Thứ 5': 4, 'Thứ 6': 5, 'Thứ 7': 6
+        'Thứ Hai': 1,
+        'Thứ Ba': 2,
+        'Thứ Tư': 3,
+        'Thứ Năm': 4,
+        'Thứ Sáu': 5,
+        'Thứ Bảy': 6
     };
-    return map[thu] ?? 1;
-  },
+    return map[thu] || 1;
+    },
 
   formatStartTime: (gioHoc) => gioHoc?.split('-')[0]?.trim(),
   formatEndTime: (gioHoc) => gioHoc?.split('-')[1]?.trim(),
@@ -28,7 +35,7 @@ module.exports = {
     const endYear = namHoc?.split(' - ')[1];
     if (!endYear) return '2025-01-31';
     return tenHocKy?.includes('1')
-      ? `${endYear}-01-31`
+      ? `${endYear}-01-31` 
       : `${endYear}-06-15`;
   },
 
@@ -69,13 +76,32 @@ module.exports = {
     return params.toString();
   },
 
-  json: function (context) {
-      return JSON.stringify(context);
-    },
+    json: function (context) {
+    return new Handlebars.SafeString(
+      JSON.stringify(context, (key, value) => value === undefined ? null : value)
+    );
+  },
 
     range:  function(n){
         const num = parseInt(n);
         if (isNaN(num) || num < 0 || num > 100) return [];
         return Array.from({ length: num }, (_, i) => i);
     },
+
+    sanitize: (text) => (typeof text === 'string' ? text.replace(/["']/g, '') : ''),
+
+    generateEvents: function (semesters) {
+      const sanitize = this.sanitize;
+      const thuToNumber = this.thuToNumber;
+      return semesters.flatMap(sem =>
+        (sem.score || []).map(score => ({
+          title: `${sanitize(score.HocPhan?.tenHocPhan)} (${sanitize(score.HocPhan?.maHocPhan)})`,
+          daysOfWeek: [thuToNumber(score.thu)],
+          startTime: score.gioBatDau,
+          endTime: score.gioKetThuc,
+          startRecur: sem.startDate?.toISOString().split('T')[0],
+          endRecur: sem.endDate?.toISOString().split('T')[0],
+        }))
+      );
+    }
 };

@@ -2,69 +2,59 @@ const Semester = require('../models/Semester');
 const Score = require('../models/Score');
 const Course = require('../models/Course');
 
+const helper = require('../src/util/helper');
+
 class SemesterController {
-async getClass(req, res) {
+  async getClass(req, res) {
     try {
       const userId = req.user?._id || req.session?.user?._id;
       if (!userId) {
         return res.render('auth/login'); 
       }
 
-      const year = req.query.year || '2021 - 2022';
-      const semester = req.query.semester || 'Học Kỳ 1';
-      const filter = { username: userId };
-      if (year && year !== 'Tất cả') filter.namHoc = year;
-      if (semester && semester !== 'Tất cả') filter.tenHocKy = semester;
-      
-
-
-      const semesterDocs = await Semester.find(filter)
+      const semesterDocs = await Semester.find({ username: userId })
         .populate({
           path: 'score',
-          populate: { path: 'HocPhan' }
+          populate: [
+            { path: 'HocPhan' },
+            { path: 'username' }
+          ]
         })
         .lean();
 
-      const classesGroupedBySemester = semesterDocs.map(sem => {
-        // Lọc lại score theo đúng user
-        const userScores = (sem.score || []).filter(score => {
-          return score.username?.toString() === userId.toString();
-        });
+      const classesGroupedBySemester = semesterDocs.map(sem => ({
+        tenHocKy: sem.tenHocKy,
+        startDate: sem.startDate,
+        soTuan: sem.soTuan,
+        scores: sem.score || []
+      })).filter(sem => sem.scores.length > 0);
 
-        return {
-          tenHocKy: sem.tenHocKy,
-          namHoc: sem.namHoc,
-          scores: userScores
-        };
-      }).filter(sem => sem.scores.length > 0); // Chỉ giữ học kỳ có score
+      const years = semesterDocs.map(sem => new Date(sem.startDate).getFullYear().toString());
+      const semestersList = semesterDocs.map(sem => sem.tenHocKy);
 
-      // Các dữ liệu dropdown
-      const years = await Semester.distinct('namHoc', { username: userId });
-      const semestersList = await Semester.distinct('tenHocKy', { username: userId });
-
-      // 1. Lấy tất cả scoreId đã nằm trong các học kỳ
       const semesterScores = await Semester.find({ username: userId }).select('score').lean();
       const usedScoreIds = new Set(
         semesterScores.flatMap(s => s.score.map(id => id.toString()))
       );
 
-      // 2. Lấy các Score chưa nằm trong bất kỳ học kỳ nào
       const allScores = await Score.find({
         username: userId,
         _id: { $nin: Array.from(usedScoreIds) }
       })
-      .populate('HocPhan')
-      .lean();
+        .populate('HocPhan')
+        .lean();
 
+      const events = helper.generateEvents(semesterDocs);
 
       res.render('user/semester', {
         user: req.session.user,
         classesGroupedBySemester,
-        selectedSemester: semester,
-        selectedYear: year,
+        selectedSemester: '',
+        selectedYear: '',
         years,
         semestersList,
-        scores: allScores
+        scores: allScores,
+        events,
       });
 
     } catch (error) {
@@ -80,19 +70,16 @@ async getClass(req, res) {
         return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
       }
 
-      const { tenHocKy, namHoc, selectedScores } = req.body;
+      const { tenHocKy, startDate, soTuan, selectedScores } = req.body;
 
-      const existed = await Semester.findOne({ tenHocKy, namHoc, userId });
-      if (existed) {
-        return res.status(400).json({ message: '❗Học kỳ đã tồn tại!' });
+      if (!tenHocKy || !startDate || !soTuan) {
+        return res.status(400).json({ message: 'Vui lòng điền đủ thông tin học kỳ!' });
       }
 
-      // Chuẩn hóa selectedScores thành array
       const scoresToAdd = Array.isArray(selectedScores)
         ? selectedScores
         : selectedScores ? [selectedScores] : [];
 
-      // Kiểm tra tất cả score đều thuộc về user đang đăng nhập
       const validScores = await Score.find({
         _id: { $in: scoresToAdd },
         username: userId
@@ -102,56 +89,63 @@ async getClass(req, res) {
         return res.status(400).json({ message: 'Bạn chọn điểm không hợp lệ hoặc không thuộc về tài khoản này.' });
       }
 
+      const start = new Date(startDate);
+      const end = new Date(start);
+      end.setDate(start.getDate() + parseInt(soTuan) * 7);
+
       const newSemester = new Semester({
         tenHocKy,
-        namHoc,
+        startDate: start,
+        endDate: end,
+        soTuan: parseInt(soTuan),
         score: validScores.map(s => s._id),
         username: userId
       });
       await newSemester.save();
 
-      const populatedSemester = await Semester.findById(newSemester._id)
+      const semesterDocs = await Semester.find({ username: userId })
         .populate({
           path: 'score',
-          populate: { path: 'HocPhan' }
+          populate: [
+            { path: 'HocPhan' },
+            { path: 'username' }
+          ]
         })
         .lean();
 
-      const years = await Semester.distinct('namHoc');
-      const semestersList = await Semester.distinct('tenHocKy');
+      const classesGroupedBySemester = semesterDocs.map(sem => ({
+        tenHocKy: sem.tenHocKy,
+        startDate: sem.startDate,
+        soTuan: sem.soTuan,
+        scores: sem.score || []
+      })).filter(sem => sem.scores.length > 0);
 
-      const classesGroupedBySemester = [{
-        tenHocKy: populatedSemester.tenHocKy,
-        namHoc: populatedSemester.namHoc,
-        scores: (populatedSemester.score || []).filter(score => 
-          score.username?.toString() === userId.toString()
-        )
-      }];
+      const years = semesterDocs.map(sem => new Date(sem.startDate).getFullYear().toString());
+      const semestersList = semesterDocs.map(sem => sem.tenHocKy);
 
-      // Lấy tất cả scoreId đã nằm trong các học kỳ
       const semesterScores = await Semester.find({ username: userId }).select('score').lean();
       const usedScoreIds = new Set(
         semesterScores.flatMap(s => s.score.map(id => id.toString()))
       );
 
-      // Lấy các Score chưa nằm trong bất kỳ học kỳ nào
       const availableScores = await Score.find({
         username: userId,
         _id: { $nin: Array.from(usedScoreIds) }
-      })
-      .populate('HocPhan')
-      .lean();
+      }).populate('HocPhan').lean();
+
+      const events = helper.generateEvents(semesterDocs);
+      console.log("Flat events to render:", JSON.stringify(flatEvents, null, 2));
 
       res.render('user/semester', {
         user: req.session.user,
         classesGroupedBySemester,
         selectedSemester: tenHocKy,
-        selectedYear: namHoc,
+        selectedYear: new Date(startDate).getFullYear().toString(),
         years,
         semestersList,
-        scores: availableScores // Chỉ hiển thị các Score chưa được thêm vào bất kỳ học kỳ nào
+        scores: availableScores,
+        events,
       });
-
 
     } catch (error) {
       console.error('Lỗi thêm học kỳ:', error);
