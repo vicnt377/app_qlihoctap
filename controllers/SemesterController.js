@@ -134,7 +134,7 @@ class SemesterController {
       }).populate('HocPhan').lean();
 
       const events = helper.generateEvents(semesterDocs);
-      console.log("Flat events to render:", JSON.stringify(flatEvents, null, 2));
+      console.log("Flat events to render:", JSON.stringify(events, null, 2));
 
       res.render('user/semester', {
         user: req.session.user,

@@ -1,108 +1,101 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
 <div class="dashboard-header">
   <h2 class="dashboard-title mb-0"><i class="fas fa-graduation-cap"></i> Kết Quả Học Tập</h2>
 </div>
 
-
 <main class="container mt-4 row g-3 mb-4">
-    <form method="GET" action="/score" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <select name="year" class="form-select">
-                <option value="Tất cả" {{#if (eq selectedYear 'Tất cả')}}selected{{/if}}>Tất cả</option>
-                    {{#each years}}
-                        <option value="{{this}}" {{#if (eq ../selectedYear this)}}selected{{/if}}>{{this}}</option>
-                    {{/each}}
-                </select>
-        </div>
-        <div class="col-md-4">
-            <select name="semester" class="form-select">
-                <option value="Tất cả" {{#if (eq selectedSemester 'Tất cả')}}selected{{/if}}>Tất cả</option>
-                    {{#each semestersList}}
-                        <option value="{{this}}" {{#if (eq ../selectedSemester this)}}selected{{/if}}>{{this}}</option>
-                    {{/each}}
-                </select>
-        </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-primary"> 🔍 </button>
-        </div>
-
-    </form>
-
-    <!-- Cột Tổng Kết Toàn Khóa (Chiếm 30% chiều rộng) -->
+  <form method="GET" action="/score" class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card p-4">
-            <h5>📌 Tổng Kết Toàn Khoá</h5>
-            <p><strong>Trung Bình Tích Lũy:</strong><span class="badge bg-info"> {{cumulative}}</span></p>
-            <p><strong>Xếp loại học lực:</strong><span class="badge bg-warning text-dark"> {{hocLuc}}</span></p>
-        </div>
+      <select name="year" class="form-select">
+        <option value="Tất cả" {{#if (eq selectedYear 'Tất cả')}}selected{{/if}}>Tất cả</option>
+        {{#each years}}
+          <option value="{{this}}" {{#if (eq ../selectedYear this)}}selected{{/if}}>{{this}}</option>
+        {{/each}}
+      </select>
     </div>
+    <div class="col-md-4">
+      <select name="semester" class="form-select">
+        <option value="Tất cả" {{#if (eq selectedSemester 'Tất cả')}}selected{{/if}}>Tất cả</option>
+        {{#each semestersList}}
+          <option value="{{this}}" {{#if (eq ../selectedSemester this)}}selected{{/if}}>{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-primary"> 🔍 </button>
+    </div>
+  </form>
 
-    <!-- Cột Bảng Điểm (Chiếm 70% chiều rộng) -->
-    <div class="col-md-8">
-        <div class="card p-4">
-            {{#each semesters}}
-            <h4 style="color: #17a2b8">{{tenHocKy}} - {{namHoc}}</h4>
-            <form method="POST" action="/score/update">
-                <table class="table table-bordered" data-semester>
-                    <thead>
-                        <tr>
-                            <th>Mã Học Phần</th>
-                            <th>Tên Học Phần</th>
-                            <th>Số Tín Chỉ</th>
-                            <th>Điểm Số</th>
-                            <th>Điểm Chữ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each score}}
-                        <tr>
-                            <td>{{HocPhan.maHocPhan}}</td>
-                            <td>{{HocPhan.tenHocPhan}}</td>
-                            <td>{{HocPhan.soTinChi}}</td>
-                            <td>
-                                <input type="number" step="0.1" min="0" max="10" name="scores[{{_id}}][diemSo]" class="form-control" value="{{default diemSo 0}}">
-                            </td>
-                            <td>
-                                <input type="text" name="scores[{{_id}}][diemChu]" class="form-control" value="{{diemChu}}">
-                            </td>
-                        </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
-                <button type="submit" class="btn btn-success mt-2">Lưu điểm</button>
-            </form>
-            {{/each}}
-        </div>
+  <!-- Tổng kết toàn khóa -->
+  <div class="col-md-4">
+    <div class="card p-4">
+      <h5>📌 Tổng Kết Toàn Khoá</h5>
+      <p><strong>Trung Bình Tích Lũy:</strong> <span class="badge bg-info">{{cumulative}}</span></p>
+      <p><strong>Xếp loại học lực:</strong> <span class="badge bg-warning text-dark">{{hocLuc}}</span></p>
     </div>
+  </div>
+
+  <!-- Bảng điểm -->
+  <div class="col-md-8">
+    <div class="card p-4">
+      {{#each semesters}}
+        <h4 class="text-info">{{tenHocKy}} - {{namHoc}}</h4>
+        <form method="POST" action="/score/update">
+          <table class="table table-bordered" data-semester>
+            <thead>
+              <tr>
+                <th>Mã Học Phần</th>
+                <th>Tên Học Phần</th>
+                <th>Số Tín Chỉ</th>
+                <th>Điểm Số</th>
+                <th>Điểm Chữ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each score}}
+              <tr>
+                <td>{{HocPhan.maHocPhan}}</td>
+                <td>{{HocPhan.tenHocPhan}}</td>
+                <td>{{HocPhan.soTinChi}}</td>
+                <td>
+                  <input type="number" step="0.1" min="0" max="10" name="scores[{{_id}}][diemSo]" class="form-control" value="{{default diemSo 0}}">
+                </td>
+                <td>
+                  <input type="text" name="scores[{{_id}}][diemChu]" class="form-control" value="{{diemChu}}">
+                </td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+          <button type="submit" class="btn btn-success mt-2">Lưu điểm</button>
+        </form>
+      {{/each}}
+    </div>
+  </div>
 </main>
 
 <script>
-    function convertDiemSoToDiemChu(diemSo) {
-        const score = parseFloat(diemSo);
-        if (isNaN(score)) return '';
+  function convertDiemSoToDiemChu(diemSo) {
+    const score = parseFloat(diemSo);
+    if (isNaN(score)) return '';
+    if (score >= 9.0) return 'A';
+    if (score >= 8.0) return 'B+';
+    if (score >= 7.0) return 'B';
+    if (score >= 6.0) return 'C+';
+    if (score >= 5.0) return 'C';
+    if (score >= 4.0) return 'D';
+    return 'F';
+  }
 
-        if (score >= 9.0) return 'A';
-        if (score >= 8.0) return 'B+';
-        if (score >= 7.0) return 'B';
-        if (score >= 6.0) return 'C+';
-        if (score >= 5.0) return 'C';
-        if (score >= 4.0) return 'D';
-        return 'F';
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll('input[name^="scores"][name$="[diemSo]"]').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const scoreInput = e.target;
-                const diemChuInput = scoreInput.closest('tr').querySelector('input[name$="[diemChu]"]');
-
-                const diemSo = scoreInput.value;
-                diemChuInput.value = convertDiemSoToDiemChu(diemSo);
-            });
-        });
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('input[name^="scores"][name$="[diemSo]"]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const scoreInput = e.target;
+        const diemChuInput = scoreInput.closest('tr').querySelector('input[name$="[diemChu]"]');
+        const diemSo = scoreInput.value;
+        diemChuInput.value = convertDiemSoToDiemChu(diemSo);
+      });
     });
+  });
 </script>
-
-

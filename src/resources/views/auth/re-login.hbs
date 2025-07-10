@@ -1,63 +1,62 @@
 {{!< auth}}
 <title>Hệ Thống Quản Lý Tiến Độ Học Tập</title>
 
-<div class="min-h-screen bg-gray-50">
-  <!-- Hero Section -->
-  <section class="bg-gradient-to-br from-indigo-600 to-blue-600 text-white py-20">
-    <div class="container mx-auto px-6 text-center max-w-4xl">
-      <h1 class="text-5xl font-bold mb-4">Hệ Thống Hỗ Trợ <span class="text-yellow-300">Quản Lý Tiến Độ Học Tập</span></h1>
-      <p class="text-xl text-indigo-100 mb-8">Theo dõi, đánh giá và cải thiện hành trình học tập của bạn một cách trực quan và hiệu quả nhất.</p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="/login-user" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-100 transition">
-          Vào hệ thống
-        </a>
-        <a href="/admin/login-admin" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">
-          Đăng nhập Admin
-        </a>
-      </div>
+<main>
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5 py-md-7 text-center">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Hệ Thống <span class="text-warning">Quản Lý Tiến Độ Học Tập</span></h1>
+    <p class="lead mt-3 mb-4">Theo dõi và nâng cao hiệu quả học tập của bạn một cách trực quan, khoa học.</p>
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+      <a href="/login-user" class="btn btn-light btn-lg fw-semibold px-4 shadow-sm">🎓 Vào hệ thống</a>
+      <a href="/admin/login-admin" class="btn btn-outline-light btn-lg px-4">🛠️ Đăng nhập Admin</a>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Features -->
-  <section class="py-16 bg-white">
-    <div class="container mx-auto px-6 text-center">
-      <h2 class="text-3xl font-bold mb-6 text-gray-800">Tính năng nổi bật</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-gray-600">
-        <div>
-          <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-            <i class="fas fa-chart-line text-2xl"></i>
+<!-- Features Section -->
+<section class="py-5 bg-light">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4 text-primary">✨ Tính năng nổi bật</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="p-4 bg-white shadow rounded h-100">
+          <div class="mb-3 text-primary fs-1">
+            <i class="fas fa-chart-line"></i>
           </div>
-          <h3 class="font-semibold text-lg mb-2">Theo dõi tiến độ học tập</h3>
-          <p>Hiển thị rõ ràng lộ trình học tập, điểm số và tỷ lệ hoàn thành học phần của từng sinh viên.</p>
-        </div>
-        <div>
-          <div class="w-16 h-16 mx-auto mb-4 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
-            <i class="fas fa-book text-2xl"></i>
-          </div>
-          <h3 class="font-semibold text-lg mb-2">Quản lý khóa học</h3>
-          <p>Dễ dàng thêm, chỉnh sửa và phân loại học phần, khóa học cho từng kỳ học.</p>
-        </div>
-        <div>
-          <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
-            <i class="fas fa-user-check text-2xl"></i>
-          </div>
-          <h3 class="font-semibold text-lg mb-2">Phân quyền người dùng</h3>
-          <p>Phân chia vai trò rõ ràng giữa sinh viên, giáo viên và quản trị viên với giao diện phù hợp.</p>
+          <h5 class="fw-semibold mb-2">Theo dõi tiến độ học tập</h5>
+          <p>Hiển thị lộ trình học tập, điểm số và phần trăm hoàn thành học phần theo từng học kỳ.</p>
         </div>
       </div>
+      <div class="col-md-4">
+        <div class="p-4 bg-white shadow rounded h-100">
+          <div class="mb-3 text-success fs-1">
+            <i class="fas fa-book"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Quản lý khóa học</h5>
+          <p>Thêm, sửa và phân loại học phần, học kỳ một cách dễ dàng và chính xác.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 bg-white shadow rounded h-100">
+          <div class="mb-3 text-warning fs-1">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <h5 class="fw-semibold mb-2">Phân quyền người dùng</h5>
+          <p>Hỗ trợ vai trò khác nhau: sinh viên, giáo viên và quản trị viên với giao diện phù hợp.</p>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Call to Action -->
-  <section class="py-20 bg-gradient-to-br from-indigo-600 to-blue-600 text-white">
-    <div class="container mx-auto px-6 text-center">
-      <h2 class="text-3xl font-bold mb-4">Sẵn sàng bắt đầu?</h2>
-      <p class="text-lg mb-6 text-indigo-100">Tham gia ngay để trải nghiệm hệ thống hỗ trợ học tập hiệu quả và hiện đại.</p>
-      <a href="/login-user" class="bg-white text-blue-600 font-semibold px-10 py-4 rounded-lg hover:bg-blue-100 transition">
-        Bắt đầu sử dụng
-      </a>
-    </div>
-  </section>
-</div>
+<!-- Call to Action -->
+<section class="py-5 text-white bg-primary text-center">
+  <div class="container">
+    <h2 class="fw-bold mb-3">Sẵn sàng bắt đầu?</h2>
+    <p class="lead mb-4">Tham gia ngay để trải nghiệm hệ thống hỗ trợ học tập hiện đại.</p>
+    <a href="/login-user" class="btn btn-light btn-lg px-5 fw-semibold">🚀 Bắt đầu sử dụng</a>
+  </div>
+</section>
 
-
+</main>

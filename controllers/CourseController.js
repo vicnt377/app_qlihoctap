@@ -70,6 +70,53 @@ class CourseController {
     }
   }
 
+async addMultipleCourses(req, res) {
+  try {
+    const userId = req.user?._id || req.session?.user?._id;
+    const { scores } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
+    }
+
+    if (!Array.isArray(scores) || scores.length === 0) {
+      return res.status(400).json({ message: 'Không có học phần nào được gửi lên.' });
+    }
+
+    // Lấy danh sách học phần đã có để loại trừ trùng
+    const existingScores = await Score.find({ 
+      username: userId,
+      HocPhan: { $in: scores.map(s => s.HocPhan) }
+    }).select('HocPhan').lean();
+
+    const existingIds = new Set(existingScores.map(s => s.HocPhan.toString()));
+
+    // Lọc các học phần chưa có trong bảng điểm
+    const newScoreDocs = scores
+      .filter(s => !existingIds.has(s.HocPhan))
+      .map(s => ({
+        username: userId,
+        HocPhan: s.HocPhan,
+        thu: s.thu,
+        gioBatDau: s.gioBatDau,
+        gioKetThuc: s.gioKetThuc
+      }));
+
+    if (newScoreDocs.length === 0) {
+      return res.status(409).json({ message: 'Tất cả học phần đã tồn tại trong bảng điểm.' });
+    }
+
+    await Score.insertMany(newScoreDocs);
+    res.json({ message: `✅ Đã thêm ${newScoreDocs.length} học phần thành công!` });
+
+  } catch (error) {
+    console.error('Lỗi thêm nhiều học phần:', error);
+    res.status(500).json({ message: '❌ Lỗi server khi thêm nhiều học phần.' });
+  }
+}
+
+
+
 }
 
 module.exports = new CourseController();

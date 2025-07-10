@@ -5,6 +5,7 @@ const { isUser } = require('../middlewares/authMiddleware')
 
 router.get('/', isUser, courseController.getCourses)
 router.post('/add-course', isUser, courseController.addCourseToScore);
+router.post('/add-multiple', isUser, courseController.addMultipleCourses);
 
 
 
