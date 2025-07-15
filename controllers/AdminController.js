@@ -1,6 +1,9 @@
 const User = require('../models/User');
 const Course = require('../models/Course');
 const Video = require('../models/Video')
+require('dotenv').config();
+const axios = require('axios');
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
 class AdminController {
 
@@ -274,7 +277,45 @@ class AdminController {
         const videos = await Video.find(filter)
         .sort(sortOption)
         .skip((currentPage - 1) * limit)
-        .limit(limit);
+        .limit(limit)
+        .lean();
+
+        // Lấy danh sách ID video
+        const videoIds = videos.map(v => v._id);
+
+        // Đếm số user đã đăng ký theo video
+        const enrollCounts = await User.aggregate([
+        { $match: { enrolledVideos: { $in: videoIds } } },
+        { $unwind: '$enrolledVideos' },
+        { $match: { enrolledVideos: { $in: videoIds } } },
+        {
+            $group: {
+            _id: '$enrolledVideos',
+            count: { $sum: 1 }
+            }
+        }
+        ]);
+
+        // Map số học viên theo videoId
+        const countMap = {};
+        enrollCounts.forEach(item => {
+        countMap[item._id.toString()] = item.count;
+        });
+
+        // Tính toán students và rating cho mỗi video
+        videos.forEach(video => {
+        // Gán số học viên
+        video.students = countMap[video._id.toString()] || 0;
+
+        // Tính trung bình đánh giá
+        const reviews = video.reviews || [];
+        if (reviews.length === 0) {
+            video.rating = 'Chưa có';
+        } else {
+            const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+            video.rating = (totalRating / reviews.length).toFixed(1);
+        }
+        });
 
         const users = await User.find();
 
@@ -286,13 +327,14 @@ class AdminController {
         currentPage,
         totalPages: Math.ceil(totalVideos / limit),
         totalVideos,
-        query: { search, sort }
+        query: { search, sort },
         });
     } catch (err) {
         console.error(err);
         res.status(500).send('Lỗi server');
     }
     }
+
 
 
     async createVideo(req, res) {
@@ -343,6 +385,35 @@ class AdminController {
         }
     }
 
+    async fetchVideosBySearch(req, res) {
+        const { q = 'lap trinh', maxResults = 10 } = req.query;
+
+        try {
+        const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+            params: {
+            key: YOUTUBE_API_KEY,
+            part: 'snippet',
+            q,
+            type: 'video',
+            maxResults,
+            }
+        });
+
+        const videos = response.data.items.map(item => ({
+            youtubeId: item.id.videoId,
+            title: item.snippet.title,
+            description: item.snippet.description,
+            thumbnail: item.snippet.thumbnails.medium.url,
+            publishedAt: item.snippet.publishedAt,
+            channelTitle: item.snippet.channelTitle,
+        }));
+
+        res.json({ videos });
+        } catch (error) {
+        console.error('Lỗi khi lấy video từ YouTube:', error.response?.data || error.message);
+        res.status(500).json({ message: 'Lỗi khi lấy video từ YouTube' });
+        }
+    }
 //Báo cáo thông kê-------------------------------------------------------------------------------------------------------------
     statistic(req, res) {
         res.render('admin/statistic', {layout: "admin", error: null });

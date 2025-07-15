@@ -10,6 +10,7 @@ router.get('/login-user', loginController.login_user)
 router.post('/login-user', loginController.login)
 
 router.get('/logout', loginController.logout)
+router.post('/logout', loginController.logout)
 
 router.get('/reset-password', loginController.showResetPassword)
 router.post('/reset-password', loginController.updatePassword);

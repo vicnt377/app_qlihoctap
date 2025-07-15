@@ -1,0 +1,40 @@
+<div class="dashboard-header mb-3">
+  <h2 class="dashboard-title"><i class="fas fa-play-circle me-2"></i> Bắt Đầu Học: {{video.title}}</h2>
+</div>
+
+<div class="container">
+  <div class="row">
+    <!-- Video học -->
+    <div class="col-md-8">
+      <div class="ratio ratio-16x9 rounded shadow-sm mb-3">
+        <iframe
+          src="https://www.youtube.com/embed/{{video.youtubeId}}?autoplay=1&rel=0"
+          title="{{video.title}}"
+          frameborder="0"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h5 class="card-title mb-2">Mô tả khóa học</h5>
+        <p class="card-text">{{video.description}}</p>
+      </div>
+    </div>
+
+    <!-- Thông tin khóa học -->
+    <div class="col-md-4">
+      <div class="card p-3 mb-3 shadow-sm">
+        <h6>Thông tin khóa học</h6>
+        <ul class="list-unstyled small">
+          <li><i class="fas fa-list me-2 text-primary"></i><strong>Bài học:</strong> {{video.lessons}}</li>
+          <li><i class="far fa-clock me-2 text-success"></i><strong>Thời lượng:</strong> {{duration}}</li>
+          <li><i class="fas fa-layer-group me-2 text-warning"></i><strong>Cấp độ:</strong> {{video.level}}</li>
+          <li><i class="fas fa-tags me-2 text-secondary"></i><strong>Danh mục:</strong> {{video.category}}</li>
+        </ul>
+      </div>
+
+      <a href="/video" class="btn btn-primary w-100"><i class="fas fa-arrow-left me-1"></i> Quay lại danh sách</a>
+    </div>
+  </div>
+</div>

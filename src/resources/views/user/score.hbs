@@ -39,38 +39,38 @@
   <!-- Bảng điểm -->
   <div class="col-md-8">
     <div class="card p-4">
+    <form method="POST" action="/score/update">
       {{#each semesters}}
         <h4 class="text-info">{{tenHocKy}} - {{namHoc}}</h4>
-        <form method="POST" action="/score/update">
-          <table class="table table-bordered" data-semester>
-            <thead>
-              <tr>
-                <th>Mã Học Phần</th>
-                <th>Tên Học Phần</th>
-                <th>Số Tín Chỉ</th>
-                <th>Điểm Số</th>
-                <th>Điểm Chữ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{#each score}}
-              <tr>
-                <td>{{HocPhan.maHocPhan}}</td>
-                <td>{{HocPhan.tenHocPhan}}</td>
-                <td>{{HocPhan.soTinChi}}</td>
-                <td>
-                  <input type="number" step="0.1" min="0" max="10" name="scores[{{_id}}][diemSo]" class="form-control" value="{{default diemSo 0}}">
-                </td>
-                <td>
-                  <input type="text" name="scores[{{_id}}][diemChu]" class="form-control" value="{{diemChu}}">
-                </td>
-              </tr>
-              {{/each}}
-            </tbody>
-          </table>
-          <button type="submit" class="btn btn-success mt-2">Lưu điểm</button>
-        </form>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Mã Học Phần</th>
+              <th>Tên Học Phần</th>
+              <th>Số Tín Chỉ</th>
+              <th>Điểm Số</th>
+              <th>Điểm Chữ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each score}}
+            <tr>
+              <td>{{HocPhan.maHocPhan}}</td>
+              <td>{{HocPhan.tenHocPhan}}</td>
+              <td>{{HocPhan.soTinChi}}</td>
+              <td>
+                <input type="number" step="0.1" min="0" max="10" name="scores[{{_id}}][diemSo]" class="form-control" value="{{default diemSo 0}}">
+              </td>
+              <td>
+                <input type="text" name="scores[{{_id}}][diemChu]" class="form-control" value="{{diemChu}}">
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
       {{/each}}
+      <button type="submit" class="btn btn-success mt-3 p-3">Lưu điểm</button>
+    </form>
     </div>
   </div>
 </main>

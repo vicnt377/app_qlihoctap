@@ -50,6 +50,12 @@ module.exports = {
     });
   },
 
+  addDays: (date, days) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  },
+
   ifCond: function (v1, operator, v2, options) {
     switch (operator) {
       case '===': return v1 === v2 ? options.fn(this) : options.inverse(this);
@@ -64,6 +70,7 @@ module.exports = {
 
   add: (a, b) => a + b,
   subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b,
 
   times: function(n, block) {
     let accum = '';
@@ -103,5 +110,10 @@ module.exports = {
           endRecur: sem.endDate?.toISOString().split('T')[0],
         }))
       );
+    },
+
+    thumbnailIsUrl: function (thumbnail) {
+      return thumbnail &&
+       (thumbnail.startsWith('http://') || thumbnail.startsWith('https://'));
     }
 };

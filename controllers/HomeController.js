@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Score = require('../models/Score');
+const Video = require('../models/Video'); 
 
 class HomeController {
   async index(req, res, next) {
@@ -34,13 +35,19 @@ class HomeController {
       const totalNoSubjects = monNo.length;
  
       const totalCreditsExceeded = totalCredits > maxCredits;
+      const populatedUser = await User.findById(userId)
+        .populate('enrolledVideos') // populate để lấy chi tiết video
+        .lean();
+
+      const enrolledVideos = populatedUser?.enrolledVideos || [];
 
       res.render('user/home', {
         user,
         totalCredits,
         monNo,
         totalCreditsExceeded,
-        totalNoSubjects
+        totalNoSubjects,
+        enrolledVideos,
       });
     } catch (error) {
       console.error("Lỗi trang chủ:", error);

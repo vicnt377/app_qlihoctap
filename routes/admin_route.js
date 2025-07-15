@@ -28,6 +28,8 @@ router.post('/videos/create', isAdmin, adminController.createVideo)
 router.post('/videos/edit/:id', isAdmin, adminController.editVideo)
 router.post('/videos/delete/:id', isAdmin, adminController.deleteVideo)
 
+router.get('/videos/search', isAdmin, adminController.fetchVideosBySearch);
+
 //Statistic
 router.get("/statistic", isAdmin, adminController.statistic)
 

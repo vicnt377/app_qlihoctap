@@ -35,7 +35,12 @@
     <div class="col-md-4 mb-4">
       <div class="card h-100 shadow-sm">
         <div class="position-relative">
-          <img src="/img/thumbnails/{{this.thumbnail}}" class="card-img-top" alt="{{this.title}}">
+          <img
+            src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}"
+            class="card-img-top"
+            alt="{{this.title}}"
+          />
+
           <span class="badge bg-{{this.levelColor}} position-absolute top-0 start-0 m-2">{{this.level}}</span>
           <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">
             <i class="fas fa-star"></i> {{this.rating}}
@@ -46,11 +51,10 @@
           <h5 class="card-title mt-1">{{this.title}}</h5>
           <p class="card-text small">{{this.description}}</p>
           <ul class="list-inline text-muted small mb-2">
-            <li class="list-inline-item"><i class="far fa-clock"></i> {{this.duration}} giờ</li>
+            <li class="list-inline-item"><i class="far fa-clock"></i> {{this.durationFormatted}}</li>
             <li class="list-inline-item"><i class="fas fa-list"></i> {{this.lessons}} bài</li>
             <li class="list-inline-item"><i class="fas fa-user-graduate"></i> {{this.students}} học viên</li>
           </ul>
-          <p class="mb-1"><strong>Giảng viên:</strong> {{this.instructor}}</p>
           <a href="video/showdetail/{{this._id}}" class="btn btn-primary mt-auto w-100">Xem chi tiết</a>
         </div>
       </div>

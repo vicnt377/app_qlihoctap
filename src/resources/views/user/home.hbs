@@ -14,7 +14,7 @@
 
   <!-- Thống kê học tập -->
   <div class="card shadow-sm p-4 mb-5 bg-white rounded">
-    <h5 class="text-dark mb-3">📊 Thống kê học tập</h5>
+    <h5 class="text-dark mb-3"> Thống kê học tập</h5>
     <p><strong>{{totalCredits}} / 152 tín chỉ đã hoàn thành</strong></p>
     <canvas id="creditChart" height="180"></canvas>
 
@@ -24,10 +24,38 @@
       </div>
     {{/if}}
   </div>
+  <!-- Cac khoa hoc da tham gia-->
+  <div class="card shadow-sm p-4 mb-5 bg-white rounded">
+    <h5 class="text-dark mb-3"> Các khóa học đã tham gia</h5>
+
+    {{#if enrolledVideos.length}}
+      <div class="row">
+        {{#each enrolledVideos}}
+          <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+              <img
+                src="https://img.youtube.com/vi/{{this.youtubeId}}/hqdefault.jpg"
+                class="card-img-top"
+                alt="{{this.title}}"
+              />
+              <div class="card-body d-flex flex-column">
+                <h6 class="card-title">{{this.title}}</h6>
+                <p class="card-text small">{{this.description}}</p>
+                <a href="/video/start/{{this._id}}" class="btn btn-sm btn-success mt-auto">Tiếp tục học</a>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="text-muted">Bạn chưa tham gia khóa học nào.</p>
+    {{/if}}
+  </div>
+
 
   <!-- Menu điều hướng ngang -->
   <div class="card shadow-sm p-4 mb-5 bg-white rounded">
-    <h5 class="mb-4 text-dark">📁 Truy cập nhanh</h5>
+    <h5 class="mb-4 text-dark"> Truy cập nhanh</h5>
     <div class="row row-cols-2 row-cols-md-4 g-3 text-center">
       <a href="/course" class="col text-decoration-none text-dark">
         <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
@@ -72,7 +100,7 @@
         </div>
       </a>
     </div>
-</div>
+  </div>
 
 </main>
 
