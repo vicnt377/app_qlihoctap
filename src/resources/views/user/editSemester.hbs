@@ -1,0 +1,86 @@
+<div class="dashboard-header">
+  <h2 class="dashboard-title mb-0">Chỉnh Sửa Học Kỳ</h2>
+</div>
+
+<div class="container my-3">
+  <a href="/semester" class="btn btn-primary btn-sm mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Quay lại
+  </a>
+
+  <form action="/semester/update/{{semester._id}}" method="POST" id="editSemesterForm">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-light">
+        <h4 style="color: #0DCAF0">Thông tin học kỳ</h4>
+      </div>
+      <div class="card-body row g-3">
+        <div class="col-md-4">
+          <label class="form-label"><strong>Tên học kỳ</strong></label>
+          <input type="text" class="form-control" name="tenHocKy" value="{{semester.tenHocKy}}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label"><strong>Ngày bắt đầu</strong></label>
+          <input type="date" class="form-control" name="startDate" value="{{formatDate semester.startDate 'yyyy-MM-dd'}}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label"><strong>Số tuần</strong></label>
+          <input type="number" class="form-control" name="soTuan" value="{{semester.soTuan}}" min="1" max="52" required>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h4 style="color: #0DCAF0">Danh sách học phần</h4>
+        <small class="text-muted">Chỉnh sửa thời khóa biểu từng học phần</small>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle mb-0">
+            <thead class="table-light text-center">
+              <tr>
+                <th style="width: 40px;">STT</th>
+                <th>Tên học phần</th>
+                <th>Mã học phần</th>
+                <th>Thứ</th>
+                <th>Giờ bắt đầu</th>
+                <th>Giờ kết thúc</th>
+                <th>Chọn</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each allScores}}
+                <tr>
+                  <td class="text-center">{{inc @index}}</td>
+                  <td>{{HocPhan.tenHocPhan}}</td>
+                  <td>{{HocPhan.maHocPhan}}</td>
+                  
+                  <td>
+                    <select name="scores[{{_id}}][thu]" class="form-select form-select-sm">
+                      {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
+                        <option value="{{this}}" {{#ifEquals this ../thu}}selected{{/ifEquals}}>{{this}}</option>
+                      {{/each}}
+                    </select>
+                  </td>
+                  <td>
+                    <input type="time" class="form-control form-control-sm" name="scores[{{_id}}][gioBatDau]" value="{{gioBatDau}}">
+                  </td>
+                  <td>
+                    <input type="time" class="form-control form-control-sm" name="scores[{{_id}}][gioKetThuc]" value="{{gioKetThuc}}">
+                  </td>
+                  <td class="text-center">
+                    <input type="checkbox" name="selectedScores" value="{{_id}}"
+                      {{#if (includes ../selectedScoreIds _id)}}checked{{/if}}>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-end mt-3">
+      <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+    </div>
+  </form>
+</div>

@@ -7,7 +7,8 @@ module.exports = {
   eq: (a, b) => a === b,
   ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
-
+  array: (...args) => args.slice(0, -1),
+  
   thuToNumber: function (thu) {
     const map = {
         'Thứ Hai': 1,
@@ -39,16 +40,23 @@ module.exports = {
       : `${endYear}-06-15`;
   },
 
-  formatDate: (date) => {
+  formatDate: (date, format) => {
     const d = new Date(date);
-    return d.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    if (!format || format === 'vi') {
+      return d.toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+    }
+
+    // format === 'yyyy-MM-dd'
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   },
+
 
   addDays: (date, days) => {
     const d = new Date(date);
@@ -115,5 +123,10 @@ module.exports = {
     thumbnailIsUrl: function (thumbnail) {
       return thumbnail &&
        (thumbnail.startsWith('http://') || thumbnail.startsWith('https://'));
+    },
+
+    includes: function (array, value) {
+      return array && array.includes(value.toString());
     }
+
 };

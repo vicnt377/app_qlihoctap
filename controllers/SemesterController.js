@@ -3,14 +3,16 @@ const Score = require('../models/Score');
 const Course = require('../models/Course');
 
 const helper = require('../src/util/helper');
+const moment = require('moment');
 
 class SemesterController {
-  async getClass(req, res) {
+  async getSemester(req, res) {
     try {
       const userId = req.user?._id || req.session?.user?._id;
       if (!userId) {
         return res.render('auth/login'); 
       }
+      const courses = await Course.find();
 
       const semesterDocs = await Semester.find({ username: userId })
         .populate({
@@ -23,6 +25,7 @@ class SemesterController {
         .lean();
 
       const classesGroupedBySemester = semesterDocs.map(sem => ({
+        _id: sem._id,
         tenHocKy: sem.tenHocKy,
         startDate: sem.startDate,
         soTuan: sem.soTuan,
@@ -34,12 +37,13 @@ class SemesterController {
 
       const semesterScores = await Semester.find({ username: userId }).select('score').lean();
       const usedScoreIds = new Set(
-        semesterScores.flatMap(s => s.score.map(id => id.toString()))
+        semesterScores.flatMap(s => (s.score || []).map(id => id.toString()))
       );
+
 
       const allScores = await Score.find({
         username: userId,
-        _id: { $nin: Array.from(usedScoreIds) }
+        semester: { $exists: false }
       })
         .populate('HocPhan')
         .lean();
@@ -53,6 +57,7 @@ class SemesterController {
         selectedYear: '',
         years,
         semestersList,
+        courses,
         scores: allScores,
         events,
       });
@@ -65,93 +70,149 @@ class SemesterController {
 
   async addNewSemester(req, res) {
     try {
-      const userId = req.user?._id || req.session?.user?._id;
-      if (!userId) {
-        return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
-      }
-
+      const userId = req.session.user._id;
       const { tenHocKy, startDate, soTuan, selectedScores } = req.body;
 
-      if (!tenHocKy || !startDate || !soTuan) {
-        return res.status(400).json({ message: 'Vui lòng điền đủ thông tin học kỳ!' });
-      }
-
-      const scoresToAdd = Array.isArray(selectedScores)
-        ? selectedScores
-        : selectedScores ? [selectedScores] : [];
-
-      const validScores = await Score.find({
-        _id: { $in: scoresToAdd },
-        username: userId
-      }).select('_id');
-
-      if (validScores.length !== scoresToAdd.length) {
-        return res.status(400).json({ message: 'Bạn chọn điểm không hợp lệ hoặc không thuộc về tài khoản này.' });
-      }
-
-      const start = new Date(startDate);
-      const end = new Date(start);
-      end.setDate(start.getDate() + parseInt(soTuan) * 7);
-
+      // Tạo học kỳ mới
       const newSemester = new Semester({
         tenHocKy,
-        startDate: start,
-        endDate: end,
-        soTuan: parseInt(soTuan),
-        score: validScores.map(s => s._id),
-        username: userId
+        startDate,
+        soTuan,
+        username: userId,
       });
       await newSemester.save();
 
-      const semesterDocs = await Semester.find({ username: userId })
+      // Cập nhật các score để gán học kỳ
+      await Score.updateMany(
+        { _id: { $in: selectedScores } },
+        { semester: newSemester._id }
+      );
+
+      // Gán danh sách score vào semester
+      newSemester.score = selectedScores;
+      await newSemester.save();
+
+      // Trả về JSON kết quả
+      const populatedSemester = await Semester.findById(newSemester._id)
         .populate({
           path: 'score',
-          populate: [
-            { path: 'HocPhan' },
-            { path: 'username' }
-          ]
+          populate: 'HocPhan'
         })
         .lean();
 
-      const classesGroupedBySemester = semesterDocs.map(sem => ({
-        tenHocKy: sem.tenHocKy,
-        startDate: sem.startDate,
-        soTuan: sem.soTuan,
-        scores: sem.score || []
-      })).filter(sem => sem.scores.length > 0);
-
-      const years = semesterDocs.map(sem => new Date(sem.startDate).getFullYear().toString());
-      const semestersList = semesterDocs.map(sem => sem.tenHocKy);
-
-      const semesterScores = await Semester.find({ username: userId }).select('score').lean();
-      const usedScoreIds = new Set(
-        semesterScores.flatMap(s => s.score.map(id => id.toString()))
-      );
-
-      const availableScores = await Score.find({
-        username: userId,
-        _id: { $nin: Array.from(usedScoreIds) }
-      }).populate('HocPhan').lean();
-
-      const events = helper.generateEvents(semesterDocs);
-      console.log("Flat events to render:", JSON.stringify(events, null, 2));
-
-      res.render('user/semester', {
-        user: req.session.user,
-        classesGroupedBySemester,
-        selectedSemester: tenHocKy,
-        selectedYear: new Date(startDate).getFullYear().toString(),
-        years,
-        semestersList,
-        scores: availableScores,
-        events,
+      res.status(200).json({
+        message: '✅ Thêm học kỳ thành công!',
+        semester: populatedSemester
       });
 
     } catch (error) {
       console.error('Lỗi thêm học kỳ:', error);
-      res.status(500).send('Có lỗi xảy ra khi thêm học kỳ mới.');
+      res.status(500).json({ message: '❌ Lỗi server khi thêm học kỳ.' });
     }
   }
+
+
+
+
+  async deleteSemester(req, res) {
+    try {
+      const userId = req.session?.user?._id;
+      const semesterId = req.params.id;
+
+      const deleted = await Semester.findOneAndDelete({
+        _id: semesterId,
+        username: userId,
+      });
+
+      if (!deleted) {
+        return res.status(404).send('Không tìm thấy học kỳ cần xóa');
+      }
+
+      res.redirect('/semester');
+    } catch (error) {
+      console.error('Lỗi khi xóa học kỳ:', error);
+      res.status(500).send('Lỗi máy chủ khi xóa học kỳ.');
+    }
+  }
+
+
+  async editSemesterForm(req, res) {
+    try {
+      const userId = req.session?.user?._id;
+      const semesterId = req.params.id;
+
+      const semester = await Semester.findOne({ _id: semesterId, username: userId })
+        .populate({ path: 'score', populate: 'HocPhan' })
+        .lean();
+
+      if (!semester) {
+        return res.status(404).send('Không tìm thấy học kỳ');
+      }
+
+      const allScores = await Score.find({ username: userId })
+        .populate('HocPhan')
+        .lean();
+
+      const selectedScoreIds = semester.score?.map(s => s._id.toString()) || [];
+
+      res.render('user/editSemester', {
+        semester,
+        allScores,
+        selectedScoreIds,
+      });
+    } catch (err) {
+      console.error('Lỗi khi lấy form sửa học kỳ:', err);
+      res.status(500).send('Lỗi server khi hiển thị form sửa học kỳ.');
+    }
+  }
+
+  async updateSemester(req, res) {
+    const userId = req.session?.user?._id;
+    const semesterId = req.params.id;
+    const { tenHocKy, startDate, soTuan, selectedScores, scores } = req.body;
+
+    const scoresToAdd = Array.isArray(selectedScores)
+      ? selectedScores
+      : selectedScores ? [selectedScores] : [];
+
+    const validScores = await Score.find({
+      _id: { $in: scoresToAdd },
+      username: userId,
+    });
+
+    // Cập nhật thông tin từng score
+    for (let score of validScores) {
+      const updates = scores?.[score._id.toString()];
+      if (updates) {
+        score.thu = updates.thu;
+        score.gioBatDau = updates.gioBatDau;
+        score.gioKetThuc = updates.gioKetThuc;
+        await score.save();
+      }
+    }
+
+    // Cập nhật học kỳ
+    const semester = await Semester.findOneAndUpdate(
+      { _id: semesterId, username: userId },
+      {
+        tenHocKy,
+        startDate: new Date(startDate),
+        soTuan: parseInt(soTuan),
+        score: validScores.map(s => s._id),
+      },
+      { new: true }
+    );
+
+    if (!semester) return res.status(404).send('Không tìm thấy học kỳ');
+
+    // cập nhật endDate
+    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+    semester.endDate = new Date(new Date(startDate).getTime() + soTuan * msPerWeek);
+    await semester.save();
+
+    res.redirect('/semester');
+  }
+
 }
 
 module.exports = new SemesterController();
