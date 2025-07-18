@@ -51,6 +51,7 @@ class ScoreController {
         })
         .lean();
 
+
       // Gắn năm học vào từng học kỳ
       const semestersWithYear = allSemesters.map(s => ({
         ...s,
@@ -61,7 +62,7 @@ class ScoreController {
       const filteredSemesters = semestersWithYear.filter(s => {
         const matchYear = selectedYear === 'Tất cả' || getAcademicYear(s.startDate) === selectedYear;
         const matchSemester = selectedSemester === 'Tất cả' || s.tenHocKy === selectedSemester;
-        return matchYear && matchSemester && s.score.length > 0;
+        return matchYear && matchSemester && Array.isArray(s.score) && s.score.length > 0;
       });
 
       // Danh sách tất cả năm học và học kỳ

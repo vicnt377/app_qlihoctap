@@ -59,47 +59,59 @@
       </div>
     </form>
 
-    <!-- Danh sách học phần đã chọn -->
+    <!-- Danh sách học phần -->
     <div class="card shadow-sm mb-5">
       <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
-        <strong>Danh sách học phần đã chọn</strong>
-        <button type="button" class="btn btn-sm btn-primary col-md-2" data-bs-toggle="modal" data-bs-target="#addCourseModal">
-          Thêm học phần
-        </button>
+        <strong>Danh sách học phần</strong>
       </div>
-      <div class="card-body table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>STT</th>
-              <th>Tên học phần</th>
-              <th>Mã học phần</th>
-              <th>Thứ</th>
-              <th>Bắt đầu</th>
-              <th>Kết thúc</th>
-              <th>Chọn</th>
-            </tr>
-          </thead>
-          <tbody id="scoreTableBody">
-            {{#each scores}}
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle mb-0">
+            <thead class="table-light text-center">
               <tr>
-                <td>{{inc @index}}</td>
-                <td>{{HocPhan.tenHocPhan}}</td>
-                <td>{{HocPhan.maHocPhan}}</td>
-                <td>{{thu}}</td>
-                <td>{{gioBatDau}}</td>
-                <td>{{gioKetThuc}}</td>
-                <td><input type="checkbox" name="selectedScores" value="{{_id}}"></td>
+                <th>STT</th>
+                <th>Tên học phần</th>
+                <th>Mã học phần</th>
+                <th>Thứ</th>
+                <th>Giờ bắt đầu</th>
+                <th>Giờ kết thúc</th>
+                <th>Chọn</th>
               </tr>
-            {{else}}
-              <tr>
-                <td colspan="7" class="text-center text-muted">Không có học phần nào khả dụng.</td>
-              </tr>
-            {{/each}}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {{#each courses}}
+                <tr>
+                  <td class="text-center">{{inc @index}}</td>
+                  <td>{{tenHocPhan}}</td>
+                  <td>{{maHocPhan}}</td>
+                  <td>
+                    <select class="form-select form-select-sm" name="thu_{{_id}}" id="thu_{{_id}}">
+                      {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
+                        <option value="{{this}}">{{this}}</option>
+                      {{/each}}
+                    </select>
+                  </td>
+                  <td>
+                    <input type="time" class="form-control form-control-sm" name="gioBatDau_{{_id}}" id="gioBatDau_{{_id}}">
+                  </td>
+                  <td>
+                    <input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}" id="gioKetThuc_{{_id}}">
+                  </td>
+                  <td class="text-center">
+                    <input type="checkbox" name="selectedCourses" value="{{_id}}">
+                  </td>
+                </tr>
+              {{else}}
+                <tr>
+                  <td colspan="7" class="text-center text-muted">Không có học phần nào khả dụng.</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
   </div>
 
   <!-- Tab 3: Danh sách học kỳ -->
@@ -151,134 +163,59 @@
 </div>
 </main>
 
-<!-- Modal Thêm Học Phần -->
-<div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content shadow">
-      <form id="modalAddCourseForm">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addCourseModalLabel">Thêm học phần mới</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-        </div>
-
-        <div class="modal-body row g-3">
-          <div class="col-md-12">
-            <label class="form-label">Chọn học phần</label>
-            <select name="HocPhan" class="form-select" required>
-              <option value="">-- Chọn học phần --</option>
-              {{#each courses}}
-                <option value="{{_id}}">{{tenHocPhan}} ({{maHocPhan}})</option>
-              {{/each}}
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Thứ</label>
-            <select name="thu" class="form-select" required>
-              <option>Thứ Hai</option>
-              <option>Thứ Ba</option>
-              <option>Thứ Tư</option>
-              <option>Thứ Năm</option>
-              <option>Thứ Sáu</option>
-              <option>Thứ Bảy</option>
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Giờ bắt đầu</label>
-            <input type="time" name="gioBatDau" class="form-control" required>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Giờ kết thúc</label>
-            <input type="time" name="gioKetThuc" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Thêm vào danh sách</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 <script>
-  document.getElementById('modalAddCourseForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+document.getElementById('addSemesterForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
 
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
+  const tenHocKy = document.getElementById('tenHocKy').value.trim();
+  const startDate = document.getElementById('startDate').value;
+  const soTuan = document.getElementById('soTuan').value || 18;
 
-    try {
-      const res = await fetch('/semester/add-course', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        alert(result.message);
-        location.reload();
-      } else {
-        alert(result.message || 'Lỗi khi thêm học phần.');
-      }
-    } catch (err) {
-      console.error('Lỗi gửi dữ liệu:', err);
-      alert('❌ Lỗi khi gửi dữ liệu lên server!');
-    }
+  const checkboxes = document.querySelectorAll('input[name="selectedCourses"]:checked');
+  const selectedCoursesData = Array.from(checkboxes).map(cb => {
+    const courseId = cb.value;
+    const thu = document.querySelector(`[name="thu_${courseId}"]`).value.trim();
+    const gioBatDau = document.querySelector(`[name="gioBatDau_${courseId}"]`).value;
+    const gioKetThuc = document.querySelector(`[name="gioKetThuc_${courseId}"]`).value;
+    return { courseId, thu, gioBatDau, gioKetThuc };
   });
+
+  if (!tenHocKy || !startDate || selectedCoursesData.length === 0) {
+    alert('Vui lòng nhập đầy đủ thông tin và chọn ít nhất một học phần!');
+    return;
+  }
+
+  try {
+    const response = await fetch('/semester/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tenHocKy,
+        startDate,
+        soTuan,
+        selectedCourses: selectedCoursesData
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(data.message || '✅ Thêm học kỳ thành công!');
+      location.reload();
+    } else {
+      alert(data.message || '❌ Đã xảy ra lỗi khi thêm học kỳ.');
+    }
+
+  } catch (error) {
+    console.error('Lỗi fetch:', error);
+    alert('❌ Lỗi kết nối đến server.');
+  }
+});
 </script>
 
-<script>
-  document.getElementById('addSemesterForm').addEventListener('submit', async function (e) {
-    e.preventDefault(); // Ngăn form reload mặc định
 
-    const tenHocKy = document.getElementById('tenHocKy').value.trim();
-    const startDate = document.getElementById('startDate').value;
-    const soTuan = document.getElementById('soTuan').value || 18;
-
-    // ✅ Lấy danh sách score đã chọn (checkbox)
-    const checkboxes = document.querySelectorAll('input[name="selectedScores"]:checked');
-    const selectedScoreIds = Array.from(checkboxes).map(cb => cb.value);
-
-    if (!tenHocKy || !startDate || selectedScoreIds.length === 0) {
-      alert('Vui lòng nhập đầy đủ thông tin và chọn ít nhất một học phần!');
-      return;
-    }
-
-    try {
-      const response = await fetch('/semester/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          tenHocKy,
-          startDate,
-          soTuan,
-          selectedScores: selectedScoreIds
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(data.message || '✅ Thêm học kỳ thành công!');
-        location.reload(); // ✅ Reload lại trang để hiển thị học kỳ mới
-      } else {
-        alert(data.message || '❌ Đã xảy ra lỗi khi thêm học kỳ.');
-      }
-
-    } catch (error) {
-      console.error('Lỗi fetch:', error);
-      alert('❌ Lỗi kết nối đến server.');
-    }
-  });
-</script>
 
 
 

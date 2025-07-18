@@ -10,10 +10,10 @@ class SemesterController {
     try {
       const userId = req.user?._id || req.session?.user?._id;
       if (!userId) {
-        return res.render('auth/login'); 
+        return res.render('auth/login');
       }
-      const courses = await Course.find();
 
+      // 1. Lấy tất cả học kỳ của user
       const semesterDocs = await Semester.find({ username: userId })
         .populate({
           path: 'score',
@@ -24,23 +24,28 @@ class SemesterController {
         })
         .lean();
 
+      // 2. Nhóm score theo học kỳ
       const classesGroupedBySemester = semesterDocs.map(sem => ({
         _id: sem._id,
         tenHocKy: sem.tenHocKy,
         startDate: sem.startDate,
         soTuan: sem.soTuan,
         scores: sem.score || []
-      })).filter(sem => sem.scores.length > 0);
+      }));
 
+      // 3. Tạo danh sách năm và tên học kỳ
       const years = semesterDocs.map(sem => new Date(sem.startDate).getFullYear().toString());
       const semestersList = semesterDocs.map(sem => sem.tenHocKy);
 
-      const semesterScores = await Semester.find({ username: userId }).select('score').lean();
-      const usedScoreIds = new Set(
-        semesterScores.flatMap(s => (s.score || []).map(id => id.toString()))
-      );
+      // 4. Tìm các HocPhan đã có trong Score
+      const usedCourseIds = await Score.find({ username: userId }).distinct('HocPhan');
 
+      // 5. Tìm các Course chưa được thêm vào Score
+      const availableCourses = await Course.find({
+        _id: { $nin: usedCourseIds }
+      }).lean();
 
+      // 6. Lấy các Score chưa gán semester (dành cho modal thêm học kỳ)
       const allScores = await Score.find({
         username: userId,
         semester: { $exists: false }
@@ -48,8 +53,10 @@ class SemesterController {
         .populate('HocPhan')
         .lean();
 
+      // 7. Tạo sự kiện FullCalendar
       const events = helper.generateEvents(semesterDocs);
 
+      // 8. Render view
       res.render('user/semester', {
         user: req.session.user,
         classesGroupedBySemester,
@@ -57,8 +64,8 @@ class SemesterController {
         selectedYear: '',
         years,
         semestersList,
-        courses,
-        scores: allScores,
+        courses: availableCourses, // ✅ course chưa gán vào score
+        scores: allScores,         // ✅ score chưa gán vào semester
         events,
       });
 
@@ -66,14 +73,14 @@ class SemesterController {
       console.error('Lỗi lấy lịch học:', error.message);
       res.status(500).send('Lỗi khi lấy dữ liệu lớp học!');
     }
-  }  
+  }
 
   async addNewSemester(req, res) {
     try {
       const userId = req.session.user._id;
-      const { tenHocKy, startDate, soTuan, selectedScores } = req.body;
+      const { tenHocKy, startDate, soTuan, selectedCourses } = req.body;
 
-      // Tạo học kỳ mới
+      // Tạo học kỳ
       const newSemester = new Semester({
         tenHocKy,
         startDate,
@@ -82,22 +89,30 @@ class SemesterController {
       });
       await newSemester.save();
 
-      // Cập nhật các score để gán học kỳ
-      await Score.updateMany(
-        { _id: { $in: selectedScores } },
-        { semester: newSemester._id }
-      );
+      // Tạo score tương ứng cho mỗi course
+      const scoreIds = [];
+      for (const course of selectedCourses) {
+        const { courseId, thu, gioBatDau, gioKetThuc } = course;
+
+        const newScore = await Score.create({
+          username: userId,
+          HocPhan: courseId,
+          thu,
+          gioBatDau,
+          gioKetThuc,
+          semester: newSemester._id
+        });
+
+        scoreIds.push(newScore._id);
+      }
 
       // Gán danh sách score vào semester
-      newSemester.score = selectedScores;
+      newSemester.score = scoreIds;
       await newSemester.save();
 
-      // Trả về JSON kết quả
+      // Populate trả về
       const populatedSemester = await Semester.findById(newSemester._id)
-        .populate({
-          path: 'score',
-          populate: 'HocPhan'
-        })
+        .populate({ path: 'score', populate: 'HocPhan' })
         .lean();
 
       res.status(200).json({
@@ -106,12 +121,10 @@ class SemesterController {
       });
 
     } catch (error) {
-      console.error('Lỗi thêm học kỳ:', error);
+      console.error('❌ Lỗi khi thêm học kỳ:', error);
       res.status(500).json({ message: '❌ Lỗi server khi thêm học kỳ.' });
     }
   }
-
-
 
 
   async deleteSemester(req, res) {
