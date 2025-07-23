@@ -10,45 +10,60 @@ class DocumentController {
       const userId = req.session?.user?._id;
       if (!userId) return res.redirect('/login');
 
-      const documents = await Document.find({ username: userId });
-      res.render('user/document', { user: req.session.user, documents });
+      const q = req.query.q || '';
+      const regex = new RegExp(q, 'i'); // tìm không phân biệt hoa thường
+
+      const documents = await Document.find({
+        username: userId,
+        title: regex,
+      }).sort({ createdAt: -1 });
+
+      res.render('user/document', {
+        user: req.session.user,
+        documents,
+        query: q,
+      });
     } catch (err) {
       next(err);
     }
   }
 
-  // 👉 Wrapper xử lý multer + lỗi
+
+  // Middleware xử lý file upload + kiểm tra lỗi
   handleUpload(req, res, next) {
-    upload.single('file')(req, res, async (err) => {
+    upload.single('file')(req, res, (err) => {
       if (err instanceof multer.MulterError) {
-        req.session.errorMessage = 'Lỗi khi upload file.';
-        return res.redirect('/document/upload');
+        req.session.errorMessage = 'Lỗi upload tệp: ' + err.message;
+        return res.redirect('/document');
       } else if (err) {
-        req.session.errorMessage = err.message;
-        return res.redirect('/document/upload');
+        req.session.errorMessage = 'Lỗi máy chủ: ' + err.message;
+        return res.redirect('/document');
       }
 
-      // Gọi tiếp đến upload logic
-      await this.uploadDocument(req, res, next);
+      // Tiếp tục tới logic upload
+      next();
     });
   }
 
-  // 👉 Logic lưu thông tin file
+  // Logic xử lý sau khi file đã được upload thành công
   async uploadDocument(req, res, next) {
     try {
       const userId = req.session?.user?._id;
+
       if (!userId || !req.file || !req.body.title) {
-        req.session.errorMessage = "Thiếu thông tin khi upload tài liệu.";
-        return res.redirect('/document/upload');
+        req.session.errorMessage = 'Thiếu thông tin khi tải lên.';
+        return res.redirect('/document');
       }
 
       const newDoc = new Document({
         username: userId,
         title: req.body.title,
-        file: `${userId}/${req.file.filename}` // Lưu đường dẫn tương đối
+        file: `${userId}/${req.file.filename}`
       });
 
       await newDoc.save();
+
+      req.session.successMessage = 'Tải lên tài liệu thành công.';
       res.redirect('/document');
     } catch (err) {
       next(err);

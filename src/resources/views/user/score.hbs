@@ -7,6 +7,7 @@
 <main class="container mt-4 row g-3 mb-4">
   <form method="GET" action="/score" class="row g-3 mb-4">
     <div class="col-md-4">
+      <label for="year" class="form-label"><strong>Năm học:</strong></label>
       <select name="year" class="form-select">
         <option value="Tất cả" {{#if (eq selectedYear 'Tất cả')}}selected{{/if}}>Tất cả</option>
         {{#each years}}
@@ -15,6 +16,7 @@
       </select>
     </div>
     <div class="col-md-4">
+      <label for="semester" class="form-label"><strong>Học kỳ:</strong></label>
       <select name="semester" class="form-select">
         <option value="Tất cả" {{#if (eq selectedSemester 'Tất cả')}}selected{{/if}}>Tất cả</option>
         {{#each semestersList}}
@@ -23,7 +25,8 @@
       </select>
     </div>
     <div class="col-md-4">
-      <button type="submit" class="btn btn-primary"> 🔍 </button>
+      <label class="form-label"> </label>
+      <button type="submit" class="btn btn-primary"> Lọc </button>
     </div>
   </form>
 
@@ -33,7 +36,13 @@
       <h5>📌 Tổng Kết Toàn Khoá</h5>
       <p><strong>Trung Bình Tích Lũy:</strong> <span class="badge bg-info">{{cumulative}}</span></p>
       <p><strong>Xếp loại học lực:</strong> <span class="badge bg-warning text-dark">{{hocLuc}}</span></p>
+      {{#if canhBaoHocVu}}
+        <div style="background-color: rgba(255, 0, 0, 0.647);" class="px-4 py-3 rounded mt-3">
+          <strong>⚠️ {{canhBaoHocVu}}</strong>
+        </div>
+      {{/if}}
     </div>
+    
   </div>
 
   <!-- Bảng điểm -->

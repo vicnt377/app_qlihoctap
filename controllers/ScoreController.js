@@ -31,6 +31,8 @@ function getAcademicYear(startDate) {
   return `${year} - ${year + 1}`;
 }
 
+
+
 class ScoreController {
   // Trang xem điểm và tính GPA
   async getScore(req, res) {
@@ -85,6 +87,14 @@ class ScoreController {
       const gpa = tongTinChi > 0 ? (tongDiem / tongTinChi) : 0;
       const hocLuc = xepLoaiHocLuc(gpa);
 
+      // Xác định nếu GPA dưới mức cảnh báo
+      let canhBaoHocVu = '';
+      if (gpa < 1.0) {
+        canhBaoHocVu = 'Cảnh báo học vụ mức 2 (GPA dưới 1.0)';
+      } else if (gpa < 1.5) {
+        canhBaoHocVu = 'Cảnh báo học vụ mức 1 (GPA dưới 1.5)';
+      }
+
       res.render('user/score', {
         user: req.session.user,
         semesters: filteredSemesters,
@@ -94,7 +104,8 @@ class ScoreController {
         selectedSemester,
         gpa: gpa.toFixed(2),
         cumulative: gpa.toFixed(2),
-        hocLuc
+        hocLuc,
+        canhBaoHocVu
       });
 
     } catch (err) {
@@ -109,10 +120,16 @@ class ScoreController {
       const updates = req.body.scores;
 
       for (const scoreId in updates) {
-        const { diemSo, diemChu } = updates[scoreId];
+        let { diemSo, diemChu } = updates[scoreId];
+
+        // Nếu diemChu là mảng thì lấy phần tử đầu tiên
+        if (Array.isArray(diemChu)) {
+          diemChu = diemChu[0];
+        }
+
         await Score.findByIdAndUpdate(scoreId, {
           diemSo: parseFloat(diemSo),
-          diemChu: diemChu
+          diemChu
         });
       }
 
@@ -122,6 +139,7 @@ class ScoreController {
       res.status(500).send('Cập nhật điểm thất bại!');
     }
   }
+
 }
 
 module.exports = new ScoreController();

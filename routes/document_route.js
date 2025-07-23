@@ -5,13 +5,10 @@ const { isUser } = require('../middlewares/authMiddleware')
 
 router.get('/', isUser, documentController.getDocument);
 
-// Giao diện upload
-router.get('/upload', (req, res) => {
-  res.render('user/upload', { user: req.session.user })
-})
+
 
 // Gọi handleUpload thay vì trực tiếp dùng middleware trong route
-router.post('/upload', isUser, documentController.handleUpload)
+router.post('/upload', isUser, documentController.handleUpload, documentController.uploadDocument)
 
 router.post('/delete/:id',isUser, documentController.deleteDocument)
 
