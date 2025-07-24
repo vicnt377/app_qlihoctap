@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const videoController = require('../controllers/VideoController') 
-const accountController = require('../controllers/AccountController')
-const { isUser } = require('../middlewares/authMiddleware')
+const videoController = require('../../controllers/user/VideoController') 
+const accountController = require('../../controllers/user/AccountController')
+const { isUser } = require('../../middlewares/authMiddleware')
 
 router.get('/', isUser, videoController.getVideo)
 router.post('/join/:id', isUser, videoController.joinVideo)

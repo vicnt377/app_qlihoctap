@@ -1,7 +1,7 @@
-const Score = require('../models/Score');
-const Course = require('../models/Course');
-const Semester = require('../models/Semester');
-const User = require('../models/User');
+const Score = require('../../models/Score');
+const Course = require('../../models/Course');
+const Semester = require('../../models/Semester');
+const User = require('../../models/User');
 
 // Chuyển điểm 10 sang thang 4
 function convertTo4Scale(diemSo) {

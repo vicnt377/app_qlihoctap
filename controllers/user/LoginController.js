@@ -1,6 +1,6 @@
 
-const User = require('../models/User');
-const { mongooseToObject } = require('../src/util/mongoose');
+const User = require('../../models/User');
+const { mongooseToObject } = require('../../src/util/mongoose');
 
 class LoginController {
     re_login(req, res){

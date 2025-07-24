@@ -1,5 +1,5 @@
-const Course = require('../models/Course');
-const Score = require('../models/Score');
+const Course = require('../../models/Course');
+const Score = require('../../models/Score');
 
 class CourseController {
   // Lấy danh sách khóa học

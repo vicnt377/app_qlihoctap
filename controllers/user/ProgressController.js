@@ -1,4 +1,4 @@
-const Score = require('../models/Score');
+const Score = require('../../models/Score');
 
 class ProgressController {
     async getProgress(req, res) {

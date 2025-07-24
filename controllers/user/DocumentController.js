@@ -1,8 +1,8 @@
-const Document = require('../models/Document');
+const Document = require('../../models/Document');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const upload = require('../middlewares/uploadMiddlewares'); // import upload
+const upload = require('../../middlewares/uploadMiddlewares'); // import upload
 
 class DocumentController {
   async getDocument(req, res, next) {

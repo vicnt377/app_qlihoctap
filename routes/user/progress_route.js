@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const progressController = require('../controllers/ProgressController')
-const { isUser } = require('../middlewares/authMiddleware');
+const progressController = require('../../controllers/user/ProgressController')
+const { isUser } = require('../../middlewares/authMiddleware');
 
 router.get('/', isUser, progressController.getProgress)
 

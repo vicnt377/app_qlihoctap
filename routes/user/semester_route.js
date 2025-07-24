@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const semesterController = require('../controllers/SemesterController')
-const courseController = require('../controllers/CourseController')
-const { isUser } = require('../middlewares/authMiddleware')
+const semesterController = require('../../controllers/user/SemesterController')
+const courseController = require('../../controllers/user/CourseController')
+const { isUser } = require('../../middlewares/authMiddleware')
 
 router.get('/', isUser, semesterController.getSemester)
 router.post('/add',isUser,  semesterController.addNewSemester);

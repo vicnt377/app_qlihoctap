@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const documentController = require('../controllers/DocumentController')
-const { isUser } = require('../middlewares/authMiddleware')
+const documentController = require('../../controllers/user/DocumentController')
+const { isUser } = require('../../middlewares/authMiddleware')
 
 router.get('/', isUser, documentController.getDocument);
 

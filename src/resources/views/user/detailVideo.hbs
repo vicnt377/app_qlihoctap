@@ -59,31 +59,24 @@
   <div class="card mt-2 p-4 shadow-sm">
     <ul class="nav nav-tabs mb-3" role="tablist">
       <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#overview">Tổng quan</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#content">Chương trình học</a></li>
       <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#reviews">Đánh giá</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane fade show active" id="overview">
-        <h5>Về khóa học này</h5>
-        <p>{{video.description}}</p>
-        <h6>Bạn sẽ học được gì</h6>
-        <ul class="list-unstyled">
-          <li><i class="fas fa-check-circle text-success me-2"></i> Nắm vững các khái niệm cơ bản</li>
-          <li><i class="fas fa-check-circle text-success me-2"></i> Áp dụng kiến thức vào công việc</li>
-          <li><i class="fas fa-check-circle text-success me-2"></i> Thực hành với các dự án thực tế</li>
-          <li><i class="fas fa-check-circle text-success me-2"></i> Phát triển kỹ năng chuyên môn</li>
-        </ul>
+        <div class="collapse show" id="courseDescription">
+          <p class="text-muted" style="font-size: 1.05rem; line-height: 1.8;">
+            {{{video.description}}}
+          </p>
+        </div>
+        <a class="btn btn-sm btn-outline-secondary mt-2" data-bs-toggle="collapse" href="#courseDescription" role="button" aria-expanded="false">
+          Xem thêm / Ẩn bớt
+        </a>
       </div>
 
-      <div class="tab-pane fade" id="content">
-        <p>Chương trình học đang được cập nhật...</p>
-      </div>
-
-        <div class="tab-pane fade" id="reviews">
+      <div class="tab-pane fade" id="reviews">
         <h6>Viết đánh giá của bạn</h6>
         <form action="/video/{{video._id}}/review" method="POST" class="mb-4">
             <div class="mb-2">
-            <label class="form-label d-block">Đánh giá của bạn</label>
             <div id="star-rating" class="fs-4 mb-2">
                 <i class="fa-solid fa-star star" data-value="1"></i>
                 <i class="fa-solid fa-star star" data-value="2"></i>
@@ -114,7 +107,7 @@
         {{else}}
             <p>Chưa có đánh giá nào.</p>
         {{/each}}
-        </div>
+        </div>        
 
     </div>
   </div>

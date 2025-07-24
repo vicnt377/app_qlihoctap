@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const Score = require('../models/Score');
-const Video = require('../models/Video'); 
+const User = require('../../models/User');
+const Score = require('../../models/Score');
+const Video = require('../../models/Video'); 
 
 class HomeController {
   async index(req, res, next) {

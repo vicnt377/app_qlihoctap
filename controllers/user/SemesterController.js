@@ -1,8 +1,8 @@
-const Semester = require('../models/Semester');
-const Score = require('../models/Score');
-const Course = require('../models/Course');
+const Semester = require('../../models/Semester');
+const Score = require('../../models/Score');
+const Course = require('../../models/Course');
 
-const helper = require('../src/util/helper');
+const helper = require('../../src/util/helper');
 const moment = require('moment');
 
 class SemesterController {

@@ -1,5 +1,5 @@
-const Video = require('../models/Video');
-const User = require('../models/User');
+const Video = require('../../models/Video');
+const User = require('../../models/User');
 const axios = require('axios');
 
 // Hàm chuyển đổi định dạng ISO 8601 thành chuỗi dễ hiểu
