@@ -1,0 +1,24 @@
+{{!< admin}}
+<title>Admin-Massage</title>
+
+<div class="dashboard-header mb-4">
+  <h3 class="dashboard-title text-2xl">Hộp thư đến</h3>
+</div>
+
+<main class="container">
+    {{#if chats.length}}
+    <ul class="list-group">
+        {{#each chats}}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+            <strong>{{this.user.username}}</strong><br>
+            <small>{{this.lastMessage}}</small>
+            </div>
+            <a href="/admin/chat/{{this.user._id}}" class="btn btn-sm btn-primary">Xem</a>
+        </li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p>Không có tin nhắn nào.</p>
+    {{/if}}
+</main>

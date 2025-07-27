@@ -1,0 +1,67 @@
+{{!< admin}}
+<title>Admin-Massage</title>
+
+<div class="dashboard-header mb-4">
+  <h3 class="dashboard-title text-2xl">Trò chuyện với {{user.username}}</h3>
+</div>
+<main class="container">
+    <a href="/admin/chat" class="btn btn-primary btn-sm mb-3">
+      <i class="fas fa-arrow-left me-1"></i> Quay lại
+    </a>
+    <div class="border rounded p-3 mb-3" style="max-height: 400px; overflow-y: scroll;">
+      <div id="chat-box">
+        {{#each messages}}
+          <div class="alert {{#if (eq sender._id ../adminId)}}alert-primary{{else}}alert-secondary{{/if}}">
+            {{sender.name}}: {{content}}
+          </div>
+        {{/each}}
+      </div>
+    </div>
+    <div class="d-flex mt-3">
+      <input type="text" id="adminMessageInput" class="form-control me-2" placeholder="Nhập tin nhắn...">
+      <button id="sendBtn" class="btn btn-primary">Gửi</button>
+    </div>
+</main>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const adminId = '{{adminId}}';
+  const userId = '{{userId}}';
+
+  // ✅ Gửi adminId khi kết nối
+  socket.emit('register', { userId: adminId });
+
+  // ✅ Nhận tin nhắn từ user
+  socket.on('newMessage', ({ senderId, message }) => {
+    if (senderId === userId) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'alert alert-secondary';
+      msgDiv.innerText = message;
+      document.getElementById('chat-box').appendChild(msgDiv);
+    }
+  });
+
+  // ✅ Gửi tin nhắn từ admin → user
+  document.getElementById('sendBtn').addEventListener('click', () => {
+    const input = document.getElementById('adminMessageInput');
+    const message = input.value.trim();
+    if (!message) return;
+
+    socket.emit('chatMessage', {
+      senderId: adminId,
+      receiverId: userId,
+      message
+    });
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'alert alert-primary';
+    msgDiv.innerText = message;
+    document.getElementById('chat-box').appendChild(msgDiv);
+
+    input.value = '';
+  });
+</script>
+
+

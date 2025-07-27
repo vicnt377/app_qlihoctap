@@ -1,513 +1,152 @@
 {{!< admin}}
 <title>Admin-Video</title>
 
-<div class="dashboard-header">
-    <h3 class="dashboard-title mb-0 text-2xl">Quản Lý khóa Học</h3>
-    {{!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
-        <i class="far fa-plus-square"></i> Thêm Khóa Học
-    </button> --}}
-    {{!-- <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#youtubeSearchModal">
-      <i class="fab fa-youtube"></i> Thêm từ YouTube
-    </button> --}}
-
+<div class="dashboard-header mb-4">
+  <h3 class="dashboard-title text-2xl">Quản Lý Khóa Học</h3>
 </div>
 
 <main class="container">
-  <!-- Tìm kiếm video từ YouTube -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <form id="youtubeSearchForm" class="row g-3">
-        <div class="col-md-8">
-          <input type="text" id="youtubeQuery" class="form-control" placeholder="Nhập từ khóa hoặc ID video YouTube..." required />
-        </div>
-        <div class="col-md-4">
-          <button type="submit" class="btn btn-danger w-100">
-            <i class="fab fa-youtube"></i> Tìm Video từ YouTube
-          </button>
-        </div>
-      </form>
-      <div id="youtubeError" class="text-danger mt-3 d-none"></div>
-    </div>
+<!-- Tìm video từ YouTube -->
+<form id="youtubeSearchForm" class="row g-3 mb-4">
+  <div class="col-md-8">
+    <input type="text" class="form-control" id="youtubeQuery" placeholder="Nhập từ khóa hoặc ID video">
   </div>
-
-<!-- Kết quả tìm kiếm -->
-<div id="youtubeResult" class="row d-none mb-4">
   <div class="col-md-4">
-    <img id="ytThumbnail" src="" class="img-fluid rounded shadow" alt="thumbnail" />
+    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-2"></i>Tìm Video YouTube</button>
+  </div>
+</form>
+
+<!-- Kết quả preview -->
+<div id="youtubeResult" class="row g-3 d-none">
+  <div class="col-md-4">
+    <img id="ytThumbnail" src="" class="img-fluid rounded shadow" />
   </div>
   <div class="col-md-8">
     <h5 id="ytTitle"></h5>
-    {{!-- <p id="ytDescription"></p> --}}
-    <p><strong>ID:</strong> <span id="ytVideoId"></span></p>
-    <button id="btnAddFromYoutube" class="btn btn-primary">
-      <i class="fas fa-plus-circle"></i> Thêm video vào hệ thống
-    </button>
-  </div>
-</div>
-    <!-- Bộ lọc -->
-    <form method="GET" action="/admin/videos" class="row g-3 mb-4">
-      <div class="col-md-4">
-        <input type="text" name="search"  class="form-control" placeholder="Tìm kiếm khóa học..." value="{{query.search}}" />
+    <p id="ytDescription"></p>
+    <div class="row">
+      <div class="col-md-6">
+        <label class="form-label">Danh mục</label>
+        <input type="text" class="form-control" id="ytCategory">
       </div>
-      <div class="col-md-3">
-        <select name="sort" class="form-select">
-          <option value="newest" {{#ifCond query.sort '===' 'newest'}}selected{{/ifCond}}>Mới nhất</option>
-          <option value="oldest" {{#ifCond query.sort '===' 'oldest'}}selected{{/ifCond}}>Cũ nhất</option>
-          <option value="az" {{#ifCond query.sort '===' 'az'}}selected{{/ifCond}}>A-Z</option>
-          <option value="za" {{#ifCond query.sort '===' 'za'}}selected{{/ifCond}}>Z-A</option>
+      <div class="col-md-6">
+        <label class="form-label">Trình độ</label>
+        <select class="form-select" id="ytLevel">
+          <option value="Cơ bản">Cơ bản</option>
+          <option value="Trung bình" selected>Trung bình</option>
+          <option value="Nâng cao">Nâng cao</option>
         </select>
       </div>
-      <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Lọc</button>
-      </div>
-    </form>
-
-    <!--bảng video-->
-    <div class="table-container">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">STT</th>
-                    <th scope="col">Hình ảnh</th>
-                    <th scope="col">Tiêu đề</th>
-                    {{!-- <th scope="col">Miêu tả</th> --}}
-                    <th scope="col">URL</th>
-                    <th scope="col">Học viên</th>
-                    <th scope="col">Trạng thái</th>
-                    <th scope="col">Đánh giá</th>
-                    <th scope="col">Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each videos}}
-                <tr
-                  data-id="{{this._id}}"
-                  data-title="{{this.title}}"
-                  {{!-- data-description="{{this.description}}" --}}
-                  data-youtubeid="{{this.youtubeId}}"
-                  data-thumbnail="{{this.thumbnail}}"
-                  data-category="{{this.category}}"
-                  data-level="{{this.level}}"
-                  data-rating="{{this.rating}}"
-                  data-duration="{{this.duration}}"
-                  data-lessons="{{this.lessons}}"
-                  data-students="{{this.students}}"
-                  data-instructor="{{this.instructor}}"
-                >
-                    <td>{{inc @index}}</td>
-                    <td>
-                      <img src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}"
-                           alt="thumbnail" width="100" class="img-thumbnail" />
-                    </td>
-                    <td>{{this.title}}</td>
-                    {{!-- <td>{{this.description}}</td> --}}
-                    <td>
-                        <a href="https://www.youtube.com/watch?v={{this.youtubeId}}" target="_blank">
-                        {{this.youtubeId}}
-                        </a>
-                    </td>
-                    <td>{{this.students}}</td>
-                    <td>Đã xuất bản</td>
-                    <td>{{this.rating}}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm btn-edit">
-                            <i class="fas fa-edit"></i> Sửa
-                        </button>
-                        <button class="btn btn-danger btn-sm btn-action" onclick="confirmDelete('{{this._id}}')">
-                        <i class="fas fa-trash"></i> Xóa
-                        </button>
-                    </td>
-                </tr>
-                {{else}}
-                <tr>
-                  <td colspan="8" class="text-center text-muted">Không có khóa học nào.</td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
     </div>
+    <button class="btn btn-success mt-3" id="ytAddBtn"><i class="fas fa-plus-circle"></i> Thêm vào hệ thống</button>
+    <div id="ytMsg" class="mt-2"></div>
+  </div>
+</div>
 
 
 
+  <!-- Danh sách video -->
+  <div class="table-container mt-4">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Hình ảnh</th>
+          <th>Tiêu đề</th>
+          <th>URL</th>
+          <th>Học viên</th>
+          <th>Trạng thái</th>
+          <th>Đánh giá</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each videos}}
+        <tr>
+          <td>{{inc @index}}</td>
+          <td>
+            <img src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}" width="100" class="img-thumbnail" />
+          </td>
+          <td>{{this.title}}</td>
+          <td>
+            <a href="https://youtube.com/watch?v={{this.youtubeId}}" target="_blank">{{this.youtubeId}}</a>
+          </td>
+          <td>{{this.students}}</td>
+          <td>Đã xuất bản</td>
+          <td>{{this.rating}}</td>
+          <td>
+            <button class="btn btn-warning btn-sm btn-edit">
+              <i class="fas fa-edit"></i> Sửa
+            </button>
+            <button class="btn btn-danger btn-sm btn-action" onclick="confirmDelete('{{this._id}}')">
+              <i class="fas fa-trash"></i> Xóa
+            </button>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="8" class="text-center">Không có video nào.</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 </main>
-{{!-- 
-    <!-- Modal Thêm Video -->
-    <div class="modal fade" id="addVideoModal" tabindex="-1" aria-labelledby="addVideoModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 style="color: black" class="modal-title" id="addVideoModalLabel">Thêm Video Mới</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="addVideoForm">
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Tiêu đề</label>
-                  <input type="text" class="form-control" id="title" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">YouTube ID</label>
-                  <input type="text" class="form-control" id="youtubeId" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Thumbnail (tên file ảnh)</label>
-                  <input type="text" class="form-control" id="thumbnail" placeholder="vd: react.jpg" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Danh mục</label>
-                  <input type="text" class="form-control" id="category" placeholder="VD: Lập trình, Backend..." required>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Cấp độ</label>
-                  <select class="form-select" id="level" required>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate" selected>Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Điểm đánh giá</label>
-                  <input type="number" step="0.1" min="0" max="5" class="form-control" id="rating" value="4.5" required>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label text-dark">Thời lượng (giờ)</label>
-                  <input type="number" class="form-control" id="duration" value="1" required>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label text-dark">Số bài học</label>
-                  <input type="number" class="form-control" id="lessons" value="1" required>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label text-dark">Số học viên</label>
-                  <input type="number" class="form-control" id="students" value="0" required>
-                </div>
-                <div class="col-md-12 mb-3">
-                  <label class="form-label text-dark">Giảng viên</label>
-                  <input type="text" class="form-control" id="instructor" required>
-                </div>
-                <div class="col-md-12 mb-3">
-                  <label class="form-label text-dark">Mô tả</label>
-                  <textarea class="form-control" id="description" rows="3" required></textarea>
-                </div>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Thêm Video</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Modal Sửa Video -->
-    <div class="modal fade" id="editVideoModal" tabindex="-1" aria-labelledby="editVideoModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 style="color: black" class="modal-title" id="editVideoModalLabel">Sửa Video</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-
-          <div class="modal-body">
-            <form id="editVideoForm">
-              <input type="hidden" id="editVideoId" />
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Tiêu đề</label>
-                  <input type="text" class="form-control" id="editTitle" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">YouTube ID</label>
-                  <input type="text" class="form-control" id="editYoutubeId" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Thumbnail</label>
-                  <input type="text" class="form-control" id="editThumbnail" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Danh mục</label>
-                  <input type="text" class="form-control" id="editCategory" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Cấp độ</label>
-                  <select class="form-select" id="editLevel" required>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                  <label class="form-label text-dark">Đánh giá</label>
-                  <input type="number" class="form-control" step="0.1" min="0" max="5" id="editRating" required>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <label class="form-label text-dark">Thời lượng (giờ)</label>
-                  <input type="number" class="form-control" id="editDuration" required>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <label class="form-label text-dark">Số bài học</label>
-                  <input type="number" class="form-control" id="editLessons" required>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <label class="form-label text-dark">Số học viên</label>
-                  <input type="number" class="form-control" id="editStudents" required>
-                </div>
-
-                <div class="col-md-12 mb-3">
-                  <label class="form-label text-dark">Giảng viên</label>
-                  <input type="text" class="form-control" id="editInstructor" required>
-                </div>
-
-                <div class="col-md-12 mb-3">
-                  <label class="form-label text-dark">Mô tả</label>
-                  <textarea class="form-control" id="editDescription" rows="3" required></textarea>
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-primary w-100">Cập nhật</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div> --}}
-
-
-{{!-- <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    window.confirmDelete = async function (id) {
-      if (confirm("Bạn có chắc muốn xóa video này?")) {
-        try {
-          const res = await fetch(`/admin/videos/delete/${id}`, { method: "POST" });
-          if (res.ok) {
-            location.reload();
-          } else {
-            alert("Xóa thất bại!");
-          }
-        } catch (err) {
-          console.error(err);
-          alert("Lỗi server!");
-        }
-      }
-    };
-
-    document.querySelectorAll('.btn-edit').forEach(btn => {
-      btn.addEventListener('click', function () {
-        const row = this.closest('tr');
-        document.getElementById('editVideoId').value = row.dataset.id;
-        document.getElementById('editTitle').value = row.dataset.title;
-        document.getElementById('editYoutubeId').value = row.dataset.youtubeid;
-        document.getElementById('editDescription').value = row.dataset.description;
-        document.getElementById('editThumbnail').value = row.dataset.thumbnail;
-        document.getElementById('editCategory').value = row.dataset.category;
-        document.getElementById('editLevel').value = row.dataset.level;
-        document.getElementById('editRating').value = row.dataset.rating;
-        document.getElementById('editDuration').value = row.dataset.duration;
-        document.getElementById('editLessons').value = row.dataset.lessons;
-        document.getElementById('editStudents').value = row.dataset.students;
-        document.getElementById('editInstructor').value = row.dataset.instructor;
-
-        const modal = new bootstrap.Modal(document.getElementById('editVideoModal'));
-        modal.show();
-      });
-    });
-
-    const editForm = document.getElementById('editVideoModal');
-    if (editForm) {
-      editForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const id = document.getElementById('editVideoId').value;
-        const updatedData = {
-          title: document.getElementById('editTitle').value,
-          youtubeId: document.getElementById('editYoutubeId').value,
-          description: document.getElementById('editDescription').value,
-          thumbnail: document.getElementById('editThumbnail').value,
-          category: document.getElementById('editCategory').value,
-          level: document.getElementById('editLevel').value,
-          rating: parseFloat(document.getElementById('editRating').value),
-          duration: parseInt(document.getElementById('editDuration').value),
-          lessons: parseInt(document.getElementById('editLessons').value),
-          students: parseInt(document.getElementById('editStudents').value),
-          instructor: document.getElementById('editInstructor').value
-        };
-
-        try {
-          const response = await fetch(`/admin/videos/edit/${id}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedData)
-          });
-
-          if (response.ok) {
-            alert('Cập nhật video thành công!');
-            location.reload();
-          } else {
-            const result = await response.json();
-            alert(result.message || 'Lỗi không xác định');
-          }
-        } catch (err) {
-          console.error(err);
-          alert('Lỗi kết nối đến server');
-        }
-      });
-    }
-
-    const addForm = document.getElementById('addVideoModal');
-    if (addForm) {
-      addForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const videoData = {
-          title: document.getElementById('title').value,
-          youtubeId: document.getElementById('youtubeId').value,
-          description: document.getElementById('description').value,
-          thumbnail: document.getElementById('thumbnail').value,
-          category: document.getElementById('category').value,
-          level: document.getElementById('level').value,
-          rating: parseFloat(document.getElementById('rating').value),
-          duration: parseInt(document.getElementById('duration').value),
-          lessons: parseInt(document.getElementById('lessons').value),
-          students: parseInt(document.getElementById('students').value),
-          instructor: document.getElementById('instructor').value
-        };
-
-        try {
-          const response = await fetch('/admin/videos/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(videoData)
-          });
-
-          const result = await response.json();
-
-          if (response.ok) {
-            alert('Thêm video thành công!');
-            location.reload();
-          } else {
-            alert(result.message || 'Lỗi không xác định');
-          }
-        } catch (err) {
-          console.error(err);
-          alert('Lỗi kết nối đến server');
-        }
-      });
-    }
-  });
-</script> --}}
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const apiKey = 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs'; // Thay bằng API key thật
-    const form = document.getElementById('youtubeSearchForm');
-    const queryInput = document.getElementById('youtubeQuery');
-    const resultEl = document.getElementById('youtubeResult');
-    const errorEl = document.getElementById('youtubeError');
+document.addEventListener('DOMContentLoaded', () => {
+  const searchForm = document.getElementById('youtubeSearchForm');
+  const ytResult = document.getElementById('youtubeResult');
+  const ytAddBtn = document.getElementById('ytAddBtn');
 
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const query = queryInput.value.trim();
-      if (!query) return;
+  let videoData = null;
 
-      errorEl.classList.add('d-none');
-      resultEl.classList.add('d-none');
+  searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const query = document.getElementById('youtubeQuery').value.trim();
+    if (!query) return;
 
-      let url = '';
-      let isVideoId = /^[a-zA-Z0-9_-]{11}$/.test(query);
+    const res = await fetch(`/admin/videos/youtube-search?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
 
-      if (isVideoId) {
-        url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${query}&key=${apiKey}`;
-      } else {
-        url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${encodeURIComponent(query)}&key=${apiKey}`;
-      }
-
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-
-        let item;
-        if (isVideoId) {
-          item = data.items?.[0];
-        } else {
-          item = data.items?.[0];
-          if (item) {
-            // Nếu là từ khóa, lấy chi tiết video từ ID
-            const videoId = item.id.videoId;
-            const detailUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`;
-            const detailRes = await fetch(detailUrl);
-            const detailData = await detailRes.json();
-            item = detailData.items?.[0];
-          }
-        }
-
-        if (!item) {
-          showError("Không tìm thấy video.");
-          return;
-        }
-
-        const { title, description, thumbnails } = item.snippet;
-        const videoId = item.id || item.id.videoId;
-
-        document.getElementById('ytThumbnail').src = thumbnails.high.url;
-        document.getElementById('ytTitle').textContent = title;
-        document.getElementById('ytDescription').textContent = description;
-        document.getElementById('ytVideoId').textContent = videoId;
-        resultEl.classList.remove('d-none');
-
-        document.getElementById('btnAddFromYoutube').onclick = function () {
-          // Gửi dữ liệu về server để lưu
-          addVideoToSystem({
-            youtubeId: videoId,
-            title,
-            description,
-            thumbnail: thumbnails.high.url,
-            category: 'YouTube',
-            level: 'Beginner',
-            rating: 4.5,
-            duration: 1,
-            lessons: 1,
-            students: 0,
-            instructor: 'Unknown'
-          });
-        };
-
-      } catch (err) {
-        console.error(err);
-        showError("Lỗi khi tìm kiếm video.");
-      }
-    });
-
-    function showError(msg) {
-      errorEl.textContent = msg;
-      errorEl.classList.remove('d-none');
-      resultEl.classList.add('d-none');
-    }
-
-    async function addVideoToSystem(data) {
-      try {
-        const res = await fetch('/admin/videos/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        if (res.ok) {
-          alert('Đã thêm video vào hệ thống!');
-          window.location.reload();
-        } else {
-          alert('Lỗi khi thêm video');
-        }
-      } catch (err) {
-        alert('Lỗi kết nối đến server');
-        console.error(err);
-      }
+    if (data.video) {
+      videoData = data.video;
+      document.getElementById('ytThumbnail').src = videoData.thumbnail;
+      document.getElementById('ytTitle').textContent = videoData.title;
+      document.getElementById('ytDescription').textContent = videoData.description;
+      ytResult.classList.remove('d-none');
+    } else {
+      alert(data.message || 'Không tìm thấy video');
+      ytResult.classList.add('d-none');
     }
   });
+
+  ytAddBtn.addEventListener('click', async () => {
+    const category = document.getElementById('ytCategory').value.trim();
+    const level = document.getElementById('ytLevel').value;
+
+    const payload = {
+      ...videoData,
+      category,
+      level
+    };
+
+    const res = await fetch('/admin/videos/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await res.json();
+    const msgDiv = document.getElementById('ytMsg');
+    if (res.ok) {
+      msgDiv.textContent = '✅ Video đã được thêm!';
+      msgDiv.className = 'text-success mt-2';
+      location.reload();
+    } else {
+      msgDiv.textContent = '❌ ' + (result.message || 'Thêm thất bại');
+      msgDiv.className = 'text-danger mt-2';
+    }
+  });
+});
+
 </script>
+

@@ -1,0 +1,65 @@
+<div class="dashboard-header mb-3">
+  <h2 class="dashboard-title mb-0">
+    <i class="fas fa-comment-dots"></i> Hỏi Đáp
+  </h2>
+</div>
+
+<main class="container mt-3">
+  <div class="messages" id="messages">
+    {{#each messages}}
+      <div class="message {{#if (eq sender._id ../user._id)}}user-message{{else}}admin-message{{/if}}">
+        {{content}}
+      </div>
+    {{/each}}
+  </div>
+
+  <form id="chatForm" class="chat-form mt-3">
+    <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn..." required>
+    <button type="submit" class="btn btn-primary mt-2">Gửi</button>
+  </form>
+</main>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const userId = '{{user._id}}';
+  const adminId = '{{adminId}}';
+
+  // ✅ Gửi userId cho server khi kết nối
+  socket.emit('register', { userId });
+
+  const messagesEl = document.getElementById('messages');
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('messageInput');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+
+    // ✅ Gửi message qua socket
+    socket.emit('chatMessage', {
+      senderId: userId,
+      receiverId: adminId,
+      message
+    });
+
+    // ✅ Hiển thị ngay trên giao diện
+    addMessage(message, 'user-message');
+    input.value = '';
+  });
+
+  socket.on('newMessage', ({ senderId, message }) => {
+    console.log("📨 Nhận từ admin:", senderId, message);
+    addMessage(message, 'admin-message');
+  });
+
+  function addMessage(content, type) {
+    const div = document.createElement('div');
+    div.className = `message ${type}`;
+    div.innerText = content;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+</script>

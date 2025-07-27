@@ -19,7 +19,6 @@ class VideoController {
 
       const rawVideos = await Video.find({
         daXoa: false,
-        category: 'YouTube'
       }).lean();
 
       const apiKey = 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';

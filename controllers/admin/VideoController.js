@@ -1,19 +1,28 @@
 const User = require('../../models/User');
 const Course = require('../../models/Course');
 const Video = require('../../models/Video')
-require('dotenv').config();
 const axios = require('axios');
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
-function parseDuration(isoDuration) {
-  const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-  const matches = isoDuration.match(regex);
+function parseDurationToHours(durationStr) {
+  if (!durationStr) return 0;
+  const match = durationStr.match(/(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?/);
+  if (!match) return 0;
 
-  const hours = parseInt(matches[1]) || 0;
-  const minutes = parseInt(matches[2]) || 0;
-  const seconds = parseInt(matches[3]) || 0;
+  const hours = parseInt(match[1]) || 0;
+  const minutes = parseInt(match[2]) || 0;
+  const seconds = parseInt(match[3]) || 0;
 
-  return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${seconds}s`;
+  return +(hours + minutes / 60 + seconds / 3600).toFixed(2);
+}
+
+function mapLevel(level) {
+  const levels = {
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced'
+  };
+  return levels[level] || 'Beginner'; // hoặc trả về null nếu muốn strict
 }
 
 class VideoController {
@@ -83,42 +92,103 @@ class VideoController {
     }
     }
 
-    async createVideo(req, res) {
-    try {
-        const { youtubeId } = req.body;
+    async searchAndPreview(req, res) {
+  const { query } = req.query;
+  if (!query) return res.status(400).json({ message: 'Thiếu từ khóa' });
 
-        // Lấy thông tin từ YouTube API
-        const apiKey = process.env.YOUTUBE_API_KEY || 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';
-        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=snippet,contentDetails&key=${apiKey}`;
-        const response = await axios.get(apiUrl);
-        const item = response.data.items[0];
+  try {
+    const isId = /^[\w-]{11}$/.test(query);
+    let videoInfo;
 
-        if (!item) return res.status(404).json({ message: 'Không tìm thấy video trên YouTube' });
+    if (isId) {
+      const response = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+        params: {
+          key: YOUTUBE_API_KEY,
+          id: query,
+          part: 'snippet,contentDetails',
+        },
+      });
 
-        const snippet = item.snippet;
-        const contentDetails = item.contentDetails;
+      const items = response.data?.items || [];
+      if (items.length === 0) return res.status(404).json({ message: 'Không tìm thấy video theo ID' });
 
-        const video = new Video({
-        title: snippet.title,
-        youtubeId,
-        description: snippet.description,
-        thumbnail: snippet.thumbnails?.medium?.url,
-        category: 'YouTube',
-        level: 'Trung bình',
-        rating: 0,
-        duration: parseDuration(contentDetails.duration),
-        lessons: 1,
-        students: 0,
-        instructor: snippet.channelTitle,
-        });
+      const item = items[0];
+      videoInfo = {
+        youtubeId: item.id,
+        title: item.snippet.title,
+        description: item.snippet.description,
+        thumbnail: item.snippet.thumbnails.medium.url,
+        channelTitle: item.snippet.channelTitle,
+        duration: parseDuration(item.contentDetails.duration),
+      };
+    } else {
+      const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+        params: {
+          key: YOUTUBE_API_KEY,
+          q: query,
+          part: 'snippet',
+          type: 'video',
+          maxResults: 1,
+        },
+      });
 
-        await video.save();
-        res.status(201).json({ message: 'Video đã được tạo', video });
-    } catch (error) {
-        console.error('Lỗi tạo video:', error.response?.data || error.message);
-        res.status(500).json({ message: 'Lỗi khi tạo video' });
+      const items = response.data?.items || [];
+      if (items.length === 0) return res.status(404).json({ message: 'Không tìm thấy video theo từ khóa' });
+
+      const item = items[0];
+      videoInfo = {
+        youtubeId: item.id.videoId,
+        title: item.snippet.title,
+        description: item.snippet.description,
+        thumbnail: item.snippet.thumbnails.medium.url,
+        channelTitle: item.snippet.channelTitle,
+      };
     }
-    }
+
+    res.json({ video: videoInfo });
+  } catch (err) {
+    console.error('Lỗi tìm video YouTube:', err?.response?.data || err.message);
+    res.status(500).json({ message: 'Lỗi khi tìm video từ YouTube' });
+  }
+}
+
+
+async createVideo(req, res) {
+  try {
+    const {
+      youtubeId,
+      title,
+      description,
+      thumbnail,
+      level,
+      category,
+      duration = '0m 0s'
+    } = req.body;
+
+    const exists = await Video.findOne({ youtubeId });
+    if (exists) return res.status(400).json({ message: 'Video đã tồn tại' });
+
+    const durationInHours = parseDurationToHours(duration); // chuyển đổi chuỗi sang số
+
+    const video = new Video({
+      youtubeId,
+      title,
+      description,
+      thumbnail,
+      level: mapLevel(level),
+      category,
+      duration: durationInHours,
+      lessons: 1,
+      daXoa: false
+    });
+
+    await video.save();
+    res.status(201).json({ message: 'Đã thêm video', video });
+  } catch (err) {
+    console.error('❌ Lỗi tạo video:', err);
+    res.status(500).json({ message: 'Thêm video thất bại' });
+  }
+}
 
     async editVideo(req, res) {
     try {

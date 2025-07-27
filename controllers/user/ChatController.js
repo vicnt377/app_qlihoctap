@@ -1,26 +1,64 @@
+const Message = require('../../models/Message');
+const User = require('../../models/User');
+const mongoose = require('mongoose')
+
 class ChatController {
-  // Hiển thị trang chat
-  index(req, res) {
-    res.render('user/chat', { user: req.session.user, messages: [] });
+  // Hiển thị trang chat với tin nhắn đã gửi (có thể thêm sau)
+  async index(req, res) {
+    try {
+      const userId = req.session.userId; // hoặc req.user._id nếu dùng Passport
+      const admin = await User.findOne({ role: 'admin' });
+
+      if (!admin) {
+        return res.status(404).send('Admin not found');
+      }
+
+      const messages = await Message.find({
+        $or: [
+          { sender: userId, receiver: admin._id },
+          { sender: admin._id, receiver: userId },
+        ]
+      }).populate('sender', 'name').sort({ createdAt: 1 });
+
+      res.render('user/chat', {
+        messages,
+        user: { _id: userId },
+        adminId: admin._id
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Lỗi máy chủ');
+    }
   }
 
-  // Gửi tin nhắn và trả lời hệ thống
-  sendMessage(req, res) {
-    const userMessage = req.body.message?.trim();
+  // Gửi tin nhắn của user tới admin
+  async sendMessage(req, res) {
+    const user = req.session.user;
+    const content = req.body.message?.trim();
 
-    if (!userMessage) {
-      return res.redirect('/chat');
+    if (!content) {
+      return res.status(400).json({ error: 'Tin nhắn không được để trống' });
     }
 
-    const systemReply = `Hệ thống: Bạn vừa nói "${userMessage}"`;
+    try {
+      const admin = await User.findOne({ role: 'admin' });
+      if (!admin) {
+        return res.status(500).json({ error: 'Không tìm thấy admin' });
+      }
 
-    const messages = [
-      { sender: 'user', text: userMessage },
-      { sender: 'system', text: systemReply },
-    ];
+      await Message.create({
+        sender: user._id,
+        receiver: admin._id,
+        content
+      });
 
-    res.render('user/chat', { user: req.session.user, messages });
+      return res.json({ success: true, reply: 'Tin nhắn của bạn đã được gửi đến Người Quản Trị. Vui lòng chờ trong ít phút để nhận phản hồi!' });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Lỗi máy chủ khi gửi tin nhắn' });
+    }
   }
+
 }
 
 module.exports = new ChatController();
