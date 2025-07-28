@@ -8,14 +8,18 @@ const flash = require('connect-flash');
 const bodyParser = require('body-parser');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 const mongoose = require('mongoose');
+const methodOverride = require('method-override');
 const helpers = require('./util/helper');
 const Message = require('../models/Message');
 const User = require('../models/User');
-
+const { setUserLocals } = require('../middlewares/setUserLocals');
 require('dotenv').config();
 
 const app = express();
 const port = 3000;
+app.use(setUserLocals);
+
+app.use(methodOverride('_method'));
 
 // ⚙️ Khởi tạo HTTP server & Socket.IO
 const http = require('http');

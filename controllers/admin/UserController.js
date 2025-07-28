@@ -29,6 +29,8 @@ class UserController {
                 _id: user._id,
                 name: user.username,
                 email: user.email,
+                phone: user.phone,
+                avatar: user.avatar,
                 createdAt: user.createdAt,
                 isActive: user.isActive ?? true, // fallback nếu chưa có trường isActive
                 stats: {
@@ -52,6 +54,7 @@ class UserController {
                 user: req.session.user,
                 students,
                 studentStats,
+
                 layout: 'admin',
                 query: { search, status }
             });
@@ -59,6 +62,28 @@ class UserController {
         } catch (err) {
             console.error(err);
             res.status(500).send('Lỗi khi tải danh sách học viên');
+        }
+    }
+
+    async clockUser(req, res) {
+        try {
+            const user = await User.findById(req.params.id);
+            if (!user) {
+            return res.status(404).send("Không tìm thấy người dùng");
+            }
+
+            // Toggle trạng thái bằng cách gán ngược lại
+            const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            { isActive: !user.isActive },
+            { new: true } // Trả về bản ghi đã cập nhật
+            );
+
+            console.log(`🛠️ Toggle trạng thái user: ${updatedUser._id} => ${updatedUser.isActive ? 'Hoạt động' : 'Đã khóa'}`);
+            res.redirect('/admin/users'); // hoặc route phù hợp
+        } catch (error) {
+            console.error("❌ Lỗi server khi toggle trạng thái:", error);
+            res.status(500).send("Lỗi máy chủ");
         }
     }
 }

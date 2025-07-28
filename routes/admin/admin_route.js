@@ -18,7 +18,7 @@ router.get("/dashboard",isAdmin, dashboardController.dashboard)
 
 //User
 router.get("/users",isAdmin, userController.getUsers)
-
+router.patch("/users/:id/clock", isAdmin, userController.clockUser)
 
 //Course
 router.get("/courses", isAdmin, courseController.getCourses)

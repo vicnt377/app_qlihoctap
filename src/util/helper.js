@@ -8,7 +8,8 @@ module.exports = {
   ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
   array: (...args) => args.slice(0, -1),
-  
+  toString: (val) => val.toString(), 
+
   thuToNumber: function (thu) {
     const map = {
         'Thứ Hai': 1,

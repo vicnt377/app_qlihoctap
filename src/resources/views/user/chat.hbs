@@ -6,11 +6,22 @@
 
 <main class="container mt-3">
   <div class="messages" id="messages">
-    {{#each messages}}
-      <div class="message {{#if (eq sender._id ../user._id)}}user-message{{else}}admin-message{{/if}}">
-        {{content}}
+  {{#each messages}}
+    {{#if (eq (toString sender._id) (toString ../user._id))}}
+      <div class="text-start">
+        <div class="bg-red-200 inline-block p-2 px-4 rounded-xl mb-2">
+          {{content}} <small class="block text-left text-xs text-gray-500">{{sender.name}} (Bạn)</small>
+        </div>
       </div>
-    {{/each}}
+    {{else}}
+      <div class="text-end">
+        <div class="bg-blue-200 inline-block p-2 px-4 rounded-xl mb-2">
+          {{content}} <small class="block text-right text-xs text-gray-500">{{sender.name}} (Admin)</small>
+        </div>
+      </div>
+    {{/if}}
+  {{/each}}
+
   </div>
 
   <form id="chatForm" class="chat-form mt-3">

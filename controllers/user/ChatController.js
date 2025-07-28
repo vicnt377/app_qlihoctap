@@ -4,32 +4,48 @@ const mongoose = require('mongoose')
 
 class ChatController {
   // Hiển thị trang chat với tin nhắn đã gửi (có thể thêm sau)
-  async index(req, res) {
-    try {
-      const userId = req.session.userId; // hoặc req.user._id nếu dùng Passport
-      const admin = await User.findOne({ role: 'admin' });
-
-      if (!admin) {
-        return res.status(404).send('Admin not found');
-      }
-
-      const messages = await Message.find({
-        $or: [
-          { sender: userId, receiver: admin._id },
-          { sender: admin._id, receiver: userId },
-        ]
-      }).populate('sender', 'name').sort({ createdAt: 1 });
-
-      res.render('user/chat', {
-        messages,
-        user: { _id: userId },
-        adminId: admin._id
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Lỗi máy chủ');
+async index(req, res) {
+  try {
+    const user = req.session.user;
+    if (!user) {
+      return res.redirect('/login-user');
     }
+
+    const userId = user._id;
+    console.log("SESSION HIỆN TẠI:", req.session);
+
+    const admin = await User.findOne({ role: 'admin' });
+    if (!admin) {
+      return res.status(404).send('Admin not found');
+    }
+
+    const messages = await Message.find({
+      $or: [
+        { sender: userId, receiver: admin._id },
+        { sender: admin._id, receiver: userId },
+      ]
+    }).populate('sender', 'name').lean();
+
+    messages.forEach(m => {
+      m.sender._id = m.sender._id.toString(); 
+    });
+    
+    res.render('user/chat', {
+      messages,
+      user: {
+        _id: user._id.toString(),
+        username: user.username,
+        avatar: user.avatar,
+        role: user.role
+      },
+      adminId: admin._id.toString()
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Lỗi máy chủ');
   }
+}
 
   // Gửi tin nhắn của user tới admin
   async sendMessage(req, res) {
