@@ -30,12 +30,15 @@ router.post('/courses/restore/:id', isAdmin, courseController.restoreCourse)
 
 //Video
 router.get("/videos", isAdmin, videoController.getVideos)
-router.post('/videos/create', isAdmin, videoController.createVideo)
-router.post('/videos/edit/:id', isAdmin, videoController.editVideo)
-router.post('/videos/delete/:id', isAdmin, videoController.deleteVideo)
 router.get('/videos/search', isAdmin, videoController.fetchVideosBySearch);
-
 router.get("/videos/youtube-search", isAdmin, videoController.searchAndPreview);
+router.post('/videos/create', isAdmin, videoController.createVideo)
+router.patch('/videos/:id/edit', isAdmin, videoController.editVideo);
+router.delete('/videos/:id/delete', isAdmin, videoController.deleteVideo);
+router.patch('/videos/:id/restore', isAdmin, videoController.restoreVideo);
+
+
+
 
 //Chat
 router.get('/chat', isAdmin, chatController.inbox);

@@ -6,90 +6,210 @@
 </div>
 
 <main class="container">
-<!-- Tìm video từ YouTube -->
-<form id="youtubeSearchForm" class="row g-3 mb-4">
-  <div class="col-md-8">
-    <input type="text" class="form-control" id="youtubeQuery" placeholder="Nhập từ khóa hoặc ID video">
-  </div>
-  <div class="col-md-4">
-    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-2"></i>Tìm Video YouTube</button>
-  </div>
-</form>
+  <ul class="nav nav-tabs mb-4" id="videoTabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#tabActive" data-bs-toggle="tab">Video hiện tại</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#tabDeleted" data-bs-toggle="tab">Video đã xóa</a>
+    </li>
+  </ul>
 
-<!-- Kết quả preview -->
-<div id="youtubeResult" class="row g-3 d-none">
-  <div class="col-md-4">
-    <img id="ytThumbnail" src="" class="img-fluid rounded shadow" />
-  </div>
-  <div class="col-md-8">
-    <h5 id="ytTitle"></h5>
-    <p id="ytDescription"></p>
-    <div class="row">
-      <div class="col-md-6">
-        <label class="form-label">Danh mục</label>
-        <input type="text" class="form-control" id="ytCategory">
+  <div class="tab-content">
+    <!-- Tab: Video hiện tại -->
+    <div class="tab-pane fade show active" id="tabActive">
+      <!-- Tìm video từ YouTube -->
+      <form id="youtubeSearchForm" class="row g-3 mb-4">
+        <label for="youtubeQuery" class="form-label fw-bold"></label><strong>Tìm khóa học từ Youtube:</strong></label>
+        <div class="col-md-8">
+          <input type="text" class="form-control" id="youtubeQuery" placeholder="Nhập từ khóa hoặc ID video">
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary">Tìm</button>
+        </div>
+      </form>
+
+      <!-- Kết quả preview -->
+      <div id="youtubeResult" class="row g-3 d-none">
+        <div class="col-md-4">
+          <img id="ytThumbnail" src="" class="img-fluid rounded shadow" />
+        </div>
+        <div class="col-md-8">
+          <h5 id="ytTitle"></h5>
+          <div class="mb-2">
+            <label for="ytTitleInput" class="form-label">Tiêu đề (có thể sửa)</label>
+            <input type="text" id="ytTitleInput" class="form-control" placeholder="Tiêu đề video">
+          </div>
+          <p id="ytDescription"></p>
+          <div class="row">
+            <div class="col-md-6">
+              <label class="form-label">Danh mục</label>
+              <input type="text" class="form-control" id="ytCategory">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Trình độ</label>
+              <select class="form-select" id="ytLevel">
+                <option value="Cơ bản">Cơ bản</option>
+                <option value="Trung bình" selected>Trung bình</option>
+                <option value="Nâng cao">Nâng cao</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-success mt-3" id="ytAddBtn"> Thêm vào hệ thống</button>
+          <div id="ytMsg" class="mt-2"></div>
+        </div>
       </div>
-      <div class="col-md-6">
-        <label class="form-label">Trình độ</label>
-        <select class="form-select" id="ytLevel">
-          <option value="Cơ bản">Cơ bản</option>
-          <option value="Trung bình" selected>Trung bình</option>
-          <option value="Nâng cao">Nâng cao</option>
-        </select>
+      {{!-- Lọc --}}
+      <div class="row mb-4">
+        <label for="videoSearchInput" class="form-label fw-bold"></label><strong>Lọc khóa học:</strong></label>
+        <div class="col-md-6">
+          <input type="text" id="videoSearchInput" class="form-control" placeholder="Tìm theo tiêu đề hoặc danh mục">
+        </div>
+        <div class="col-md-4">
+          <select id="levelFilter" class="form-select">
+            <option value="">-- Tất cả trình độ --</option>
+            <option value="Cơ bản">Cơ bản</option>
+            <option value="Trung bình">Trung bình</option>
+            <option value="Nâng cao">Nâng cao</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Danh sách video chưa xóa -->
+      <div class="table-container mt-4">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Hình ảnh</th>
+              <th>Tiêu đề</th>
+              <th>URL</th>
+              <th>Danh mục</th>
+              <th>Trình độ</th>
+              <th>Học viên</th>
+              <th>Đánh giá</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each videos}}
+            {{#if (eq this.daXoa false)}}
+            <tr>
+              <td>{{inc @index}}</td>
+              <td>
+                <img src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}" width="100" class="img-thumbnail" />
+              </td>
+              <td>{{this.title}}</td>
+              <td>
+                <a href="https://youtube.com/watch?v={{this.youtubeId}}" target="_blank">{{this.youtubeId}}</a>
+              </td>
+              <td>{{this.category}}</td>
+              <td>{{this.level}}</td>
+              <td>{{this.students}}</td>
+              <td>{{this.rating}}</td>
+              <td>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-warning btn-edit" data-id="{{_id}}">
+                    Sửa
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="confirmDelete('{{_id}}')">
+                    Xóa
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {{/if}}
+            {{/each}}
+          </tbody>
+        </table>
       </div>
     </div>
-    <button class="btn btn-success mt-3" id="ytAddBtn"><i class="fas fa-plus-circle"></i> Thêm vào hệ thống</button>
-    <div id="ytMsg" class="mt-2"></div>
+
+    <!-- Tab: Video đã xóa -->
+    <div class="tab-pane fade" id="tabDeleted">
+      <div class="table-responsive mt-4">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Tiêu đề</th>
+              <th>YouTube ID</th>
+              <th>Danh mục</th>
+              <th>Trình độ</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each deletedVideos}}
+            <tr>
+              <td>{{inc @index}}</td>
+              <td>{{this.title}}</td>
+              <td>{{this.youtubeId}}</td>
+              <td>{{this.category}}</td>
+              <td>{{this.level}}</td>
+              <td>
+                <button class="btn btn-sm btn-success btn-restore" data-id="{{_id}}">Khôi phục</button>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal chỉnh sửa -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <form id="editVideoForm">
+        <div class="modal-header">
+          <h5 class="modal-title"><strong>Sửa Video</strong></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body row">
+          <input type="hidden" id="editVideoId">
+
+          <div class="col-md-6 mt-2">
+            <label class="form-label">YouTube ID</label>
+            <input type="text" name="youtubeId" class="form-control" id="editYoutubeId" required>
+          </div>
+
+          <div class="col-md-6 mt-2">
+            <label class="form-label">Tiêu đề</label>
+            <input type="text" name="title" class="form-control" id="editTitle">
+          </div>
+
+          <div class="col-md-6 mt-2">
+            <label class="form-label">Danh mục</label>
+            <input type="text" name="category" class="form-control" id="editCategory">
+          </div>
+
+          <div class="col-md-6 mt-2">
+            <label class="form-label">Trình độ</label>
+            <select name="level" class="form-select" id="editLevel">
+              <option value="Cơ bản">Cơ bản</option>
+              <option value="Trung bình">Trung bình</option>
+              <option value="Nâng cao">Nâng cao</option>
+            </select>
+          </div>
+
+          <div class="col-12 mt-2">
+            <label class="form-label">Mô tả</label>
+            <textarea name="description" class="form-control" rows="4" id="editDescription"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Lưu</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
-
-
-  <!-- Danh sách video -->
-  <div class="table-container mt-4">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th>Hình ảnh</th>
-          <th>Tiêu đề</th>
-          <th>URL</th>
-          <th>Học viên</th>
-          <th>Trạng thái</th>
-          <th>Đánh giá</th>
-          <th>Hành động</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each videos}}
-        <tr>
-          <td>{{inc @index}}</td>
-          <td>
-            <img src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}" width="100" class="img-thumbnail" />
-          </td>
-          <td>{{this.title}}</td>
-          <td>
-            <a href="https://youtube.com/watch?v={{this.youtubeId}}" target="_blank">{{this.youtubeId}}</a>
-          </td>
-          <td>{{this.students}}</td>
-          <td>Đã xuất bản</td>
-          <td>{{this.rating}}</td>
-          <td>
-            <button class="btn btn-warning btn-sm btn-edit">
-              <i class="fas fa-edit"></i> Sửa
-            </button>
-            <button class="btn btn-danger btn-sm btn-action" onclick="confirmDelete('{{this._id}}')">
-              <i class="fas fa-trash"></i> Xóa
-            </button>
-          </td>
-        </tr>
-        {{else}}
-        <tr><td colspan="8" class="text-center">Không có video nào.</td></tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
-</main>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -120,11 +240,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   ytAddBtn.addEventListener('click', async () => {
+    const titleInput = document.getElementById('ytTitleInput');
+    const title = titleInput.value.trim() || videoData.title; // nếu rỗng thì dùng title từ YouTube
     const category = document.getElementById('ytCategory').value.trim();
     const level = document.getElementById('ytLevel').value;
 
+    const msgDiv = document.getElementById('ytMsg');
+
+    if (!title) {
+      msgDiv.textContent = '❌ Không thể lấy tiêu đề video';
+      msgDiv.className = 'text-danger mt-2';
+      return;
+    }
+
     const payload = {
       ...videoData,
+      title,
       category,
       level
     };
@@ -136,7 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const result = await res.json();
-    const msgDiv = document.getElementById('ytMsg');
     if (res.ok) {
       msgDiv.textContent = '✅ Video đã được thêm!';
       msgDiv.className = 'text-success mt-2';
@@ -147,6 +277,142 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+</script>
+
+{{!-- Sửa,Xóa --}}
+<script>
+function confirmDelete(id) {
+  if (confirm('Bạn có chắc chắn muốn xóa video này?')) {
+    fetch(`/admin/videos/${id}/delete`, {
+      method: 'DELETE'
+    }).then(res => {
+      if (res.ok) location.reload();
+      else alert('Lỗi khi xóa!');
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const editButtons = document.querySelectorAll('.btn-edit');
+
+  editButtons.forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const row = e.target.closest('tr');
+      const id = button.dataset.id;
+
+      const youtubeId = row.querySelector('a').textContent.trim();
+      const title = row.children[2]?.textContent.trim();
+      const category = row.children[4]?.textContent.trim();
+      const level = row.children[5]?.textContent.trim();
+      
+      // Đổ dữ liệu vào form
+      document.getElementById('editVideoId').value = id;
+      document.getElementById('editYoutubeId').value = youtubeId;
+      document.getElementById('editTitle').value = title;
+      document.getElementById('editCategory').value = category;
+      document.getElementById('editLevel').value = level;
+
+      // Gọi API để lấy mô tả (nếu cần)
+      try {
+        const apiKey = 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';
+        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=snippet,contentDetails&key=${apiKey}`;
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        const video = data.items?.[0];
+        if (video) {
+          document.getElementById('editDescription').value = video.snippet.description || '';
+        }
+      } catch (err) {
+        console.warn('Không thể lấy mô tả từ API:', err);
+        document.getElementById('editDescription').value = '';
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('editModal'));
+      modal.show();
+    });
+  });
+
+  // Gửi form cập nhật
+  document.getElementById('editVideoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editVideoId').value;
+    const payload = {
+      title: document.getElementById('editTitle').value,
+      description: document.getElementById('editDescription').value,
+      youtubeId: document.getElementById('editYoutubeId').value,
+      category: document.getElementById('editCategory').value,
+      level: document.getElementById('editLevel').value,
+    };
+
+    const res = await fetch(`/admin/videos/${id}/edit`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) location.reload();
+    else alert('Lỗi khi cập nhật video!');
+  });
+});
 
 </script>
 
+{{!-- Khôi phục --}}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.btn-restore').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.getAttribute('data-id');
+      if (confirm('Bạn có chắc muốn khôi phục video này không?')) {
+        try {
+          const res = await fetch(`/admin/videos/${id}/restore`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          if (res.ok) {
+            location.reload();
+          } else {
+            alert('Khôi phục thất bại!');
+          }
+        } catch (err) {
+          console.error('Lỗi khôi phục:', err);
+          alert('Có lỗi xảy ra!');
+        }
+      }
+    });
+  });
+});
+</script>
+
+{{!-- Lọc --}}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('videoSearchInput');
+    const levelSelect = document.getElementById('levelFilter');
+    const tableRows = document.querySelectorAll('#tabActive tbody tr');
+
+    function normalize(text) {
+      return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function filterVideos() {
+      const keyword = normalize(searchInput.value.trim());
+      const level = levelSelect.value;
+
+      tableRows.forEach(row => {
+        const title = normalize(row.children[2]?.textContent || "");
+        const category = normalize(row.children[4]?.textContent || "");
+        const rowLevel = row.children[5]?.textContent.trim();
+
+        const matchesKeyword = !keyword || title.includes(keyword) || category.includes(keyword);
+        const matchesLevel = !level || rowLevel === level;
+
+        row.style.display = matchesKeyword && matchesLevel ? '' : 'none';
+      });
+    }
+
+    searchInput.addEventListener('input', filterVideos);
+    levelSelect.addEventListener('change', filterVideos);
+  });
+</script>

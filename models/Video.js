@@ -6,7 +6,11 @@ const videoSchema = new mongoose.Schema({
     description: { type: String, default: '', trim: true },
     thumbnail: { type: String, default: 'default.jpg' }, // ảnh thumbnail trong thư mục public/img/thumbnails
     category: { type: String, default: 'Khác' }, // ví dụ: "Lập trình", "Backend"
-    level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'], default: 'Beginner' },
+    level: {
+        type: String,
+        enum: ['Cơ bản', 'Trung bình', 'Nâng cao'],
+        default: 'Cơ bản'
+    },
     duration: { type: Number, default: 1 }, // đơn vị: giờ
     lessons: { type: Number, default: 1 },
     createdAt: { type: Date, default: Date.now },
