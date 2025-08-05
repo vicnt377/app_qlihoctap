@@ -1,62 +1,435 @@
 {{!< auth}}
 <title>Hệ Thống Quản Lý Tiến Độ Học Tập</title>
 
+<style>
+  /* Custom CSS for modern landing page */
+  .hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
+    opacity: 0.1;
+  }
+  
+  .floating-elements {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .floating-icon {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.1);
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .floating-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+  .floating-icon:nth-child(2) { top: 60%; left: 80%; animation-delay: 2s; }
+  .floating-icon:nth-child(3) { top: 80%; left: 20%; animation-delay: 4s; }
+  .floating-icon:nth-child(4) { top: 30%; left: 70%; animation-delay: 1s; }
+  .floating-icon:nth-child(5) { top: 70%; left: 60%; animation-delay: 3s; }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(10deg); }
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 10;
+  }
+  
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  
+  .btn-primary-custom {
+    background: linear-gradient(45deg, #ff6b6b, #ffa8a8);
+    border: none;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-primary-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+    background: linear-gradient(45deg, #ff5252, #ff8a80);
+  }
+  
+  .btn-secondary-custom {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+  
+  .btn-secondary-custom:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px);
+    color: white;
+  }
+  
+  .feature-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+  
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .feature-icon.icon-1 { background: linear-gradient(45deg, #667eea, #764ba2); }
+  .feature-icon.icon-2 { background: linear-gradient(45deg, #f093fb, #f5576c); }
+  .feature-icon.icon-3 { background: linear-gradient(45deg, #4facfe, #00f2fe); }
+  
+  .feature-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-description {
+    color: #718096;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  
+  .cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 4rem 0;
+    text-align: center;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+  }
+  
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.9);
+    display: block;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-title { font-size: 2.5rem; }
+    .hero-subtitle { font-size: 1.1rem; }
+    .action-buttons { flex-direction: column; align-items: center; }
+    .feature-card { margin-bottom: 2rem; }
+  }
+  
+  .scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+  }
+</style>
+
 <main>
-<!-- Hero Section -->
-<section class="bg-primary text-white py-5 py-md-7 text-center">
-  <div class="container">
-    <h1 class="display-4 fw-bold">Hệ Thống <span class="text-warning">Quản Lý Tiến Độ Học Tập</span></h1>
-    <p class="lead mt-3 mb-4">Theo dõi và nâng cao hiệu quả học tập của bạn một cách trực quan, khoa học.</p>
-    <div class="d-flex justify-content-center gap-3 flex-wrap">
-      <a href="/login-user" class="btn btn-light btn-lg fw-semibold px-4 shadow-sm">🎓 Vào hệ thống</a>
-      <a href="/admin/login-admin" class="btn btn-outline-light btn-lg px-4">🛠️ Đăng nhập Admin</a>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="floating-elements">
+      <i class="fas fa-graduation-cap floating-icon" style="font-size: 3rem;"></i>
+      <i class="fas fa-book floating-icon" style="font-size: 2.5rem;"></i>
+      <i class="fas fa-chart-line floating-icon" style="font-size: 2rem;"></i>
+      <i class="fas fa-lightbulb floating-icon" style="font-size: 2.8rem;"></i>
+      <i class="fas fa-users floating-icon" style="font-size: 2.3rem;"></i>
     </div>
-  </div>
-</section>
-
-<!-- Features Section -->
-<section class="py-5 bg-light">
-  <div class="container text-center">
-    <h2 class="fw-bold mb-4 text-primary">✨ Tính năng nổi bật</h2>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="p-4 bg-white shadow rounded h-100">
-          <div class="mb-3 text-primary fs-1">
-            <i class="fas fa-chart-line"></i>
+    
+    <div class="container hero-content">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 text-center text-white">
+          <h1 class="hero-title">
+            Hệ Thống <span style="color: #ffd700;">Quản Lý Tiến Độ</span><br>
+            Học Tập Thông Minh
+          </h1>
+          <p class="hero-subtitle">
+            Theo dõi, phân tích và nâng cao hiệu quả học tập của bạn với công nghệ hiện đại.<br>
+            Trải nghiệm quản lý học tập chuyên nghiệp và trực quan.
+          </p>
+          
+          <div class="action-buttons">
+            <a href="/login-user" class="btn btn-primary-custom btn-lg">
+              <i class="fas fa-sign-in-alt me-2"></i>
+              Bắt Đầu Học Tập
+            </a>
+            <a href="/admin/login-admin" class="btn btn-secondary-custom btn-lg">
+              <i class="fas fa-cog me-2"></i>
+              Quản Trị Hệ Thống
+            </a>
           </div>
-          <h5 class="fw-semibold mb-2">Theo dõi tiến độ học tập</h5>
-          <p>Hiển thị lộ trình học tập, điểm số và phần trăm hoàn thành học phần theo từng học kỳ.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="p-4 bg-white shadow rounded h-100">
-          <div class="mb-3 text-success fs-1">
-            <i class="fas fa-book"></i>
+          
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-number">1000+</span>
+              <span class="stat-label">Sinh viên</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">50+</span>
+              <span class="stat-label">Khóa học</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">98%</span>
+              <span class="stat-label">Hài lòng</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">24/7</span>
+              <span class="stat-label">Hỗ trợ</span>
+            </div>
           </div>
-          <h5 class="fw-semibold mb-2">Quản lý khóa học</h5>
-          <p>Thêm, sửa và phân loại học phần, học kỳ một cách dễ dàng và chính xác.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="p-4 bg-white shadow rounded h-100">
-          <div class="mb-3 text-warning fs-1">
-            <i class="fas fa-user-shield"></i>
-          </div>
-          <h5 class="fw-semibold mb-2">Phân quyền người dùng</h5>
-          <p>Hỗ trợ vai trò khác nhau: sinh viên, giáo viên và quản trị viên với giao diện phù hợp.</p>
         </div>
       </div>
     </div>
-  </div>
-</section>
+    
+    <div class="scroll-indicator">
+      <i class="fas fa-chevron-down" style="font-size: 1.5rem;"></i>
+    </div>
+  </section>
 
-<!-- Call to Action -->
-<section class="py-5 text-white bg-primary text-center">
-  <div class="container">
-    <h2 class="fw-bold mb-3">Sẵn sàng bắt đầu?</h2>
-    <p class="lead mb-4">Tham gia ngay để trải nghiệm hệ thống hỗ trợ học tập hiện đại.</p>
-    <a href="/register" class="btn btn-light btn-lg px-5 fw-semibold">🚀 Bắt đầu sử dụng</a>
-  </div>
-</section>
+  <!-- Features Section -->
+  <section class="py-5" style="background: linear-gradient(to bottom, #f8f9ff, #ffffff);">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold mb-3" style="color: #2d3748;">
+          ✨ Tính Năng Vượt Trội
+        </h2>
+        <p class="lead text-muted">
+          Khám phá những công cụ mạnh mẽ giúp bạn quản lý học tập hiệu quả
+        </p>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card h-100">
+            <div class="feature-icon icon-1">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h5 class="feature-title">Theo Dõi Tiến Độ Thông Minh</h5>
+            <p class="feature-description">
+              Hiển thị trực quan lộ trình học tập, điểm số và phần trăm hoàn thành theo từng học kỳ với biểu đồ tương tác.
+            </p>
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card h-100">
+            <div class="feature-icon icon-2">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h5 class="feature-title">Quản Lý Khóa Học Linh Hoạt</h5>
+            <p class="feature-description">
+              Tổ chức, phân loại và quản lý học phần, học kỳ một cách dễ dàng với giao diện drag-and-drop hiện đại.
+            </p>
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card h-100">
+            <div class="feature-icon icon-3">
+              <i class="fas fa-users-cog"></i>
+            </div>
+            <h5 class="feature-title">Phân Quyền Đa Cấp</h5>
+            <p class="feature-description">
+              Hỗ trợ đầy đủ vai trò: sinh viên, giáo viên, quản trị viên với giao diện và quyền hạn phù hợp.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <div class="container text-center">
+      <h2 class="display-5 fw-bold mb-4 text-white">
+        🚀 Sẵn Sàng Khởi Đầu Hành Trình?
+      </h2>
+      <p class="lead mb-5 text-white opacity-75" style="max-width: 600px; margin: 0 auto;">
+        Tham gia cộng đồng học tập thông minh và trải nghiệm hệ thống quản lý tiến độ hiện đại nhất hiện nay.
+      </p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="/register" class="btn btn-primary-custom btn-lg">
+          <i class="fas fa-rocket me-2"></i>
+          Đăng Ký Ngay
+        </a>
+        <a href="/login-user" class="btn btn-secondary-custom btn-lg">
+          <i class="fas fa-sign-in-alt me-2"></i>
+          Đã Có Tài Khoản
+        </a>
+      </div>
+    </div>
+  </section>
 </main>
+
+<script>
+  // Add smooth scrolling and interactive effects
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animate on scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+    
+    // Observe feature cards
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(50px)';
+      card.style.transition = 'all 0.6s ease';
+      observer.observe(card);
+    });
+    
+    // Add parallax effect to floating icons
+    window.addEventListener('scroll', function() {
+      const scrolled = window.pageYOffset;
+      const parallax = scrolled * 0.1;
+      
+      document.querySelectorAll('.floating-icon').forEach((icon, index) => {
+        const speed = (index + 1) * 0.02;
+        icon.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.05}deg)`;
+      });
+    });
+    
+    // Add click ripple effect to buttons
+    document.querySelectorAll('.btn-primary-custom, .btn-secondary-custom').forEach(button => {
+      button.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        const rect = button.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          left: ${x}px;
+          top: ${y}px;
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          transform: scale(0);
+          animation: ripple 0.6s linear;
+        `;
+        
+        button.style.position = 'relative';
+        button.style.overflow = 'hidden';
+        button.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+  });
+  
+  // Add ripple animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
