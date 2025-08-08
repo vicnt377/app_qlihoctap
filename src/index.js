@@ -16,7 +16,7 @@ const { setUserLocals } = require('../middlewares/setUserLocals');
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3002; // Changed to 3002 to avoid conflicts
 app.use(setUserLocals);
 
 app.use(methodOverride('_method'));
@@ -75,6 +75,7 @@ app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 app.use('/file', express.static(path.join(__dirname, 'public/file')));
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

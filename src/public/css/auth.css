@@ -1,0 +1,63 @@
+/* Auth CSS Styles for Hệ Thống Quản Lý Tiến Độ Học Tập */
+
+body {
+  background: url('/img/background/Modern Linktree 2.png') no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.auth-container {
+  max-width: 400px;
+  padding: 30px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.auth-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ea9b66;
+  margin-bottom: 20px;
+}
+
+.form-control {
+  border-radius: 25px;
+  padding: 12px;
+}
+
+.btn-auth {
+  background: #ea9b66;
+  color: white;
+  font-weight: bold;
+  border-radius: 25px;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+.btn-auth:hover {
+  background: #d17d43;
+}
+
+.icon {
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.auth-links {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.auth-links a {
+  color: #005dba;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+} 
