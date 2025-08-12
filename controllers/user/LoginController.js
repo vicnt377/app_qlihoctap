@@ -4,7 +4,7 @@ const { mongooseToObject } = require('../../src/util/mongoose');
 
 class LoginController {
     re_login(req, res){
-        res.render('auth/re-login', {layout: "auth", error: null });
+        res.render('auth/re-login', {layout: "auth", error: null, bodyClass: 'landing-page' });
     }
 
     

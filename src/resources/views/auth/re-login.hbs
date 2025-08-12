@@ -1,62 +1,63 @@
 {{!< auth}}
 <title>Hệ Thống Quản Lý Tiến Độ Học Tập</title>
 
-<main>
-<!-- Hero Section -->
-<section class="bg-primary text-white py-5 py-md-7 text-center">
-  <div class="container">
-    <h1 class="display-4 fw-bold">Hệ Thống <span class="text-warning">Quản Lý Tiến Độ Học Tập</span></h1>
-    <p class="lead mt-3 mb-4">Theo dõi và nâng cao hiệu quả học tập của bạn một cách trực quan, khoa học.</p>
-    <div class="d-flex justify-content-center gap-3 flex-wrap">
-      <a href="/login-user" class="btn btn-light btn-lg fw-semibold px-4 shadow-sm">🎓 Vào hệ thống</a>
-      <a href="/admin/login-admin" class="btn btn-outline-light btn-lg px-4">🛠️ Đăng nhập Admin</a>
-    </div>
-  </div>
-</section>
-
-<!-- Features Section -->
-<section class="py-5 bg-light">
-  <div class="container text-center">
-    <h2 class="fw-bold mb-4 text-primary">✨ Tính năng nổi bật</h2>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="p-4 bg-white shadow rounded h-100">
-          <div class="mb-3 text-primary fs-1">
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <h5 class="fw-semibold mb-2">Theo dõi tiến độ học tập</h5>
-          <p>Hiển thị lộ trình học tập, điểm số và phần trăm hoàn thành học phần theo từng học kỳ.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="p-4 bg-white shadow rounded h-100">
-          <div class="mb-3 text-success fs-1">
-            <i class="fas fa-book"></i>
-          </div>
-          <h5 class="fw-semibold mb-2">Quản lý khóa học</h5>
-          <p>Thêm, sửa và phân loại học phần, học kỳ một cách dễ dàng và chính xác.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="p-4 bg-white shadow rounded h-100">
-          <div class="mb-3 text-warning fs-1">
-            <i class="fas fa-user-shield"></i>
-          </div>
-          <h5 class="fw-semibold mb-2">Phân quyền người dùng</h5>
-          <p>Hỗ trợ vai trò khác nhau: sinh viên, giáo viên và quản trị viên với giao diện phù hợp.</p>
-        </div>
+<main id="landing-page">
+  <!-- Hero Section -->
+  <section class="landing-hero">
+    <div class="container">
+      <img src="/img/background/EDU.png" alt="Logo" class="landing-logo mb-3" />
+      <h1 class="display-4 fw-bold">Hệ Thống <span class="highlight">Quản Lý Tiến Độ Học Tập</span></h1>
+      <p class="lead mt-3 mb-4">Theo dõi và nâng cao hiệu quả học tập của bạn một cách trực quan, khoa học.</p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="/login-user" class="btn btn-primary-landing btn-lg fw-semibold px-4 shadow-sm">🎓 Vào hệ thống</a>
+        <a href="/admin/login-admin" class="btn btn-outline-landing btn-lg px-4">🛠️ Đăng nhập Admin</a>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Call to Action -->
-<section class="py-5 text-white bg-primary text-center">
-  <div class="container">
-    <h2 class="fw-bold mb-3">Sẵn sàng bắt đầu?</h2>
-    <p class="lead mb-4">Tham gia ngay để trải nghiệm hệ thống hỗ trợ học tập hiện đại.</p>
-    <a href="/register" class="btn btn-light btn-lg px-5 fw-semibold">🚀 Bắt đầu sử dụng</a>
-  </div>
-</section>
+  <!-- Features Section -->
+  <section class="landing-features">
+    <div class="container text-center">
+      <h2 class="fw-bold mb-4" style="color:#ea9b66;">✨ Tính năng nổi bật</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="landing-feature-card h-100">
+            <div class="mb-3 fs-1" style="color:#ea9b66;">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h5 class="fw-semibold mb-2">Theo dõi tiến độ học tập</h5>
+            <p>Hiển thị lộ trình học tập, điểm số và phần trăm hoàn thành học phần theo từng học kỳ.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="landing-feature-card h-100">
+            <div class="mb-3 fs-1" style="color:#ea9b66;">
+              <i class="fas fa-book"></i>
+            </div>
+            <h5 class="fw-semibold mb-2">Quản lý khóa học</h5>
+            <p>Thêm, sửa và phân loại học phần, học kỳ một cách dễ dàng và chính xác.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="landing-feature-card h-100">
+            <div class="mb-3 fs-1" style="color:#ea9b66;">
+              <i class="fas fa-user-shield"></i>
+            </div>
+            <h5 class="fw-semibold mb-2">Phân quyền người dùng</h5>
+            <p>Hỗ trợ vai trò khác nhau: sinh viên, giáo viên và quản trị viên với giao diện phù hợp.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- CTA Section -->
+  <section class="landing-cta text-center">
+    <div class="container">
+      <h2 class="fw-bold mb-3">Sẵn sàng bắt đầu?</h2>
+      <p class="lead mb-4">Tham gia ngay để trải nghiệm hệ thống hỗ trợ học tập hiện đại.</p>
+      <a href="/register" class="btn btn-light btn-lg px-5 fw-semibold">🚀 Bắt đầu sử dụng</a>
+    </div>
+  </section>
 </main>
+

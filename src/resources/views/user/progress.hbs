@@ -1,50 +1,97 @@
-<div class="dashboard-header">
-  <h2 class="dashboard-title mb-0"><i class="fas fa-chart-line"></i> Tiến Độ Học Tập</h2>
+<!-- Header Section with Gradient Background -->
+<div class="document-header mb-3">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="h2 fw-bold text-white mb-1">
+          <i class="fas fa-chart-line me-2"></i>Tiến Độ Học Tập
+        </h1>
+        <p class="text-white-50 mb-0">Theo dõi tiến độ và kết quả học tập của bạn</p>
+      </div>
+    </div>
+  </div>
 </div>
 
-<main class="container mt-4">
-  <div class="row">
+<main class="container-fluid px-4">
+  <div class="row g-4">
     <!-- Cột bên trái -->
-    <div class="col-md-6">
-      <div class="card p-4 mb-4">
-        <h5 style="color: black;">🎯 Tổng số tín chỉ đã hoàn thành:</h5>
-        <p><strong>{{totalCredits}} / 152 tín chỉ</strong></p>
-        <canvas id="creditChart" height="180"></canvas>
+    <div class="col-lg-6">
+      <!-- Chart Card -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient-gray text-white py-3">
+          <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Biểu đồ tiến độ</h6>
+        </div>
+        <div class="card-body text-center p-3">
+          <h6 class="text-dark mb-2">🎯 Tổng số tín chỉ đã hoàn thành</h5>
+          <p class="h5 fw-bold text-orange mb-2">{{totalCredits}} / 152 tín chỉ</p>
+          <canvas id="creditChart" height="150"></canvas>
 
-        {{#if totalCreditsExceeded}}
-          <div class="alert alert-warning mt-2" role="alert">
-            ⚠️ Số tín chỉ vượt quá giới hạn cho phép!
-          </div>
-        {{/if}}
+          {{#if totalCreditsExceeded}}
+            <div class="alert alert-warning mt-2 mb-0 py-2" role="alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>Số tín chỉ vượt quá giới hạn cho phép!
+            </div>
+          {{/if}}
+        </div>
       </div>
 
-      <div class="card p-4 mb-4">
-        <h5 style="color: black;">❌ Danh sách môn bị nợ (điểm F)</h5>
-        {{#if monNo.length}}
-          <ul class="list-group">
-            {{#each monNo}}
-              <li class="list-group-item">
-                ⚠️ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ | Điểm: {{diemSo}} ({{diemChu}})
-              </li>
-            {{/each}}
-          </ul>
-        {{else}}
-          <p class="text-success">🎉 Bạn không bị nợ môn nào!</p>
-        {{/if}}
+      <!-- Failed Subjects Card -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-gray text-white py-3">
+          <h6 class="mb-0"><i class="fas fa-times-circle me-2"></i>Môn bị nợ (điểm F)</h6>
+        </div>
+        <div class="card-body p-3">
+          {{#if monNo.length}}
+            <div class="list-group list-group-flush">
+              {{#each monNo}}
+                <div class="list-group-item border-0 px-0 py-2">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">{{HocPhan.tenHocPhan}}</h6>
+                      <small class="text-muted">{{HocPhan.soTinChi}} tín chỉ | Điểm: {{diemSo}} ({{diemChu}})</small>
+                    </div>
+                  </div>
+                </div>
+              {{/each}}
+            </div>
+          {{else}}
+            <div class="text-center py-3">
+              <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+              <h6 class="text-success">🎉 Bạn không bị nợ môn nào!</h6>
+            </div>
+          {{/if}}
+        </div>
       </div>
     </div>
 
     <!-- Cột bên phải -->
-    <div class="col-md-6">
-      <div class="card p-4 mb-4">
-        <h5 style="color: black;">📚 Danh sách học phần đã học</h5>
-        <ul class="list-group overflow-auto" style="max-height: 400px;">
-          {{#each scores}}
-            <li class="list-group-item">
-              ✅ {{HocPhan.tenHocPhan}} - {{HocPhan.soTinChi}} tín chỉ 
-            </li>
-          {{/each}}
-        </ul>
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-gradient-gray text-white py-3">
+          <h6 class="mb-0"><i class="fas fa-book me-2"></i>Học phần đã hoàn thành</h6>
+        </div>
+        <div class="card-body p-3">
+          {{#if scores.length}}
+            <div class="list-group list-group-flush" style="max-height: 350px; overflow-y: auto;">
+              {{#each scores}}
+                <div class="list-group-item border-0 px-0 py-2">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">{{HocPhan.tenHocPhan}}</h6>
+                      <small class="text-muted">{{HocPhan.soTinChi}} tín chỉ</small>
+                    </div>
+                  </div>
+                </div>
+              {{/each}}
+            </div>
+          {{else}}
+            <div class="text-center py-3">
+              <i class="fas fa-book fa-2x text-muted mb-2"></i>
+              <h6 class="text-muted">Chưa có học phần nào hoàn thành</h6>
+            </div>
+          {{/if}}
+        </div>
       </div>
     </div>
   </div>

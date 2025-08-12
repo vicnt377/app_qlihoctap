@@ -15,10 +15,70 @@
   <link rel="stylesheet" href="/css/auth.css" />
 </head>
 
-<body>
+<body class="{{bodyClass}}">
   <main class="flex items-center justify-center min-h-screen">
     {{{body}}}
   </main>
+
+  <!-- Footer for Auth Pages -->
+  <footer class="footer mt-5 py-4 bg-gradient-gray text-white">
+    <div class="container">
+      <div class="row g-4">
+        <!-- Thông tin hệ thống -->
+        <div class="col-lg-6 col-md-12">
+          <div class="footer-section text-center">
+            <h6 class="fw-bold mb-3">
+              <i class="fas fa-graduation-cap me-2 text-orange"></i>Hệ Thống Quản Lý Tiến Độ Học Tập
+            </h6>
+            <p class="text-white-50 mb-3">
+              Hỗ trợ sinh viên theo dõi tiến độ học tập, quản lý tài liệu và kết quả học tập một cách hiệu quả.
+            </p>
+            <div class="social-links">
+              <a href="#" class="text-white me-3" title="Facebook">
+                <i class="fab fa-facebook-f fa-lg"></i>
+              </a>
+              <a href="#" class="text-white me-3" title="Email">
+                <i class="fas fa-envelope fa-lg"></i>
+              </a>
+              <a href="#" class="text-white me-3" title="Phone">
+                <i class="fas fa-phone fa-lg"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liên hệ -->
+        <div class="col-lg-6 col-md-12">
+          <div class="footer-section text-center">
+            <h6 class="fw-bold mb-3 text-orange">Liên Hệ</h6>
+            <div class="contact-info">
+              <div class="mb-2">
+                <i class="fas fa-map-marker-alt me-2 text-orange"></i>
+                <span class="text-white-50">123 Đường ABC, Quận XYZ, TP.HCM</span>
+              </div>
+              <div class="mb-2">
+                <i class="fas fa-phone me-2 text-orange"></i>
+                <span class="text-white-50">(028) 1234-5678</span>
+              </div>
+              <div class="mb-2">
+                <i class="fas fa-envelope me-2 text-orange"></i>
+                <span class="text-white-50">support@edusystem.edu.vn</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Footer -->
+      <div class="border-top border-white-25 pt-3 mt-4">
+        <div class="text-center">
+          <p class="text-white-50 mb-0 small">
+            <i class="fas fa-copyright me-1"></i>2024 Hệ Thống Quản Lý Tiến Độ Học Tập. Tất cả quyền được bảo lưu.
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 
 </html>

@@ -1,33 +1,57 @@
-<div class="dashboard-header mb-3">
-  <h2 class="dashboard-title mb-0">
-    <i class="fas fa-comment-dots"></i> Hỏi Đáp
-  </h2>
+<!-- Header Section with Gradient Background -->
+<div class="document-header mb-3">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="h2 fw-bold text-white mb-1">
+          <i class="fas fa-comment-dots me-2"></i>Hỏi Đáp
+        </h1>
+        <p class="text-white-50 mb-0">Liên hệ và nhận hỗ trợ từ đội ngũ quản trị</p>
+      </div>
+    </div>
+  </div>
 </div>
 
-<main class="container mt-3">
-  <div class="messages" id="messages">
-  {{#each messages}}
-    {{#if (eq (toString sender._id) (toString ../user._id))}}
-      <div class="text-start">
-        <div class="bg-red-200 inline-block p-2 px-4 rounded-xl mb-2">
-          {{content}} <small class="block text-left text-xs text-gray-500">{{sender.name}} (Bạn)</small>
-        </div>
+<main class="container-fluid px-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-gradient-gray text-white py-3">
+      <h6 class="mb-0"><i class="fas fa-comments me-2"></i>Hộp thư hỗ trợ</h6>
+    </div>
+    <div class="card-body p-0">
+      <!-- Messages Area -->
+      <div class="messages p-4" id="messages" style="height: 400px; overflow-y: auto; background: #f8f9fa;">
+        {{#each messages}}
+          {{#if (eq (toString sender._id) (toString ../user._id))}}
+            <div class="text-end mb-3">
+              <div class="bg-orange text-white d-inline-block p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                <div class="mb-1">{{content}}</div>
+                <small class="text-white-50">{{sender.name}} (Bạn)</small>
+              </div>
+            </div>
+          {{else}}
+            <div class="text-start mb-3">
+              <div class="bg-secondary text-white d-inline-block p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                <div class="mb-1">{{content}}</div>
+                <small class="text-white-50">{{sender.name}} (Admin)</small>
+              </div>
+            </div>
+          {{/if}}
+        {{/each}}
       </div>
-    {{else}}
-      <div class="text-end">
-        <div class="bg-blue-200 inline-block p-2 px-4 rounded-xl mb-2">
-          {{content}} <small class="block text-right text-xs text-gray-500">{{sender.name}} (Admin)</small>
-        </div>
-      </div>
-    {{/if}}
-  {{/each}}
 
+      <!-- Chat Input Form -->
+      <div class="p-4 border-top bg-white">
+        <form id="chatForm" class="chat-form">
+          <div class="input-group">
+            <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn của bạn..." required>
+            <button type="submit" class="btn btn-orange">
+              <i class="fas fa-paper-plane me-1"></i>Gửi
+            </button>
+            </div>
+        </form>
+      </div>
+    </div>
   </div>
-
-  <form id="chatForm" class="chat-form mt-3">
-    <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn..." required>
-    <button type="submit" class="btn btn-primary mt-2">Gửi</button>
-  </form>
 </main>
 
 

@@ -1,107 +1,151 @@
 
-<!-- Tiêu đề + Avatar -->
-<div class="dashboard-header mb-4 d-flex justify-content-between align-items-center">
-  <h2 class="dashboard-title mb-0">
-    <i class="fas fa-home me-2"></i> Trang Chủ
-  </h2>
-</div>
-<main class="container mt-4">
-  <!-- Chào mừng -->
-  <div class="card shadow-sm p-4 mb-4 bg-white rounded">
-    <h4 class="text-primary mb-1">👋 Chào mừng trở lại, {{user.username}}!</h4>
-    <p class="mb-0">Hãy tiếp tục hành trình học tập của bạn hôm nay.</p>
-  </div>
-
-  <!-- Thống kê học tập -->
-  <div class="card shadow-sm p-4 mb-5 bg-white rounded">
-    <h5 class="text-dark mb-3"> Thống kê học tập</h5>
-    <p><strong>{{totalCredits}} / 152 tín chỉ đã hoàn thành</strong></p>
-    <canvas id="creditChart" height="180"></canvas>
-
-    {{#if totalCreditsExceeded}}
-      <div class="alert alert-warning mt-3" role="alert">
-        ⚠️ Số tín chỉ vượt quá giới hạn cho phép!
-      </div>
-    {{/if}}
-  </div>
-  <!-- Cac khoa hoc da tham gia-->
-  <div class="card shadow-sm p-4 mb-5 bg-white rounded">
-    <h5 class="text-dark mb-3"> Các khóa học đã tham gia</h5>
-
-    {{#if enrolledVideos.length}}
-      <div class="row">
-        {{#each enrolledVideos}}
-          <div class="col-md-4 mb-3">
-            <div class="card h-100 shadow-sm">
-              <img
-                src="https://img.youtube.com/vi/{{this.youtubeId}}/hqdefault.jpg"
-                class="card-img-top"
-                alt="{{this.title}}"
-              />
-              <div class="card-body d-flex flex-column">
-                <h6 class="card-title">{{this.title}}</h6>
-                <p class="card-text small">{{this.description}}</p>
-                <a href="/video/start/{{this._id}}" class="btn btn-sm btn-success mt-auto">Tiếp tục học</a>
+<!-- Header Section with Gradient Background (reuse document header styles) -->
+<div class="document-header mb-3">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+         <h1 class="h2 fw-bold text-white mb-2">
+           <i class="fas fa-home me-2"></i>Trang Chủ
+         </h1>
+         <div class="welcome-section">
+           <div class="welcome-text mb-2">
+             <span class="text-white fs-5">👋 Chào mừng trở lại, </span>
+             <span class="text-white fw-bold fs-5">{{user.username}}</span>
+             <span class="text-white fs-5">!</span>
+           </div>
+           <p class="text-white-50 mb-0 fs-6">Chúc bạn có một ngày học hiệu quả</p>
+         </div>
+       </div>
+      <div class="col-md-4 text-end">
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="stats-card">
+              <div class="stats-item">
+                <i class="fas fa-award text-orange"></i>
+                <span class="stats-number">{{totalCredits}}</span>
+                <span class="stats-label">Tín chỉ</span>
               </div>
             </div>
           </div>
-        {{/each}}
+          <div class="col-6">
+            <div class="stats-card">
+              <div class="stats-item">
+                <i class="fas fa-video text-orange"></i>
+                <span class="stats-number">{{#if enrolledVideos.length}}{{enrolledVideos.length}}{{else}}0{{/if}}</span>
+                <span class="stats-label">Khóa học</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    {{else}}
-      <p class="text-muted">Bạn chưa tham gia khóa học nào.</p>
-    {{/if}}
+    </div>
   </div>
+</div>
 
+<main class="container-fluid px-4">
+  <!-- Hàng thẻ truy cập nhanh (trái) và biểu đồ (phải) -->
+  <div class="row g-3 mb-3">
+    <!-- Truy cập nhanh -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-gray text-white py-2">
+          <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Truy cập nhanh</h6>
+        </div>
+        <div class="card-body pt-3 pb-2">
+          <div class="row row-cols-2 row-cols-md-3 g-2 text-center">
+            <a href="/course" class="col text-decoration-none text-dark">
+              <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
+                <i class="fas fa-book fa-lg text-primary mb-2"></i>
+                <div class="small">Học Phần</div>
+              </div>
+            </a>
+            <a href="/document" class="col text-decoration-none text-dark">
+              <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
+                <i class="fas fa-file fa-lg text-success mb-2"></i>
+                <div class="small">Tài Liệu</div>
+              </div>
+            </a>
+            <a href="/progress" class="col text-decoration-none text-dark">
+              <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
+                <i class="fas fa-chart-line fa-lg text-warning mb-2"></i>
+                <div class="small">Tiến Độ</div>
+              </div>
+            </a>
+            <a href="/semester" class="col text-decoration-none text-dark">
+              <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
+                <i class="fas fa-calendar-alt fa-lg text-danger mb-2"></i>
+                <div class="small">Lịch Học</div>
+              </div>
+            </a>
+            <a href="/score" class="col text-decoration-none text-dark">
+              <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
+                <i class="fas fa-graduation-cap fa-lg text-secondary mb-2"></i>
+                <div class="small">Kết Quả</div>
+              </div>
+            </a>
+            <a href="/video" class="col text-decoration-none text-dark">
+              <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
+                <i class="fas fa-video fa-lg" style="color: #cf4408;"></i>
+                <div class="small">Khóa Học</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <!-- Menu điều hướng ngang -->
-  <div class="card shadow-sm p-4 mb-5 bg-white rounded">
-    <h5 class="mb-4 text-dark"> Truy cập nhanh</h5>
-    <div class="row row-cols-2 row-cols-md-4 g-3 text-center">
-      <a href="/course" class="col text-decoration-none text-dark">
-        <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
-          <i class="fas fa-book fa-lg text-primary mb-2"></i>
-          <div>Học Phần</div>
+    <!-- Biểu đồ thống kê -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-gradient-gray text-white py-2">
+          <h6 class="mb-0"><i class="fas fa-chart-column me-2"></i>Thống kê học tập</h6>
         </div>
-      </a>
-      <a href="/document" class="col text-decoration-none text-dark">
-        <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
-          <i class="fas fa-file fa-lg text-success mb-2"></i>
-          <div>Tài Liệu</div>
+        <div class="card-body p-4">
+          <p class="mb-3"><strong>{{totalCredits}} / 152 tín chỉ đã hoàn thành</strong></p>
+          <canvas id="creditChart" height="180"></canvas>
+          {{#if totalCreditsExceeded}}
+            <div class="alert alert-warning mt-3 mb-0" role="alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>Số tín chỉ vượt quá giới hạn!
+            </div>
+          {{/if}}
         </div>
-      </a>
-      <a href="/progress" class="col text-decoration-none text-dark">
-        <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
-          <i class="fas fa-chart-line fa-lg text-warning mb-2"></i>
-          <div>Tiến Độ</div>
-        </div>
-      </a>
-      <a href="/semester" class="col text-decoration-none text-dark">
-        <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
-          <i class="fas fa-calendar-alt fa-lg text-danger mb-2"></i>
-          <div>Lịch Học</div>
-        </div>
-      </a>
-      <a href="/score" class="col text-decoration-none text-dark">
-        <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
-          <i class="fas fa-graduation-cap fa-lg text-secondary mb-2"></i>
-          <div>Kết Quả</div>
-        </div>
-      </a>
-      <a href="/video" class="col text-decoration-none text-dark">
-        <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
-          <i class="fas fa-video fa-lg" style="color: #cf4408;"></i>
-          <div>Khóa Học</div>
-        </div>
-      </a>
-      <a href="/account" class="col text-decoration-none text-dark">
-        <div class="p-3 border rounded shadow-sm bg-light hover-shadow">
-          <i class="fas fa-user fa-lg" style="color: #531aff;"></i>
-          <div>Tài Khoản</div>
-        </div>
-      </a>
+      </div>
     </div>
   </div>
 
+  <!-- Các khóa học đã tham gia -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-gradient-gray text-white py-2">
+      <h6 class="mb-0"><i class="fas fa-list me-2"></i>Các khóa học đã tham gia</h6>
+    </div>
+    <div class="card-body p-3">
+      {{#if enrolledVideos.length}}
+        <div class="row g-3">
+          {{#each enrolledVideos}}
+            <div class="col-md-4">
+              <div class="card h-100 shadow-sm border-0">
+                <img src="https://img.youtube.com/vi/{{this.youtubeId}}/hqdefault.jpg" class="card-img-top" alt="{{this.title}}" />
+                <div class="card-body d-flex flex-column">
+                  <h6 class="card-title mb-1">{{this.title}}</h6>
+                  <p class="card-text small text-muted">{{this.description}}</p>
+                  <a href="/video/start/{{this._id}}" class="btn btn-sm btn-orange mt-auto"><i class="fas fa-play me-1"></i>Tiếp tục học</a>
+                </div>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <div class="text-center py-4">
+          <div class="empty-state">
+            <i class="fas fa-video fa-3x text-muted mb-3"></i>
+            <h6 class="text-muted mb-2">Bạn chưa tham gia khóa học nào</h6>
+            <p class="text-muted mb-3 small">Khám phá và đăng ký khóa học để bắt đầu</p>
+            <a href="/video" class="btn btn-outline-orange btn-sm"><i class="fas fa-compass me-1"></i>Khám phá khóa học</a>
+          </div>
+        </div>
+      {{/if}}
+    </div>
+  </div>
 </main>
 
 <!-- Chart.js -->
@@ -115,38 +159,22 @@
   new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Tín chỉ đã hoàn thành', 'Còn lại', 'Môn bị nợ'],
+      labels: ['Đã hoàn thành', 'Còn lại', 'Môn bị nợ'],
       datasets: [{
         label: 'Thống kê học tập',
         data: [totalCredits, remainingCredits, totalNoSubjects],
-        backgroundColor: ['#4CAF50', '#90CAF9', '#f44336'],
-        borderColor: ['#388E3C', '#42A5F5', '#d32f2f'],
+        backgroundColor: ['#ff8c42', '#cfd8dc', '#ef9a9a'],
+        borderColor: ['#ff6f00', '#b0bec5', '#e57373'],
         borderWidth: 1,
-        borderRadius: 4
+        borderRadius: 6
       }]
     },
     options: {
       responsive: true,
       scales: {
-        y: {
-          beginAtZero: true,
-          max: 152,
-          title: {
-            display: true,
-            text: 'Số lượng'
-          }
-        }
+        y: { beginAtZero: true, max: 152, title: { display: true, text: 'Số lượng' } }
       },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function (context) {
-              return `${context.label}: ${context.raw}`;
-            }
-          }
-        }
-      }
+      plugins: { legend: { display: false } }
     }
   });
 </script>

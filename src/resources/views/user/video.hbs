@@ -1,64 +1,115 @@
-<div class="dashboard-header">
-  <h2 class="dashboard-title mb-0"><i class="fas fa-video"></i> Các Khóa Học Tham Khảo</h2>
+<!-- Header Section with Gradient Background -->
+<div class="document-header mb-3">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="h2 fw-bold text-white mb-1">
+          <i class="fas fa-video me-2"></i>Các Khóa Học Tham Khảo
+        </h1>
+        <p class="text-white-50 mb-0">Khám phá và đăng ký các khóa học trực tuyến</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <main class="container mt-4">
   <!-- Bộ lọc -->
-  <div class="row mb-4 align-items-center">
-    <div class="col-md-6">
-      <input type="text" class="form-control" placeholder=" Tìm kiếm khóa học...">
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-gradient-gray text-white py-3">
+      <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Bộ lọc khóa học</h6>
     </div>
-    <div class="col-md-2">
-      <select class="form-select">
-        <option selected>Tất cả danh mục</option>
-        <option value="lập trình">Lập trình</option>
-        <option value="backend">Backend</option>
-        <option value="database">Database</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <select class="form-select">
-        <option selected>Tất cả cấp độ</option>
-        <option value="beginner">Beginner</option>
-        <option value="intermediate">Intermediate</option>
-        <option value="advanced">Advanced</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <button class="btn btn-primary w-100">Lọc</button>
+    <div class="card-body p-4">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label fw-bold text-muted">
+            <i class="fas fa-search me-2 text-orange"></i>Tìm kiếm
+          </label>
+          <input type="text" class="form-control" placeholder="Tìm kiếm khóa học...">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-bold text-muted">
+            <i class="fas fa-tags me-2 text-orange"></i>Danh mục
+          </label>
+          <select class="form-select">
+            <option selected>Tất cả danh mục</option>
+            <option value="lập trình">Lập trình</option>
+            <option value="backend">Backend</option>
+            <option value="database">Database</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-bold text-muted">
+            <i class="fas fa-signal me-2 text-orange"></i>Cấp độ
+          </label>
+          <select class="form-select">
+            <option selected>Tất cả cấp độ</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-orange w-100">
+            <i class="fas fa-filter me-1"></i>Lọc
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Danh sách khóa học -->
-  <div class="row">
-    {{#each videos}}
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="position-relative">
-          <img
-            src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}"
-            class="card-img-top"
-            alt="{{this.title}}"
-          />
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-gradient-gray text-white py-3">
+      <h6 class="mb-0"><i class="fas fa-play-circle me-2"></i>Danh sách khóa học</h6>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-4">
+        {{#each videos}}
+        <div class="col-lg-4 col-md-6">
+          <div class="card h-100 shadow-sm border-0 hover-shadow">
+            <div class="position-relative">
+                             <img
+                 src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}"
+                 class="card-img-top"
+                 alt="{{this.title}}"
+                 style="height: 160px; object-fit: cover;"
+               />
 
-          <span class="badge bg-{{this.levelColor}} position-absolute top-0 start-0 m-2">{{this.level}}</span>
-          <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">
-            <i class="fas fa-star"></i> {{this.rating}}
-          </span>
+              <span class="badge bg-{{this.levelColor}} position-absolute top-0 start-0 m-2 fs-6">{{this.level}}</span>
+              <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 fs-6">
+                <i class="fas fa-star me-1"></i>{{this.rating}}
+              </span>
+            </div>
+                         <div class="card-body d-flex flex-column p-3">
+               <div class="mb-2">
+                 <span class="badge bg-light text-dark">{{this.category}}</span>
+               </div>
+               <h6 class="card-title fw-bold mb-2">{{this.title}}</h6>
+               <p class="card-text text-muted small mb-2">{{this.description}}</p>
+               
+               <div class="row text-muted small mb-2">
+                 <div class="col-4 text-center">
+                   <i class="far fa-clock mb-1 d-block"></i>
+                   <span>{{this.durationFormatted}}</span>
+                 </div>
+                 <div class="col-4 text-center">
+                   <i class="fas fa-list mb-1 d-block"></i>
+                   <span>{{this.lessons}} bài</span>
+                 </div>
+                 <div class="col-4 text-center">
+                   <i class="fas fa-user-graduate mb-1 d-block"></i>
+                   <span>{{this.students}}</span>
+                 </div>
+               </div>
+               
+               <a href="video/showdetail/{{this._id}}" class="btn btn-orange btn-sm mt-auto w-100">
+                 <i class="fas fa-play me-1"></i>Xem chi tiết
+               </a>
+             </div>
+          </div>
         </div>
-        <div class="card-body d-flex flex-column">
-          <small class="text-muted">{{this.category}}</small>
-          <h5 class="card-title mt-1">{{this.title}}</h5>
-          <p class="card-text small">{{this.description}}</p>
-          <ul class="list-inline text-muted small mb-2">
-            <li class="list-inline-item"><i class="far fa-clock"></i> {{this.durationFormatted}}</li>
-            <li class="list-inline-item"><i class="fas fa-list"></i> {{this.lessons}} bài</li>
-            <li class="list-inline-item"><i class="fas fa-user-graduate"></i> {{this.students}} học viên</li>
-          </ul>
-          <a href="video/showdetail/{{this._id}}" class="btn btn-primary mt-auto w-100">Xem chi tiết</a>
-        </div>
+        {{/each}}
       </div>
     </div>
-    {{/each}}
   </div>
 </main>

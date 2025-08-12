@@ -60,4 +60,178 @@ body {
 
 .auth-links a:hover {
   text-decoration: underline;
-} 
+}
+
+body.landing-page {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, #f6f7f9 100%) !important; /* Nền trắng xám riêng cho re-login */
+  color: #333;
+}
+
+
+/* Hero Section */
+.landing-hero {
+  background-color: #ffffff; /* trắng */
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.landing-hero h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+}
+
+.landing-hero .highlight {
+  color: #ea9b66; /* cam nhấn */
+}
+
+.landing-hero p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.landing-hero .btn-primary-landing {
+  background-color: #ea9b66;
+  border: none;
+  color: white;
+  font-weight: 600;
+}
+
+.landing-hero .btn-primary-landing:hover {
+  background-color: #d17d43;
+}
+
+.landing-hero .btn-outline-landing {
+  border: 2px solid #ea9b66;
+  color: #ea9b66;
+  font-weight: 600;
+  background: transparent;
+}
+
+.landing-hero .btn-outline-landing:hover {
+  background-color: #ea9b66;
+  color: white;
+}
+
+/* Logo in hero */
+.landing-logo {
+  height: 120px;
+  width: auto;
+  display: block;
+  margin: 0 auto 12px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));
+}
+
+@media (min-width: 768px) {
+  .landing-logo {
+    height: 160px;
+  }
+}
+
+/* Features Section */
+.landing-features {
+  background-color: #f8f9fa; /* xám nhạt */
+  padding: 3rem 0;
+}
+
+.landing-feature-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+}
+
+.landing-feature-card h5 {
+  font-weight: 600;
+}
+
+.landing-feature-card p {
+  color: #666;
+}
+
+/* CTA Section */
+.landing-cta {
+  background-color: #ea9b66;
+  color: white;
+  padding: 3rem 0;
+  border-radius: 16px;            /* Bo góc */
+  margin: 0 1rem 2rem;            /* Tạo khoảng trắng hai bên để thấy bo góc */
+  overflow: hidden;               /* Đảm bảo bo góc áp dụng cho nội dung bên trong */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+@media (min-width: 992px) {
+  .landing-cta {
+    border-radius: 20px;
+    margin: 0 3rem 3rem;
+  }
+}
+
+.landing-cta .btn-light {
+  color: #ea9b66;
+  font-weight: 600;
+}
+
+.landing-cta .btn-light:hover {
+  background-color: white;
+  color: #d17d43;
+}
+
+/* Footer for Auth Layout */
+.footer {
+  background: linear-gradient(135deg, #495057 0%, #6c757d 100%) !important;
+  margin-top: auto;
+}
+
+.footer-section h6 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.social-links a {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+}
+
+.social-links a:hover {
+  background: #ea9b66;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(234, 155, 102, 0.3);
+}
+
+.contact-info div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.contact-info i {
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.border-white-25 {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Ensure footer stays at bottom for auth pages */
+body.landing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.landing-page main {
+  flex: 1;
+}

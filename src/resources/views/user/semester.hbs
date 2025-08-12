@@ -1,30 +1,41 @@
-<!-- Tiêu đề -->
-<div class="dashboard-header mb-4 d-flex justify-content-between align-items-center">
-  <h2 class="dashboard-title mb-0">
-    <i class="fas fa-calendar-alt me-2"></i> Lịch Học
-  </h2>
+<!-- Header Section with Gradient Background -->
+<div class="document-header mb-3">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="h2 fw-bold text-white mb-1">
+          <i class="fas fa-calendar-alt me-2"></i>Lịch Học
+        </h1>
+        <p class="text-white-50 mb-0">Quản lý thời khóa biểu và lịch học các học kỳ</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <main class="container mt-4">
 
 <!-- Tabs -->
-<ul class="nav nav-tabs mb-4" id="semesterTabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendarSection" type="button">
-      <strong>Thời khóa biểu</strong>
-    </button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#addSection" type="button">
-      <strong>Thêm học kỳ</strong>
-    </button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#listSection" type="button">
-      <strong>Danh sách học kỳ</strong>
-    </button>
-  </li>
-</ul>
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body p-0">
+    <ul class="nav nav-pills nav-fill" id="semesterTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#calendarSection" type="button">
+          <i class="fas fa-calendar-week me-2"></i><strong>Thời khóa biểu</strong>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="add-tab" data-bs-toggle="pill" data-bs-target="#addSection" type="button">
+          <i class="fas fa-plus-circle me-2"></i><strong>Thêm học kỳ</strong>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="list-tab" data-bs-toggle="pill" data-bs-target="#listSection" type="button">
+          <i class="fas fa-list me-2"></i><strong>Danh sách học kỳ</strong>
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
 
 <!-- Nội dung tab -->
 <div class="tab-content" id="semesterTabContent">
@@ -37,80 +48,80 @@
 
   <!-- Tab 2: Form thêm học kỳ + Danh sách học phần -->
   <div class="tab-pane fade" id="addSection">
-    <form id="addSemesterForm" class="mb-4">
-      <div class="card mb-4 shadow-sm">
-        <div class="card-body row g-3">
-          <div class="col-md-3">
-            <label for="tenHocKy" class="form-label"><strong>Tên học kỳ</strong></label>
-            <input type="text" class="form-control" id="tenHocKy" name="tenHocKy" placeholder="VD: Học Kỳ 1" required>
-          </div>
-          <div class="col-md-3">
-            <label for="startDate" class="form-label"><strong>Ngày bắt đầu</strong></label>
-            <input type="date" class="form-control" id="startDate" name="startDate" required>
-          </div>
-          <div class="col-md-2">
-            <label for="soTuan" class="form-label"><strong>Số tuần</strong></label>
-            <input type="number" class="form-control" id="soTuan" name="soTuan" min="1" max="52" value="18" required>
-          </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-success w-100">Thêm học kỳ</button>
-          </div>
-        </div>
-      </div>
-    </form>
+         <form id="addSemesterForm" class="mb-3">
+       <div class="card mb-3 shadow-sm">
+         <div class="card-body row g-2 py-3">
+           <div class="col-md-3">
+             <label for="tenHocKy" class="form-label small"><strong>Tên học kỳ</strong></label>
+             <input type="text" class="form-control form-control-sm" id="tenHocKy" name="tenHocKy" placeholder="VD: Học Kỳ 1" required>
+           </div>
+           <div class="col-md-3">
+             <label for="startDate" class="form-label small"><strong>Ngày bắt đầu</strong></label>
+             <input type="date" class="form-control form-control-sm" id="startDate" name="startDate" required>
+           </div>
+           <div class="col-md-2">
+             <label for="soTuan" class="form-label small"><strong>Số tuần</strong></label>
+             <input type="number" class="form-control form-control-sm" id="soTuan" name="soTuan" min="1" max="52" value="18" required>
+           </div>
+           <div class="col-md-2 d-flex align-items-end">
+             <button type="submit" class="btn btn-success btn-sm w-100">Thêm học kỳ</button>
+           </div>
+         </div>
+       </div>
+     </form>
 
-    <!-- Danh sách học phần -->
-    <div class="card shadow-sm mb-5">
-      <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
-        <strong>Danh sách học phần</strong>
-      </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover align-middle mb-0">
-            <thead class="table-light text-center">
-              <tr>
-                <th>STT</th>
-                <th>Tên học phần</th>
-                <th>Mã học phần</th>
-                <th>Thứ</th>
-                <th>Giờ bắt đầu</th>
-                <th>Giờ kết thúc</th>
-                <th>Chọn</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{#each courses}}
-                <tr>
-                  <td class="text-center">{{inc @index}}</td>
-                  <td>{{tenHocPhan}}</td>
-                  <td>{{maHocPhan}}</td>
-                  <td>
-                    <select class="form-select form-select-sm" name="thu_{{_id}}" id="thu_{{_id}}">
-                      {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
-                        <option value="{{this}}">{{this}}</option>
-                      {{/each}}
-                    </select>
-                  </td>
-                  <td>
-                    <input type="time" class="form-control form-control-sm" name="gioBatDau_{{_id}}" id="gioBatDau_{{_id}}">
-                  </td>
-                  <td>
-                    <input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}" id="gioKetThuc_{{_id}}">
-                  </td>
-                  <td class="text-center">
-                    <input type="checkbox" name="selectedCourses" value="{{_id}}">
-                  </td>
-                </tr>
-              {{else}}
-                <tr>
-                  <td colspan="7" class="text-center text-muted">Không có học phần nào khả dụng.</td>
-                </tr>
-              {{/each}}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+         <!-- Danh sách học phần -->
+     <div class="card shadow-sm mb-3">
+       <div class="card-header bg-light fw-bold py-2">
+         <strong>Danh sách học phần</strong>
+       </div>
+       <div class="card-body p-0">
+         <div class="table-responsive">
+           <table class="table table-bordered table-hover align-middle mb-0 table-sm">
+             <thead class="table-light text-center">
+               <tr>
+                 <th class="py-2">STT</th>
+                 <th class="py-2">Tên học phần</th>
+                 <th class="py-2">Mã học phần</th>
+                 <th class="py-2">Thứ</th>
+                 <th class="py-2">Giờ bắt đầu</th>
+                 <th class="py-2">Giờ kết thúc</th>
+                 <th class="py-2">Chọn</th>
+               </tr>
+             </thead>
+             <tbody>
+               {{#each courses}}
+                 <tr>
+                   <td class="text-center py-1">{{inc @index}}</td>
+                   <td class="py-1">{{tenHocPhan}}</td>
+                   <td class="py-1">{{maHocPhan}}</td>
+                   <td class="py-1">
+                     <select class="form-select form-select-sm" name="thu_{{_id}}" id="thu_{{_id}}">
+                       {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
+                         <option value="{{this}}">{{this}}</option>
+                       {{/each}}
+                     </select>
+                   </td>
+                   <td class="py-1">
+                     <input type="time" class="form-control form-control-sm" name="gioBatDau_{{_id}}" id="gioBatDau_{{_id}}">
+                   </td>
+                   <td class="py-1">
+                     <input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}" id="gioKetThuc_{{_id}}">
+                   </td>
+                   <td class="text-center py-1">
+                     <input type="checkbox" name="selectedCourses" value="{{_id}}">
+                   </td>
+                 </tr>
+               {{else}}
+                 <tr>
+                   <td colspan="7" class="text-center text-muted py-2">Không có học phần nào khả dụng.</td>
+                 </tr>
+               {{/each}}
+             </tbody>
+           </table>
+         </div>
+       </div>
+     </div>
 
   </div>
 
