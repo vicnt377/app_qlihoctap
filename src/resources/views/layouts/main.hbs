@@ -46,6 +46,59 @@
           <li class="nav-item"><a class="nav-link" href="/chat">Hỏi Đáp</a></li>
           <li class="nav-item"><a class="nav-link" href="/account">Tài Khoản</a></li>
         </ul>
+        {{!-- <!-- Nút thông báo -->
+        <div class="dropdown me-3">
+          <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-bell fa-lg text-secondary"></i>
+            <span class="badge bg-danger rounded-pill ms-1">3</span> <!-- số thông báo -->
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" style="width: 300px;">
+            <li class="dropdown-header fw-bold">Thông báo</li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item small" href="#">📅 Lịch học tuần tới đã được cập nhật</a>
+            </li>
+            <li>
+              <a class="dropdown-item small" href="#">📄 Tài liệu mới: Lập trình Web</a>
+            </li>
+            <li>
+              <a class="dropdown-item small" href="#">🎯 Tiến độ học tập đạt 80%</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-center small text-primary" href="#">Xem tất cả</a>
+            </li>
+          </ul>
+        </div> --}}
+
+        <!-- Notification Bell -->
+        <div class="dropdown me-3">
+          <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-bell fa-lg text-muted"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none;">
+              0
+            </span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow notification-dropdown" aria-labelledby="notificationDropdown" style="width: 320px;">
+            <li class="dropdown-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Thông báo</h6>
+              <a href="#" class="text-decoration-none small text-muted">Đánh dấu đã đọc</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li id="notificationList">
+              <div class="text-center text-muted py-3">
+                <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                <p class="mb-0">Không có thông báo mới</p>
+              </div>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="text-center">
+              <a href="#" class="dropdown-item text-center text-decoration-none">
+                <small class="text-muted">Xem tất cả thông báo</small>
+              </a>
+            </li>
+          </ul>
+        </div>
 
         <!-- Dropdown avatar -->
         <div class="dropdown">
@@ -168,7 +221,7 @@
               </div>
               <div class="mb-2">
                 <i class="fas fa-phone me-2 text-orange"></i>
-                <span class="text-white-50">(028) 1234-5678</span>
+                <span class="text-white-50">(84) 1234-5678</span>
               </div>
               <div class="mb-2">
                 <i class="fas fa-envelope me-2 text-orange"></i>
@@ -202,5 +255,54 @@
       </div>
     </div>
   </footer>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const socket = io();
+
+  // Khi user load trang, join vào room của họ
+  fetch('/api/auth/user') // API trả user hiện tại
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        socket.emit('join', data.user._id);
+      }
+    });
+
+  // Nhận thông báo mới
+  socket.on('new-notification', (n) => {
+    const badge = document.getElementById('notificationBadge');
+    const list = document.getElementById('notificationList');
+
+    // Tăng số badge
+    let count = parseInt(badge.textContent || '0') + 1;
+    badge.style.display = 'inline';
+    badge.textContent = count;
+
+    // Thêm thông báo mới lên đầu danh sách
+    const item = document.createElement('a');
+    item.href = '#';
+    item.className = 'dropdown-item small';
+    item.innerHTML = `
+      <div class="d-flex">
+        <div class="me-2"><i class="fas fa-info-circle text-primary"></i></div>
+        <div>
+          <div>${n.message}</div>
+          <small class="text-muted">${new Date(n.createdAt).toLocaleString()}</small>
+        </div>
+      </div>
+    `;
+
+    // Xóa "Không có thông báo" nếu có
+    if (list.querySelector('.fa-bell-slash')) {
+      list.innerHTML = '';
+    }
+
+    list.prepend(item);
+  });
+});
+</script>
+
 </body>
 </html>

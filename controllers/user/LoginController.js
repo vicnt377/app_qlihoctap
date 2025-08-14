@@ -1,5 +1,6 @@
 
 const User = require('../../models/User');
+const Notification = require('../../models/Notification')
 const { mongooseToObject } = require('../../src/util/mongoose');
 
 class LoginController {
@@ -50,7 +51,7 @@ class LoginController {
 
             // ✅ Lưu session
             req.session.user = {
-                _id: user._id.toString(),
+                _id: user._id, // Giữ nguyên ObjectId
                 username: user.username,
                 avatar: user.avatar,
                 role: user.role
@@ -58,6 +59,7 @@ class LoginController {
             req.session.userId = user._id;
             console.log("Lưu session:", req.session.user);
 
+            
             res.redirect('/home');
 
         } catch (error) {

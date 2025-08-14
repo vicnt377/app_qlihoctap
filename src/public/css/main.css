@@ -1833,4 +1833,245 @@ main {
     display: block;
     margin-bottom: 0.5rem;
   }
+}
+
+/* Notification Bell Styles */
+.notification-dropdown {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-dropdown .dropdown-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 0.75rem 1rem;
+}
+
+.notification-dropdown .dropdown-header h6 {
+  color: #495057;
+  font-weight: 600;
+}
+
+.notification-dropdown .dropdown-header a:hover {
+  color: #ea9b66 !important;
+}
+
+#notificationBadge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Notification item styles */
+.notification-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f3f4;
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196f3;
+}
+
+.notification-item .notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.notification-item .notification-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-item .notification-icon.info {
+  background-color: #e3f2fd;
+  color: #2196f3;
+}
+
+.notification-item .notification-icon.success {
+  background-color: #e8f5e8;
+  color: #4caf50;
+}
+
+.notification-item .notification-icon.warning {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+
+.notification-item .notification-icon.danger {
+  background-color: #ffebee;
+  color: #f44336;
+}
+
+.notification-item .notification-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item .notification-title {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.notification-item .notification-message {
+  color: #6c757d;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.notification-item .notification-time {
+  color: #adb5bd;
+  font-size: 0.75rem;
+}
+
+/* Responsive notification */
+@media (max-width: 576px) {
+  .notification-dropdown {
+    width: 280px !important;
+    right: -20px;
+  }
+  
+  .notification-item .notification-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .notification-item .notification-icon {
+    align-self: center;
+  }
+}
+
+/* Toast Notifications */
+.notification-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+  border-left: 4px solid #007bff;
+}
+
+.notification-toast.show {
+  transform: translateX(0);
+}
+
+.notification-toast .toast-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.notification-toast .toast-body {
+  padding: 1rem;
+  color: #495057;
+}
+
+/* Notification Actions */
+.notification-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.notification-actions .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+/* Loading States */
+.loading-more {
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+}
+
+/* Unread Notification Styling */
+.notification-item.unread {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196f3;
+}
+
+.notification-item.unread .notification-title {
+  font-weight: 700;
+}
+
+/* Notification Item Hover */
+.notification-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(2px);
+  transition: all 0.2s ease;
+}
+
+/* Notification Badge Animation */
+#notificationBadge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Toast Colors by Type */
+.notification-toast[data-type="success"] {
+  border-left-color: #28a745;
+}
+
+.notification-toast[data-type="warning"] {
+  border-left-color: #ffc107;
+}
+
+.notification-toast[data-type="danger"] {
+  border-left-color: #dc3545;
+}
+
+.notification-toast[data-type="info"] {
+  border-left-color: #17a2b8;
+}
+
+/* Responsive Toast */
+@media (max-width: 576px) {
+  .notification-toast {
+    width: calc(100vw - 40px);
+    right: 20px;
+    left: 20px;
+  }
 } 
