@@ -82,16 +82,15 @@ class VideoController {
       const hasResults = videos.length > 0;
       const totalResults = videos.length;
       
-      // Debug info
-      console.log('=== DEBUG INFO ===');
-      console.log('Filter:', filter);
-      console.log('Videos found:', videos.length);
-      console.log('Categories:', categories);
-      console.log('Levels:', levels);
-      console.log('Has results:', hasResults);
-      console.log('Total results:', totalResults);
-      console.log('==================');
-      
+      // Gom nhóm theo category
+      const groupedVideos = videos.reduce((groups, video) => {
+        if (!groups[video.category]) {
+          groups[video.category] = [];
+        }
+        groups[video.category].push(video);
+        return groups;
+      }, {});
+
       res.render('user/video', {
         user: req.session.user,
         videos,
@@ -99,7 +98,8 @@ class VideoController {
         levels,
         filters: { search: search || '', category: category || 'all', level: level || 'all' },
         hasResults,
-        totalResults
+        totalResults,
+        groupedVideos
       });
     } catch (error) {
       next(error);

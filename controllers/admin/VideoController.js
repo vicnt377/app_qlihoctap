@@ -98,6 +98,15 @@ class VideoController {
         const categories = await Video.distinct('category', { daXoa: false });
         const levels = ['Cơ bản', 'Trung bình', 'Nâng cao'];
 
+        // Debug: Log dữ liệu để kiểm tra
+        console.log('=== DEBUG VIDEO DATA ===');
+        console.log('Total videos:', videos.length);
+        console.log('Categories found:', categories);
+        console.log('First video:', videos[0]);
+        console.log('Videos with category:', videos.filter(v => v.category).length);
+        console.log('Videos without category:', videos.filter(v => !v.category).length);
+        console.log('=======================');
+
         res.render('admin/videos', {
           layout: 'admin',
           user: req.session.user,

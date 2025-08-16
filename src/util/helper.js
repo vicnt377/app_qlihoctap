@@ -133,14 +133,49 @@ module.exports = {
     groupBy: function (array, key) {
       if (!array || !Array.isArray(array)) return {};
       
-      return array.reduce((groups, item) => {
-        const groupKey = item[key];
-        if (!groups[groupKey]) {
-          groups[groupKey] = [];
+      // Lọc bỏ các item có category null/undefined/empty
+      const validArray = array.filter(item => item && item[key] && item[key].toString().trim() !== '');
+      
+      // Gộp các danh mục tương tự
+      const normalizedGroups = {};
+      
+      validArray.forEach(item => {
+        let groupKey = item[key].toString().trim();
+        
+        // Chuẩn hóa tên danh mục
+        if (groupKey.toLowerCase().includes('backend')) {
+          groupKey = 'Backend';
+        } else if (groupKey.toLowerCase().includes('frontend')) {
+          groupKey = 'Frontend';
+        } else if (groupKey.toLowerCase().includes('lập trình') || groupKey.toLowerCase().includes('lap trinh')) {
+          groupKey = 'Lập trình';
         }
-        groups[groupKey].push(item);
-        return groups;
-      }, {});
+        
+        // Loại bỏ các từ thừa như "2 khóa học", "khóa học", etc.
+        groupKey = groupKey.replace(/\s*\d+\s*khóa học\s*/gi, '').trim();
+        groupKey = groupKey.replace(/\s*khóa học\s*/gi, '').trim();
+        
+        if (!normalizedGroups[groupKey]) {
+          normalizedGroups[groupKey] = [];
+        }
+        normalizedGroups[groupKey].push(item);
+      });
+      
+      return normalizedGroups;
+    },
+
+    lookup: function (array, index) {
+      if (!array || !Array.isArray(array) || index < 0 || index >= array.length) return null;
+      return array[index];
+    },
+
+    // Helper để đếm tổng số video trong một danh mục
+    countVideosInCategory: function (videos, category) {
+      if (!videos || !Array.isArray(videos)) return 0;
+      return videos.filter(video => {
+        const videoCategory = video.category?.toString().toLowerCase() || '';
+        return videoCategory.includes(category.toLowerCase());
+      }).length;
     }
 
 };

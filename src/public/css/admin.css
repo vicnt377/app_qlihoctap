@@ -371,6 +371,14 @@ body {
 .accordion-collapse {
   transition: all 0.3s ease-in-out;
   overflow: hidden;
+  display: none;
+}
+
+.accordion-collapse.show {
+  display: block;
+  max-height: 2000px;
+  opacity: 1;
+  padding: inherit;
 }
 
 .accordion-collapse:not(.show) {
@@ -379,10 +387,15 @@ body {
   padding: 0;
 }
 
-.accordion-collapse.show {
-  max-height: 2000px;
-  opacity: 1;
-  padding: inherit;
+/* Đảm bảo video luôn hiển thị khi accordion mở */
+.accordion-collapse.show .accordion-body {
+  display: block !important;
+  visibility: visible !important;
+}
+
+.accordion-collapse:not(.show) .accordion-body {
+  display: none !important;
+  visibility: hidden !important;
 }
 
 /* Thumbnail error handling */
