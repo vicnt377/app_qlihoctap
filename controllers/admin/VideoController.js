@@ -28,7 +28,7 @@ function mapLevel(level) {
 class VideoController {
     async getVideos(req, res) {
       try {
-        const { search = '', sort = 'newest', page = 1 } = req.query;
+        const { search = '', sort = 'newest', page = 1, category = '', level = '' } = req.query;
         const limit = 10;
         const currentPage = parseInt(page);
 
@@ -39,6 +39,16 @@ class VideoController {
             { title: { $regex: search, $options: 'i' } },
             { description: { $regex: search, $options: 'i' } },
           ];
+        }
+
+        // ===== Lọc theo danh mục
+        if (category && category !== 'all') {
+          baseFilter.category = category;
+        }
+
+        // ===== Lọc theo cấp độ
+        if (level && level !== 'all') {
+          baseFilter.level = level;
         }
 
         // ===== Sort
@@ -84,6 +94,10 @@ class VideoController {
           .sort({ deletedAt: -1 }) // nếu có deletedAt, hoặc giữ nguyên
           .lean();
 
+        // Lấy danh sách danh mục và cấp độ để hiển thị trong bộ lọc
+        const categories = await Video.distinct('category', { daXoa: false });
+        const levels = ['Cơ bản', 'Trung bình', 'Nâng cao'];
+
         res.render('admin/videos', {
           layout: 'admin',
           user: req.session.user,
@@ -93,7 +107,9 @@ class VideoController {
           currentPage,
           totalPages: Math.ceil(totalVideos / limit),
           totalVideos,
-          query: { search, sort },
+          categories,
+          levels,
+          query: { search, sort, category, level },
         });
       } catch (err) {
         console.error(err);
@@ -206,7 +222,7 @@ class VideoController {
         const exists = await Video.findOne({ youtubeId });
         if (exists) return res.status(400).json({ message: 'Video đã tồn tại' });
 
-        const durationInHours = parseDurationToHours(duration); // chuyển đổi chuỗi sang số
+        const durationInHours = parseDuration(duration); // chuyển đổi chuỗi sang số
 
         const video = new Video({
           youtubeId,

@@ -59,6 +59,38 @@ class LoginController {
             req.session.userId = user._id;
             console.log("Lưu session:", req.session.user);
 
+            // ✅ Tạo thông báo chào mừng sử dụng model đầy đủ
+            try {
+                const welcomeNotification = new Notification({
+                    recipient: user._id, // Sử dụng recipient thay vì userId
+                    sender: user._id, // Sử dụng sender
+                    type: 'welcome', // Loại thông báo
+                    title: 'Chào mừng trở lại! 👋', // ✅ Thêm title
+                    message: `Chào mừng ${user.username} đăng nhập vào hệ thống học tập! Chúc bạn có một ngày học hiệu quả.`,
+                    relatedModel: 'System', // Model liên quan
+                    relatedId: null, // Không có ID cụ thể
+                    isRead: false,
+                    metadata: {
+                        action: 'login',
+                        timestamp: new Date()
+                    }
+                });
+                
+                await welcomeNotification.save();
+                console.log("✅ Đã tạo thông báo chào mừng cho user:", user.username);
+                
+                // Log thông báo đã tạo
+                console.log("🔔 Thông báo chào mừng:", {
+                    id: welcomeNotification._id,
+                    recipient: welcomeNotification.recipient,
+                    title: welcomeNotification.title,
+                    message: welcomeNotification.message
+                });
+                
+            } catch (notificationError) {
+                console.error("❌ Lỗi khi tạo thông báo chào mừng:", notificationError);
+                // Không dừng quá trình đăng nhập nếu tạo thông báo thất bại
+            }
             
             res.redirect('/home');
 

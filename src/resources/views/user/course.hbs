@@ -10,17 +10,52 @@
         </h1>
         <p class="text-white-50 mb-0">Quản lý và theo dõi các học phần đã đăng ký</p>
       </div>
+      <div class="col-md-4 text-end">
+        <button class="btn btn-orange" onclick="downloadTemplate()">
+          <i class="fas fa-download me-2"></i>Tải Template
+        </button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
+          <i class="fas fa-upload me-2"></i>Import Excel
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-
 <main class="container-fluid px-4">
-  <!-- Search Section -->
+  <!-- Filter Section -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body p-4">
       <div class="row align-items-center">
-        <div class="col-md-8">
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Chương trình đào tạo:</label>
+          <select class="form-select" id="filterChuongTrinh">
+            <option value="">Tất cả</option>
+            {{#each chuongTrinhDaoTaoList}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Năm nhập học:</label>
+          <select class="form-select" id="filterNamHoc">
+            <option value="">Tất cả</option>
+            {{#each namNhapHocList}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Học kỳ:</label>
+          <select class="form-select" id="filterHocKy">
+            <option value="">Tất cả</option>
+            <option value="Học kỳ 1">Học kỳ 1</option>
+            <option value="Học kỳ 2">Học kỳ 2</option>
+            <option value="Học kỳ 3">Học kỳ 3</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Tìm kiếm:</label>
           <div class="input-group">
             <span class="input-group-text bg-orange text-white">
               <i class="fas fa-search"></i>
@@ -28,8 +63,15 @@
             <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm học phần...">
           </div>
         </div>
-        <div class="col-md-4">
-          <p class="text-muted mb-0"><small><i class="fas fa-info-circle me-1"></i>(*) Là học phần điều kiện, không tính điểm trung bình chung tích lũy.</small></p>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12">
+          <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+            <i class="fas fa-times me-1"></i>Xóa bộ lọc
+          </button>
+          <span class="text-muted ms-3">
+            <i class="fas fa-info-circle me-1"></i>(*) Là học phần điều kiện, không tính điểm trung bình chung tích lũy.
+          </span>
         </div>
       </div>
     </div>
@@ -38,7 +80,10 @@
   <!-- Course Table -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-gradient-gray text-white py-3">
-      <h6 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách học phần</h6>
+      <div class="d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách học phần</h6>
+        <span class="badge bg-light text-dark" id="courseCount">0 học phần</span>
+      </div>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -49,6 +94,9 @@
               <th>Mã Học Phần</th>
               <th>Tên Học Phần</th>
               <th class="text-center">Số Tín Chỉ</th>
+              <th>Chương Trình ĐT</th>
+              <th class="text-center">Năm</th>
+              <th class="text-center">Học Kỳ</th>
               <th class="text-center">Hành Động</th>
             </tr>
           </thead>
@@ -121,6 +169,94 @@
     </form>
   </div>
 </div>
+
+<!-- Modal Import Excel -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:black">
+          <i class="fas fa-upload me-2"></i>Import danh sách học phần
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <h6><i class="fas fa-info-circle me-2"></i>Hướng dẫn:</h6>
+          <ul class="mb-0">
+            <li>Tải template Excel để xem cấu trúc dữ liệu</li>
+            <li>File Excel phải có các cột: maHocPhan, tenHocPhan, soTinChi, chuongTrinhDaoTao, namNhapHoc, hocKy, moTa</li>
+            <li>Chương trình đào tạo: Công nghệ thông tin, Kỹ thuật điện, Kỹ thuật cơ khí, Kinh tế, Ngoại ngữ, Khác</li>
+            <li>Học kỳ: Học kỳ 1 đến Học kỳ 8</li>
+            <li>Năm nhập học: 2020-2030</li>
+          </ul>
+        </div>
+        
+        <form id="importForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label fw-medium">Chọn file Excel:</label>
+            <input type="file" class="form-control" id="excelFile" name="excelFile" accept=".xlsx,.xls" required>
+            <div class="form-text">Chỉ hỗ trợ file Excel (.xlsx, .xls), tối đa 5MB</div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Chương trình đào tạo mặc định:</label>
+            <select class="form-select" id="defaultChuongTrinh">
+              <option value="Công nghệ thông tin">Công nghệ thông tin</option>
+              <option value="Kỹ thuật điện">Kỹ thuật điện</option>
+              <option value="Kỹ thuật cơ khí">Kỹ thuật cơ khí</option>
+              <option value="Kinh tế">Kinh tế</option>
+              <option value="Ngoại ngữ">Ngoại ngữ</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Năm nhập học mặc định:</label>
+            <select class="form-select" id="defaultNamHoc">
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Học kỳ mặc định:</label>
+            <select class="form-select" id="defaultHocKy">
+              <option value="Học kỳ 1">Học kỳ 1</option>
+              <option value="Học kỳ 2">Học kỳ 2</option>
+              <option value="Học kỳ 3">Học kỳ 3</option>
+              <option value="Học kỳ 4">Học kỳ 4</option>
+              <option value="Học kỳ 5">Học kỳ 5</option>
+              <option value="Học kỳ 6">Học kỳ 6</option>
+              <option value="Học kỳ 7">Học kỳ 7</option>
+              <option value="Học kỳ 8">Học kỳ 8</option>
+            </select>
+          </div>
+        </form>
+        
+        <div id="importProgress" class="d-none">
+          <div class="progress mb-3">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+          </div>
+          <p class="text-center mb-0">Đang xử lý file Excel...</p>
+        </div>
+        
+        <div id="importResult" class="d-none">
+          <!-- Kết quả import sẽ hiển thị ở đây -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-success" onclick="importExcel()" id="importBtn">
+          <i class="fas fa-upload me-2"></i>Import
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -130,62 +266,192 @@
 
   const rowsPerPage = 7;
   let currentPage = 1;
+  let filteredCourses = [...allCourses];
 
   // Khởi tạo biến modal toàn cục
   const addScoreModalElement = document.getElementById('addScoreModal');
   const addScoreModal = new bootstrap.Modal(addScoreModalElement);
 
-function renderTablePage(page) {
-  const start = (page - 1) * rowsPerPage;
-  const tbody = document.getElementById('courseBody');
-  tbody.innerHTML = '';
+  // Hàm filter và render
+  function filterAndRenderCourses() {
+    const chuongTrinh = document.getElementById('filterChuongTrinh').value;
+    const namHoc = document.getElementById('filterNamHoc').value;
+    const hocKy = document.getElementById('filterHocKy').value;
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-  const paginatedCourses = allCourses.slice(start, start + rowsPerPage);
+    filteredCourses = allCourses.filter(course => {
+      const matchChuongTrinh = !chuongTrinh || course.chuongTrinhDaoTao === chuongTrinh;
+      const matchNamHoc = !namHoc || course.namNhapHoc === parseInt(namHoc);
+      const matchHocKy = !hocKy || course.hocKy === hocKy;
+      const matchSearch = !searchTerm || 
+        course.tenHocPhan.toLowerCase().includes(searchTerm) ||
+        course.maHocPhan.toLowerCase().includes(searchTerm);
 
-  paginatedCourses.forEach((course, index) => {
-    const daThem = existingCourseIds.includes(String(course._id));
-    const actionCell = daThem
-      ? '<span class="text-success fw-bold">✅ Đã thêm</span>'
-      : `<button class="btn btn-sm btn-primary" onclick="openAddScoreModal('${course._id}', '${course.tenHocPhan}')">
-          <i class="fas fa-plus"></i>
-        </button>`;
+      return matchChuongTrinh && matchNamHoc && matchHocKy && matchSearch;
+    });
 
-    tbody.innerHTML += `
-      <tr>
-        <td>${start + index + 1}</td>
-        <td>${course.maHocPhan}</td>
-        <td>${course.tenHocPhan}</td>
-        <td>${course.soTinChi}</td>
-        <td>${actionCell}</td>
-      </tr>
-    `;
-  });
-
-  document.getElementById('pageIndicator').innerText =
-    `${page} / ${Math.ceil(allCourses.length / rowsPerPage)}`;
-}
-
-
-function nextPage() {
-  const totalPages = Math.ceil(allCourses.length / rowsPerPage);
-  if (currentPage < totalPages) {
-    currentPage++;
+    currentPage = 1;
     renderTablePage(currentPage);
+    updateCourseCount();
   }
-}
 
-function prevPage() {
-  if (currentPage > 1) {
-    currentPage--;
-    renderTablePage(currentPage);
+  function renderTablePage(page) {
+    const start = (page - 1) * rowsPerPage;
+    const tbody = document.getElementById('courseBody');
+    tbody.innerHTML = '';
+
+    const paginatedCourses = filteredCourses.slice(start, start + rowsPerPage);
+
+    paginatedCourses.forEach((course, index) => {
+      const daThem = existingCourseIds.includes(String(course._id));
+      const actionCell = daThem
+        ? '<span class="text-success fw-bold">✅ Đã thêm</span>'
+        : `<button class="btn btn-sm btn-primary" onclick="openAddScoreModal('${course._id}', '${course.tenHocPhan}')">
+            <i class="fas fa-plus"></i>
+          </button>`;
+
+      tbody.innerHTML += `
+        <tr>
+          <td class="text-center">${start + index + 1}</td>
+          <td><code class="bg-light px-2 py-1 rounded">${course.maHocPhan}</code></td>
+          <td>
+            <div class="fw-medium">${course.tenHocPhan}</div>
+            ${course.moTa ? `<small class="text-muted">${course.moTa}</small>` : ''}
+          </td>
+          <td class="text-center">
+            <span class="badge bg-info">${course.soTinChi} TC</span>
+          </td>
+          <td>
+            <span class="badge bg-secondary">${course.chuongTrinhDaoTao}</span>
+          </td>
+          <td class="text-center">
+            <span class="badge bg-warning text-dark">${course.namNhapHoc}</span>
+          </td>
+          <td class="text-center">
+            <span class="badge bg-primary">${course.hocKy}</span>
+          </td>
+          <td class="text-center">${actionCell}</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById('pageIndicator').innerText =
+      `${page} / ${Math.ceil(filteredCourses.length / rowsPerPage)}`;
   }
-}
 
+  function updateCourseCount() {
+    document.getElementById('courseCount').innerText = `${filteredCourses.length} học phần`;
+  }
+
+  function clearFilters() {
+    document.getElementById('filterChuongTrinh').value = '';
+    document.getElementById('filterNamHoc').value = '';
+    document.getElementById('filterHocKy').value = '';
+    document.getElementById('searchInput').value = '';
+    filterAndRenderCourses();
+  }
+
+  function nextPage() {
+    const totalPages = Math.ceil(filteredCourses.length / rowsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderTablePage(currentPage);
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTablePage(currentPage);
+    }
+  }
 
   function openAddScoreModal(courseId, courseName) {
     document.getElementById('modalCourseId').value = courseId;
     document.getElementById('modalCourseName').value = courseName;
     addScoreModal.show();
+  }
+
+  function downloadTemplate() {
+    window.location.href = '/course/template';
+  }
+
+  async function importExcel() {
+    const fileInput = document.getElementById('excelFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+      alert('Vui lòng chọn file Excel để import!');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('excelFile', file);
+
+    // Hiển thị progress
+    document.getElementById('importProgress').classList.remove('d-none');
+    document.getElementById('importResult').classList.add('d-none');
+    document.getElementById('importBtn').disabled = true;
+
+    try {
+      const response = await fetch('/course/import', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      
+      // Ẩn progress, hiển thị kết quả
+      document.getElementById('importProgress').classList.add('d-none');
+      document.getElementById('importBtn').disabled = false;
+      
+      const resultDiv = document.getElementById('importResult');
+      resultDiv.classList.remove('d-none');
+      
+      if (response.ok) {
+        resultDiv.innerHTML = `
+          <div class="alert alert-success">
+            <h6><i class="fas fa-check-circle me-2"></i>Import thành công!</h6>
+            <ul class="mb-0">
+              <li>Thành công: <strong>${result.successCount}</strong> học phần</li>
+              <li>Bỏ qua: <strong>${result.skipCount}</strong> học phần (đã tồn tại)</li>
+              <li>Lỗi: <strong>${result.errorCount}</strong> dòng</li>
+            </ul>
+            ${result.errors.length > 0 ? `
+              <hr>
+              <strong>Chi tiết lỗi:</strong>
+              <ul class="text-danger">
+                ${result.errors.map(error => `<li>${error}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
+        `;
+        
+        // Refresh danh sách học phần
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      } else {
+        resultDiv.innerHTML = `
+          <div class="alert alert-danger">
+            <h6><i class="fas fa-exclamation-triangle me-2"></i>Import thất bại!</h6>
+            <p class="mb-0">${result.message}</p>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Lỗi khi import:', error);
+      document.getElementById('importProgress').classList.add('d-none');
+      document.getElementById('importBtn').disabled = false;
+      
+      document.getElementById('importResult').innerHTML = `
+        <div class="alert alert-danger">
+          <h6><i class="fas fa-exclamation-triangle me-2"></i>Lỗi kết nối!</h6>
+          <p class="mb-0">Không thể kết nối đến server. Vui lòng thử lại!</p>
+        </div>
+      `;
+      document.getElementById('importResult').classList.remove('d-none');
+    }
   }
 
   document.getElementById('addScoreForm').addEventListener('submit', async (e) => {
@@ -216,51 +482,12 @@ function prevPage() {
     }
   });
 
+  // Event listeners cho filter
+  document.getElementById('filterChuongTrinh').addEventListener('change', filterAndRenderCourses);
+  document.getElementById('filterNamHoc').addEventListener('change', filterAndRenderCourses);
+  document.getElementById('filterHocKy').addEventListener('change', filterAndRenderCourses);
+  document.getElementById('searchInput').addEventListener('input', filterAndRenderCourses);
+
   // Khởi tạo trang đầu tiên khi load
-  renderTablePage(currentPage);
+  filterAndRenderCourses();
 </script>
-{{!-- Tim kiem hoc phan --}}
-  <script>
-    const searchInput = document.getElementById('searchInput');
-
-    searchInput.addEventListener('input', () => {
-      const keyword = searchInput.value.toLowerCase();
-
-      // Lọc lại danh sách học phần theo từ khóa
-      const filteredCourses = allCourses.filter(course => {
-        return course.tenHocPhan.toLowerCase().includes(keyword) ||
-              course.maHocPhan.toLowerCase().includes(keyword);
-      });
-
-      // Render lại bảng với kết quả tìm kiếm
-      renderFilteredCourses(filteredCourses);
-    });
-
-    function renderFilteredCourses(courses) {
-      const tbody = document.getElementById('courseBody');
-      tbody.innerHTML = '';
-
-      courses.slice(0, rowsPerPage).forEach((course, index) => {
-        const daThem = existingCourseIds.includes(String(course._id));
-        const actionCell = daThem
-          ? '<span class="text-success fw-bold">✅ Đã thêm</span>'
-          : `<button class="btn btn-sm btn-primary" onclick="openAddScoreModal('${course._id}', '${course.tenHocPhan}')">
-              <i class="fas fa-plus"></i>
-            </button>`;
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${course.maHocPhan}</td>
-            <td>${course.tenHocPhan}</td>
-            <td>${course.soTinChi}</td>
-            <td>${actionCell}</td>
-          </tr>
-        `;
-      });
-
-      // Cập nhật chỉ số phân trang khi tìm kiếm
-      document.getElementById('pageIndicator').innerText =
-        `1 / ${Math.ceil(courses.length / rowsPerPage)}`;
-    }
-  </script>

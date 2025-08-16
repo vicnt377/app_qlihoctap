@@ -10,7 +10,7 @@ const semesterRouter = require ('./user/semester_route')
 const documentRouter = require ('./user/document_route')
 const videoRouter = require ('./user/video_route')
 const chatRouter = require('./user/chat_route')
-
+const notificationRouter = require('./user/notification_route')
 
 
 //admin
@@ -34,7 +34,8 @@ function route(app) {
     app.use('/semester', semesterRouter);
     app.use('/document', documentRouter);
     app.use('/video', videoRouter);
-    app.use('/chat', chatRouter)
+    app.use('/chat', chatRouter);
+    app.use('/notifications', notificationRouter); // ✅ Sửa từ /notification thành /notifications
 }
 
 module.exports = route;

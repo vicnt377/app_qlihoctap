@@ -16,7 +16,7 @@ const { setUserLocals } = require('../middlewares/setUserLocals');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000; // Changed to 3002 to avoid conflicts
+const port = process.env.PORT || 3000;  
 app.use(setUserLocals);
 
 app.use(methodOverride('_method'));

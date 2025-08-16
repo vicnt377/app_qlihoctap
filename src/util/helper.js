@@ -128,6 +128,19 @@ module.exports = {
 
     includes: function (array, value) {
       return array && array.includes(value.toString());
+    },
+
+    groupBy: function (array, key) {
+      if (!array || !Array.isArray(array)) return {};
+      
+      return array.reduce((groups, item) => {
+        const groupKey = item[key];
+        if (!groups[groupKey]) {
+          groups[groupKey] = [];
+        }
+        groups[groupKey].push(item);
+        return groups;
+      }, {});
     }
 
 };

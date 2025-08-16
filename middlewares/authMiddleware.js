@@ -1,6 +1,8 @@
 function isUser(req, res, next) {
   // Nếu đã đăng nhập và có user trong session
   if (req.session && req.session.user && req.session.user.role === 'user') {
+    // ✅ Set req.user để controllers có thể truy cập
+    req.user = req.session.user;
     return next();
   }
 

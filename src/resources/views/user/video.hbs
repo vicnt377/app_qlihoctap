@@ -16,100 +16,178 @@
   <!-- Bộ lọc -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-gradient-gray text-white py-3">
-      <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Bộ lọc khóa học</h6>
+      <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Bộ lọc video</h6>
     </div>
     <div class="card-body p-4">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label class="form-label fw-bold text-muted">
-            <i class="fas fa-search me-2 text-orange"></i>Tìm kiếm
-          </label>
-          <input type="text" class="form-control" placeholder="Tìm kiếm khóa học...">
+      <form method="GET" action="/video" id="filterForm">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">
+              <i class="fas fa-search me-2 text-orange"></i>Tìm kiếm
+            </label>
+            <input type="text" class="form-control" name="search" placeholder="Tìm kiếm video..." value="{{filters.search}}">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-bold text-muted">
+              <i class="fas fa-tags me-2 text-orange"></i>Danh mục
+            </label>
+            <select class="form-select" name="category">
+              <option value="all" {{#if (eq filters.category 'all')}}selected{{/if}}>Tất cả danh mục</option>
+              {{#each categories}}
+                <option value="{{this}}" {{#if (eq ../filters.category this)}}selected{{/if}}>{{this}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-bold text-muted">
+              <i class="fas fa-signal me-2 text-orange"></i>Cấp độ
+            </label>
+            <select class="form-select" name="level">
+              <option value="all" {{#if (eq filters.level 'all')}}selected{{/if}}>Tất cả cấp độ</option>
+              {{#each levels}}
+                <option value="{{this}}" {{#if (eq ../filters.level this)}}selected{{/if}}>{{this}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-orange w-100">
+              <i class="fas fa-filter me-1"></i>Lọc
+            </button>
+          </div>
+          <div class="col-md-2">
+            <a href="/video" class="btn btn-outline-secondary w-100">
+              <i class="fas fa-times me-1"></i>Xóa lọc
+            </a>
+          </div>
         </div>
-        <div class="col-md-2">
-          <label class="form-label fw-bold text-muted">
-            <i class="fas fa-tags me-2 text-orange"></i>Danh mục
-          </label>
-          <select class="form-select">
-            <option selected>Tất cả danh mục</option>
-            <option value="lập trình">Lập trình</option>
-            <option value="backend">Backend</option>
-            <option value="database">Database</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label fw-bold text-muted">
-            <i class="fas fa-signal me-2 text-orange"></i>Cấp độ
-          </label>
-          <select class="form-select">
-            <option selected>Tất cả cấp độ</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-orange w-100">
-            <i class="fas fa-filter me-1"></i>Lọc
-          </button>
-        </div>
-      </div>
+      </form>
     </div>
   </div>
+
+  <!-- Thông báo kết quả tìm kiếm -->
+  {{#if filters.search}}
+    <div class="alert alert-info d-flex align-items-center mb-3">
+      <i class="fas fa-search me-2"></i>
+      <div>
+        <strong>Kết quả tìm kiếm:</strong> "{{filters.search}}"
+        {{#if hasResults}}
+          - Tìm thấy <strong>{{totalResults}}</strong> video
+        {{else}}
+          - Không tìm thấy video nào
+        {{/if}}
+      </div>
+    </div>
+  {{/if}}
 
   <!-- Danh sách khóa học -->
   <div class="card shadow-sm border-0">
-    <div class="card-header bg-gradient-gray text-white py-3">
+    <div class="card-header bg-gradient-gray text-white py-3 d-flex justify-content-between align-items-center">
       <h6 class="mb-0"><i class="fas fa-play-circle me-2"></i>Danh sách khóa học</h6>
+      {{#if hasResults}}
+        <span class="badge bg-light text-dark">{{totalResults}} video</span>
+      {{/if}}
     </div>
     <div class="card-body p-4">
-      <div class="row g-4">
-        {{#each videos}}
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 shadow-sm border-0 hover-shadow">
-            <div class="position-relative">
-                             <img
-                 src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else}}/img/thumbnails/{{this.thumbnail}}{{/if}}"
-                 class="card-img-top"
-                 alt="{{this.title}}"
-                 style="height: 160px; object-fit: cover;"
-               />
+      {{#if hasResults}}
+        <div class="row g-4">
+          {{#each videos}}
+          <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0 hover-shadow">
+              <div class="position-relative">
+                <img
+                  src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else if (eq this.thumbnail 'default.jpg')}}/img/thumbnails/default.jpg{{else if this.thumbnail}}/img/thumbnails/{{this.thumbnail}}{{else}}/img/thumbnails/default.jpg{{/if}}"
+                  class="card-img-top"
+                  alt="{{this.title}}"
+                  style="height: 160px; object-fit: cover;"
+                  onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;"
+                />
 
-              <span class="badge bg-{{this.levelColor}} position-absolute top-0 start-0 m-2 fs-6">{{this.level}}</span>
-              <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 fs-6">
-                <i class="fas fa-star me-1"></i>{{this.rating}}
-              </span>
+                <span class="badge bg-{{this.levelColor}} position-absolute top-0 start-0 m-2 fs-6">{{this.level}}</span>
+                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 fs-6">
+                  <i class="fas fa-star me-1"></i>{{this.rating}}
+                </span>
+              </div>
+              <div class="card-body d-flex flex-column p-3">
+                <div class="mb-2">
+                  <span class="badge bg-light text-dark">{{this.category}}</span>
+                </div>
+                <h6 class="card-title fw-bold mb-2">{{this.title}}</h6>
+                <p class="card-text text-muted small mb-2">{{this.description}}</p>
+                
+                <div class="row text-muted small mb-2">
+                  <div class="col-4 text-center">
+                    <i class="far fa-clock mb-1 d-block"></i>
+                    <span>{{this.durationFormatted}}</span>
+                  </div>
+                  <div class="col-4 text-center">
+                    <i class="fas fa-list mb-1 d-block"></i>
+                    <span>{{this.lessons}} bài</span>
+                  </div>
+                  <div class="col-4 text-center">
+                    <i class="fas fa-user-graduate mb-1 d-block"></i>
+                    <span>{{this.students}}</span>
+                  </div>
+                </div>
+                
+                <a href="video/showdetail/{{this._id}}" class="btn btn-orange btn-sm mt-auto w-100">
+                  <i class="fas fa-play me-1"></i>Xem chi tiết
+                </a>
+              </div>
             </div>
-                         <div class="card-body d-flex flex-column p-3">
-               <div class="mb-2">
-                 <span class="badge bg-light text-dark">{{this.category}}</span>
-               </div>
-               <h6 class="card-title fw-bold mb-2">{{this.title}}</h6>
-               <p class="card-text text-muted small mb-2">{{this.description}}</p>
-               
-               <div class="row text-muted small mb-2">
-                 <div class="col-4 text-center">
-                   <i class="far fa-clock mb-1 d-block"></i>
-                   <span>{{this.durationFormatted}}</span>
-                 </div>
-                 <div class="col-4 text-center">
-                   <i class="fas fa-list mb-1 d-block"></i>
-                   <span>{{this.lessons}} bài</span>
-                 </div>
-                 <div class="col-4 text-center">
-                   <i class="fas fa-user-graduate mb-1 d-block"></i>
-                   <span>{{this.students}}</span>
-                 </div>
-               </div>
-               
-               <a href="video/showdetail/{{this._id}}" class="btn btn-orange btn-sm mt-auto w-100">
-                 <i class="fas fa-play me-1"></i>Xem chi tiết
-               </a>
-             </div>
           </div>
+          {{/each}}
         </div>
-        {{/each}}
-      </div>
+      {{else}}
+        <div class="text-center py-5">
+          <i class="fas fa-search fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">Không tìm thấy video nào</h5>
+          <p class="text-muted">Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+          <a href="/video" class="btn btn-orange">
+            <i class="fas fa-refresh me-1"></i>Xóa bộ lọc
+          </a>
+        </div>
+      {{/if}}
     </div>
   </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filterForm = document.getElementById('filterForm');
+  const searchInput = filterForm.querySelector('input[name="search"]');
+  const categorySelect = filterForm.querySelector('select[name="category"]');
+  const levelSelect = filterForm.querySelector('select[name="level"]');
+  
+  // Tự động submit form khi thay đổi select
+  categorySelect.addEventListener('change', function() {
+    filterForm.submit();
+  });
+  
+  levelSelect.addEventListener('change', function() {
+    filterForm.submit();
+  });
+  
+  // Debounce search input để tránh gửi quá nhiều request
+  let searchTimeout;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      filterForm.submit();
+    }, 500); // Đợi 500ms sau khi người dùng ngừng gõ
+  });
+  
+  // Hiển thị loading khi submit form
+  filterForm.addEventListener('submit', function() {
+    const submitBtn = filterForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang lọc...';
+    submitBtn.disabled = true;
+    
+    // Reset button sau 3 giây nếu có lỗi
+    setTimeout(() => {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    }, 3000);
+  });
+});
+</script>
