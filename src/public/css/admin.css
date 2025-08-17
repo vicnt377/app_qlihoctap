@@ -581,15 +581,16 @@ body {
 
 /* Dashboard stats cards */
 .dashboard-header {
-  background: white;
-  color: #005dba !important;
+  background: #2c3e50;
+  color: #ffffff !important;
   padding: 2rem;
   border-radius: 15px;
   margin-bottom: 2rem;
 }
 
 .dashboard-title {
-  color: #005dba !important;
+  color: white !important;
+  font-weight: bold;
   margin-bottom: 0.5rem;
 }
 

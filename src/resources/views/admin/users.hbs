@@ -5,6 +5,27 @@
   <h3 class="dashboard-title mb-0 text-2xl">Quản Lý Học Viên</h3>
 </div>
 
+<!-- Flash Messages -->
+{{#if messages.success}}
+  <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 12px; border: none;">
+    <div class="d-flex align-items-center">
+      <i class="fas fa-check-circle me-2 fs-5"></i>
+      <span class="fw-semibold">{{messages.success}}</span>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{{/if}}
+
+{{#if messages.error}}
+  <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 12px; border: none;">
+    <div class="d-flex align-items-center">
+      <i class="fas fa-exclamation-circle me-2 fs-5"></i>
+      <span class="fw-semibold">{{messages.error}}</span>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{{/if}}
+
 <main class="container">
   <!-- Thống kê nhanh -->
   <div class="row g-4 mb-4">
@@ -66,7 +87,7 @@
   </div>
 
 
-  <!-- form tìm kiếm-->
+  <!-- form tìm kiếm và thêm học viên -->
   <form method="GET" action="/admin/users" class="row g-3 mb-4">
     <div class="col-md-4">
       <input type="text" name="search" class="form-control" placeholder="Tìm theo tên hoặc email" value="{{query.search}}">
@@ -80,6 +101,11 @@
     </div>
     <div class="col-md-2">
       <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+    <div class="col-md-3">
+      <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="fas fa-plus me-2"></i>Thêm học viên
+      </button>
     </div>
   </form>
 
@@ -108,13 +134,17 @@
             <td>{{stats.avgProgress}}%</td>
             <td>{{stats.completedCourses}}</td>
             <td>{{formatDate createdAt}}</td>
-            <td>
-              {{#if isActive}}
-                <span class="badge bg-success">Hoạt động</span>
-              {{else}}
-                <span class="badge bg-secondary">Không hoạt động</span>
-              {{/if}}
-            </td>
+                         <td>
+               {{#if isActive}}
+                 <span class="badge bg-white text-success px-3 py-2 fs-6">
+                   <i class="fas fa-circle me-2 text-success"></i>Hoạt động
+                 </span>
+               {{else}}
+                 <span class="badge bg-white text-secondary px-3 py-2 fs-6">
+                   <i class="fas fa-circle me-2 text-secondary"></i>Không hoạt động
+                 </span>
+               {{/if}}
+             </td>
             <td>
               <div class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-sm btn-primary" 
@@ -128,11 +158,19 @@
                 </button>
 
                 <form action="/admin/users/{{_id}}/clock?_method=PATCH" method="POST">
-                  <button type="submit" class="btn btn-sm {{#if isActive}}btn-danger{{else}}btn-success{{/if}}">
+                  <button type="submit" class="btn btn-sm {{#if isActive}}btn-warning{{else}}btn-success{{/if}}">
                     {{#if isActive}}Khóa{{else}}Hoạt động{{/if}}
                   </button>
                 </form>
 
+                <button type="button" class="btn btn-sm btn-danger" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteUserModal"
+                        data-user-id="{{_id}}"
+                        data-user-name="{{name}}"
+                        data-user-email="{{email}}">
+                  Xóa
+                </button>
               </div>
             </td>
 
@@ -169,7 +207,93 @@
   </div>
 </div>
 
+<!-- Modal xác nhận xóa học viên -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteUserModalLabel">
+          <i class="fas fa-exclamation-triangle me-2"></i>Xác nhận xóa học viên
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center mb-3">
+          <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+        </div>
+        <p class="text-center mb-3">
+          Bạn có chắc chắn muốn xóa học viên <strong id="deleteUserName"></strong>?
+        </p>
+        <div class="alert alert-warning">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Lưu ý:</strong> Hành động này không thể hoàn tác. Tất cả dữ liệu của học viên sẽ bị xóa vĩnh viễn.
+        </div>
+        <form id="deleteUserForm" method="POST">
+          <input type="hidden" id="deleteUserId" name="userId">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="submit" id="submitDeleteUser" form="deleteUserForm" class="btn btn-danger">
+          <i class="fas fa-trash me-2"></i>Xóa vĩnh viễn
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal thêm học viên mới -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="addUserModalLabel">
+          <i class="fas fa-user-plus me-2"></i>Thêm học viên mới
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm" action="/admin/users/add" method="POST" enctype="application/x-www-form-urlencoded">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="col-md-6">
+              <label for="phone" class="form-label">Số điện thoại</label>
+              <input type="tel" class="form-control" id="phone" name="phone">
+            </div>
+            <div class="col-md-6">
+              <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="col-12">
+              <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <div class="col-12">
+              <label for="avatar" class="form-label">Avatar URL</label>
+              <input type="url" class="form-control" id="avatar" name="avatar" placeholder="https://example.com/avatar.jpg">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="submit" id="submitAddUser" form="addUserForm" class="btn btn-success">
+          <i class="fas fa-save me-2"></i>Thêm học viên
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+  // Modal xem thông tin học viên
   const viewUserModal = document.getElementById('viewUserModal');
   viewUserModal.addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget;
@@ -181,4 +305,128 @@
     document.getElementById('userCreated').textContent = button.getAttribute('data-created');
     document.getElementById('userStatus').textContent = button.getAttribute('data-status');
   });
+
+  // Form thêm học viên mới
+  const addUserForm = document.getElementById('addUserForm');
+  const confirmPassword = document.getElementById('confirmPassword');
+  const password = document.getElementById('password');
+
+  // Validation mật khẩu
+  function validatePassword() {
+    if (password.value !== confirmPassword.value) {
+      confirmPassword.setCustomValidity('Mật khẩu không khớp');
+    } else {
+      confirmPassword.setCustomValidity('');
+    }
+  }
+
+  password.addEventListener('change', validatePassword);
+  confirmPassword.addEventListener('keyup', validatePassword);
+
+  // Xử lý submit form
+  addUserForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Kiểm tra mật khẩu khớp nhau
+    if (password.value !== confirmPassword.value) {
+      alert('❌ Mật khẩu và xác nhận mật khẩu không khớp!');
+      confirmPassword.focus();
+      return;
+    }
+    
+          if (addUserForm.checkValidity()) {
+        // Log dữ liệu form
+        const formData = new FormData(addUserForm);
+        console.log('Form data being sent:');
+        for (let [key, value] of formData.entries()) {
+          console.log(key + ': ' + value);
+        }
+        
+        // Hiển thị loading
+        const submitBtn = document.getElementById('submitAddUser');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang thêm...';
+        submitBtn.disabled = true;
+
+        // Submit form trực tiếp để redirect
+        addUserForm.submit();
+      } else {
+        addUserForm.reportValidity();
+      }
+  });
+
+  // Reset form khi đóng modal
+  const addUserModal = document.getElementById('addUserModal');
+  addUserModal.addEventListener('hidden.bs.modal', function () {
+    addUserForm.reset();
+    confirmPassword.setCustomValidity('');
+  });
+
+  // Modal xóa học viên
+  const deleteUserModal = document.getElementById('deleteUserModal');
+  deleteUserModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const userId = button.getAttribute('data-user-id');
+    const userName = button.getAttribute('data-user-name');
+    const userEmail = button.getAttribute('data-user-email');
+    
+    // Cập nhật thông tin trong modal
+    document.getElementById('deleteUserName').textContent = userName;
+    document.getElementById('deleteUserId').value = userId;
+    
+    // Cập nhật action của form
+    const deleteForm = document.getElementById('deleteUserForm');
+    deleteForm.action = `/admin/users/${userId}/delete`;
+    
+    console.log('🗑️ Chuẩn bị xóa user:', { userId, userName, userEmail });
+  });
+
+  // Xử lý form xóa
+  const deleteUserForm = document.getElementById('deleteUserForm');
+  deleteUserForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const userId = document.getElementById('deleteUserId').value;
+    const userName = document.getElementById('deleteUserName').textContent;
+    
+    // Hiển thị loading
+    const submitBtn = document.getElementById('submitDeleteUser');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang xóa...';
+    submitBtn.disabled = true;
+    
+    // Gửi request xóa
+    fetch(`/admin/users/${userId}/delete`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        // Thành công - đóng modal và reload trang
+        alert('✅ ' + data.message);
+        location.reload();
+      } else {
+        // Lỗi
+        alert('❌ ' + (data.message || 'Không thể xóa học viên'));
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('❌ Lỗi kết nối! Vui lòng thử lại sau');
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    });
+  });
+
+
 </script>

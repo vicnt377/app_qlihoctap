@@ -19,6 +19,8 @@ router.get("/dashboard",isAdmin, dashboardController.dashboard)
 //User
 router.get("/users",isAdmin, userController.getUsers)
 router.patch("/users/:id/clock", isAdmin, userController.clockUser)
+router.post("/users/add", isAdmin, userController.addUser)
+router.delete("/users/:id/delete", isAdmin, userController.deleteUser)
 
 //Course
 router.get("/courses", isAdmin, courseController.getCourses)
