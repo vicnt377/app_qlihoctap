@@ -27,13 +27,34 @@
 
   <!-- Sidebar -->
   <nav id="sidebar" class="sidebar collapsed">
-    <div class="sidebar-header"></div>
-    <a href="/admin/dashboard"><i class="fas fa-home"></i><span class="sidebar-text">Dashboard</span></a>
-    <a href="/admin/users"><i class="fas fa-user-graduate"></i><span class="sidebar-text">Học Viên</span></a>
-    <a href="/admin/videos"><i class="fas fa-video"></i><span class="sidebar-text">Khóa Học</span></a>
-    <a href="/admin/chat"><i class="fas fa-comment-dots"></i><span class="sidebar-text">Hộp Thư</span></a>
-    <a href="/admin/statistic"><i class="fas fa-chart-line"></i><span class="sidebar-text">Thống Kê</span></a>
-    <a href="/logout"><i class="fas fa-sign-out-alt text-danger"></i><span class="sidebar-text text-danger">Đăng Xuất</span></a>
+    <div class="sidebar-header">
+      <i class="fas fa-graduation-cap me-2"></i>
+      <span class="sidebar-text">Admin Panel</span>
+    </div>
+    <a href="/admin/dashboard" class="menu-item" data-page="dashboard">
+      <i class="fas fa-home"></i>
+      <span class="sidebar-text">Dashboard</span>
+    </a>
+    <a href="/admin/users" class="menu-item" data-page="users">
+      <i class="fas fa-user-graduate"></i>
+      <span class="sidebar-text">Học Viên</span>
+    </a>
+    <a href="/admin/videos" class="menu-item" data-page="videos">
+      <i class="fas fa-video"></i>
+      <span class="sidebar-text">Khóa Học</span>
+    </a>
+    <a href="/admin/chat" class="menu-item" data-page="chat">
+      <i class="fas fa-comment-dots"></i>
+      <span class="sidebar-text">Hộp Thư</span>
+    </a>
+    <a href="/admin/statistic" class="menu-item" data-page="statistic">
+      <i class="fas fa-chart-line"></i>
+      <span class="sidebar-text">Thống Kê</span>
+    </a>
+    <a href="/logout" class="menu-item logout-item">
+      <i class="fas fa-sign-out-alt"></i>
+      <span class="sidebar-text">Đăng Xuất</span>
+    </a>
   </nav>
 
   <!-- Main Content -->
@@ -164,6 +185,23 @@
     // Default: collapsed sidebar
     sidebar.classList.add('collapsed');
     content.classList.add('shifted');
+
+    // Set active menu item based on current page
+    function setActiveMenuItem() {
+      const currentPath = window.location.pathname;
+      const menuItems = document.querySelectorAll('.sidebar .menu-item');
+      
+      menuItems.forEach(item => {
+        item.classList.remove('active');
+        const href = item.getAttribute('href');
+        if (href && currentPath.includes(href.replace('/admin/', ''))) {
+          item.classList.add('active');
+        }
+      });
+    }
+
+    // Call on page load
+    setActiveMenuItem();
 
     // Hàm hiển thị hướng dẫn
     function showHelp() {
