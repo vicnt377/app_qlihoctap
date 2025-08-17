@@ -371,7 +371,7 @@ body {
   
   .footer-bottom {
     flex-direction: column;
-    text-align: center;
+  text-align: center;
     gap: 15px;
   }
   

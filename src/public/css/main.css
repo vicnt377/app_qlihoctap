@@ -1837,29 +1837,52 @@ main {
 
 /* Notification Bell Styles */
 .notification-dropdown {
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2) !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  max-width: 400px;
+  width: 400px !important;
   max-height: 500px;
   overflow-y: auto;
-  border: none !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
-  padding: 0 !important;
 }
 
 .notification-dropdown .dropdown-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  background: #cdcdcd;
+  border-bottom: none;
   padding: 1rem 1.25rem;
 }
 
+.bg-system-primary {
+  background: #e08552 !important;
+}
+
+.text-system-primary {
+  color: #e08552 !important;
+}
+
+.text-system-dark {
+  color: #495057 !important;
+}
+
+.text-system-muted {
+  color: #6c757d !important;
+}
+
+.bg-system-primary {
+  background-color: #e08552 !important;
+}
+
 .notification-dropdown .dropdown-header h6 {
-  color: #495057;
+  color: #f0f0f0;
   font-weight: 700;
   font-size: 0.95rem;
 }
 
 .notification-dropdown .dropdown-header button:hover {
-  background-color: #007bff !important;
-  border-color: #007bff !important;
+  background-color: #e08552 !important;
+  border-color: #e08552 !important;
 }
 
 #notificationBadge {
@@ -1899,24 +1922,178 @@ main {
 
 .notification-item .dropdown-item {
   border: none !important;
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   transition: all 0.3s ease;
   cursor: pointer;
+  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .notification-item .dropdown-item:hover {
-  background-color: transparent !important;
+  background-color: rgba(224, 133, 82, 0.08) !important;
+  transform: translateX(3px);
+  overflow-x: hidden !important;
+}
+
+/* Notification content text handling */
+.notification-content {
+  max-width: 100%;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.notification-content .d-flex {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden !important;
+}
+
+.notification-content .flex-grow-1 {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for notification dropdown */
+.notification-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(224, 133, 82, 0.3);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(224, 133, 82, 0.5);
+}
+
+/* Firefox scrollbar */
+.notification-dropdown {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(224, 133, 82, 0.3) rgba(0, 0, 0, 0.05);
+}
+
+/* Notification list container */
+#notificationList {
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden !important;
+}
+
+/* Force no horizontal scroll on all notification elements */
+.notification-dropdown * {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Specific elements that might cause horizontal scroll */
+.notification-dropdown .dropdown-item,
+.notification-dropdown .notification-content,
+.notification-dropdown .d-flex,
+.notification-dropdown .flex-grow-1,
+.notification-dropdown p,
+.notification-dropdown span,
+.notification-dropdown small,
+.notification-dropdown h6 {
+  overflow-x: hidden !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  max-width: 100% !important;
+}
+
+/* Empty state styling */
+.empty-notification {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.empty-notification i {
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+  font-size: 2rem;
+}
+
+.empty-notification p {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.notification-content p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+}
+
+.notification-content span {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.notification-content small {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.notification-item:last-child .dropdown-item {
+  border-bottom: none !important;
+}
+
+/* Empty notification state */
+.empty-notification {
+  padding: 1.5rem 1rem;
+}
+
+.empty-notification i {
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+}
+
+.empty-notification p {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Notification meta info */
+.notification-meta {
+  opacity: 0.8;
+}
+
+.notification-meta small {
+  font-size: 0.75rem;
+}
+
+/* Badge styling */
+.badge-sm {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .notification-icon {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(0,0,0,0.05);
+  background: rgba(224, 133, 82, 0.1);
   flex-shrink: 0;
+  font-size: 0.875rem;
+  min-width: 32px;
 }
 
 .notification-item.unread .notification-icon {

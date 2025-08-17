@@ -103,7 +103,7 @@
         </div>
       </div>
     </div>
-  </div>
+</div>
 
   <!-- Tabs gọn gàng -->
   <ul class="nav nav-pills mb-3" id="videoTabs">
@@ -129,46 +129,46 @@
         </div>
         <div class="card-body p-3">
           <form id="youtubeSearchForm" class="row g-2 align-items-end">
-            <div class="col-md-8">
+        <div class="col-md-8">
               <input type="text" class="form-control form-control-sm" id="youtubeQuery" 
                      placeholder="Nhập từ khóa hoặc ID video YouTube">
-            </div>
-            <div class="col-md-4">
+        </div>
+        <div class="col-md-4">
               <button type="submit" class="btn btn-danger btn-sm w-100">
                 <i class="fab fa-youtube me-1"></i>Tìm kiếm
               </button>
-            </div>
-          </form>
+        </div>
+      </form>
 
-          <!-- Kết quả preview -->
+      <!-- Kết quả preview -->
           <div id="youtubeResult" class="row g-2 mt-2 d-none">
             <div class="col-md-3">
               <img id="ytThumbnail" src="" class="img-fluid rounded" style="height: 80px; object-fit: cover;" />
-            </div>
+        </div>
             <div class="col-md-9">
               <div class="row g-2">
                 <div class="col-md-6">
                   <input type="text" id="ytTitleInput" class="form-control form-control-sm" placeholder="Tiêu đề">
-                </div>
+          </div>
                 <div class="col-md-3">
                   <input type="text" id="ytCategory" class="form-control form-control-sm" placeholder="Danh mục">
-                </div>
+            </div>
                 <div class="col-md-3">
                   <select class="form-select form-select-sm" id="ytLevel">
-                    <option value="Cơ bản">Cơ bản</option>
-                    <option value="Trung bình" selected>Trung bình</option>
-                    <option value="Nâng cao">Nâng cao</option>
-                  </select>
-                </div>
-              </div>
+                <option value="Cơ bản">Cơ bản</option>
+                <option value="Trung bình" selected>Trung bình</option>
+                <option value="Nâng cao">Nâng cao</option>
+              </select>
+            </div>
+          </div>
               <div class="mt-2">
                 <button class="btn btn-success btn-sm" id="ytAddBtn">
                   <i class="fas fa-plus me-1"></i>Thêm vào hệ thống
                 </button>
                 <span id="ytMsg" class="ms-2"></span>
-              </div>
-            </div>
-          </div>
+        </div>
+      </div>
+        </div>
         </div>
       </div>
 
@@ -244,11 +244,11 @@
                             <div class="d-flex gap-1 mt-auto">
                               <button class="btn btn-warning btn-sm flex-fill btn-edit" data-id="{{_id}}">
                                 <i class="fas fa-edit"></i>
-                              </button>
+                  </button>
                               <button class="btn btn-danger btn-sm flex-fill" onclick="confirmDelete('{{_id}}')">
                                 <i class="fas fa-trash"></i>
-                              </button>
-                            </div>
+                  </button>
+                </div>
                           </div>
                         </div>
                       </div>
@@ -258,15 +258,15 @@
                 </div>
               </div>
             </div>
-              {{/if}}
-          {{/each}}
+            {{/if}}
+            {{/each}}
         </div>
       {{else}}
         <div class="text-center py-5">
           <i class="fas fa-video fa-3x text-muted mb-3"></i>
           <h5 class="text-muted">Không có khóa học nào</h5>
           <p class="text-muted">Hãy thêm khóa học mới hoặc thay đổi bộ lọc</p>
-        </div>
+      </div>
       {{/if}}
 
 
@@ -276,7 +276,7 @@
     <div class="tab-pane fade" id="tabDeleted">
       {{#if deletedVideos.length}}
         <div class="row g-3">
-          {{#each deletedVideos}}
+            {{#each deletedVideos}}
           <div class="col-xl-3 col-lg-4 col-md-6">
             <div class="card h-100 shadow-sm border-0 bg-light video-card">
               <div class="position-relative">
@@ -305,13 +305,13 @@
                   <div class="col-6 text-center">
                     <i class="fas fa-tags mb-1 d-block"></i>
                     <span>{{this.category}}</span>
-                  </div>
+      </div>
                   <div class="col-6 text-center">
                     <i class="fas fa-signal mb-1 d-block"></i>
                     <span>{{this.level}}</span>
-                  </div>
-                </div>
-                
+    </div>
+  </div>
+
                 <div class="mb-2">
                   <a href="https://youtube.com/watch?v={{this.youtubeId}}" target="_blank" 
                      class="btn btn-outline-secondary btn-sm w-100">
@@ -353,27 +353,27 @@
           <input type="hidden" id="editVideoId">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">YouTube ID</label>
-              <input type="text" name="youtubeId" class="form-control" id="editYoutubeId" required>
-            </div>
+            <label class="form-label">YouTube ID</label>
+            <input type="text" name="youtubeId" class="form-control" id="editYoutubeId" required>
+          </div>
             <div class="col-md-6">
-              <label class="form-label">Tiêu đề</label>
-              <input type="text" name="title" class="form-control" id="editTitle">
-            </div>
+            <label class="form-label">Tiêu đề</label>
+            <input type="text" name="title" class="form-control" id="editTitle">
+          </div>
             <div class="col-md-6">
-              <label class="form-label">Danh mục</label>
-              <input type="text" name="category" class="form-control" id="editCategory">
-            </div>
+            <label class="form-label">Danh mục</label>
+            <input type="text" name="category" class="form-control" id="editCategory">
+          </div>
             <div class="col-md-6">
-              <label class="form-label">Trình độ</label>
-              <select name="level" class="form-select" id="editLevel">
-                <option value="Cơ bản">Cơ bản</option>
-                <option value="Trung bình">Trung bình</option>
-                <option value="Nâng cao">Nâng cao</option>
-              </select>
-            </div>
+            <label class="form-label">Trình độ</label>
+            <select name="level" class="form-select" id="editLevel">
+              <option value="Cơ bản">Cơ bản</option>
+              <option value="Trung bình">Trung bình</option>
+              <option value="Nâng cao">Nâng cao</option>
+            </select>
+          </div>
             <div class="col-12">
-              <label class="form-label">Mô tả</label>
+            <label class="form-label">Mô tả</label>
               <textarea name="description" class="form-control" rows="3" id="editDescription"></textarea>
             </div>
           </div>
@@ -520,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('editTitle').value = title;
       document.getElementById('editCategory').value = category;
       document.getElementById('editLevel').value = level;
-      
+
       console.log('Thông tin video để edit:', { id, title, category, level, youtubeId });
       console.log('Raw accordion button text:', accordionButton.textContent);
       console.log('Processed category:', category);
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Bộ lọc nâng cao
-document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function () {
   const filterForm = document.getElementById('filterForm');
   const searchInput = filterForm.querySelector('input[name="search"]');
   const categorySelect = filterForm.querySelector('select[name="category"]');
@@ -713,5 +713,5 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
-});
+  });
 </script>
