@@ -3,16 +3,18 @@ const express = require('express');
 const morgan = require('morgan');
 const handlebars = require('handlebars');
 const { engine } = require('express-handlebars');
-const session = require('express-session');
-const flash = require('connect-flash');
+// const session = require('express-session');
+// const flash = require('connect-flash');
 const bodyParser = require('body-parser');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const helpers = require('./util/helper');
 const Message = require('../models/Message');
-const User = require('../models/User');
+// const User = require('../models/User');
 const { setUserLocals } = require('../middlewares/setUserLocals');
+const { ClerkExpressWithAuth } = require("@clerk/clerk-sdk-node");
+const { CLERK_PUBLISHABLE_KEY } = require('../config/clerk');
 require('dotenv').config();
 
 const app = express();
@@ -80,6 +82,12 @@ app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Clerk Middleware
+app.use(ClerkExpressWithAuth({
+  publishableKey: CLERK_PUBLISHABLE_KEY,
+  secretKey: process.env.CLERK_SECRET_KEY
+}));
+
 // Handlebars setup
 app.engine('.hbs', engine({
   extname: '.hbs',
@@ -90,30 +98,30 @@ app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'resources/views/'));
 
 // Session & Flash
-app.use(session({
-  secret: 'my_secret_key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false, maxAge: 1000 * 60 * 60 }
-}));
-app.use(flash());
+// app.use(session({
+//   secret: 'my_secret_key',
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: { secure: false, maxAge: 1000 * 60 * 60 }
+// }));
+// app.use(flash());
 
-app.use((req, res, next) => {
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  next();
-});
-app.use((req, res, next) => {
-  res.locals.message = req.query.message || null;
-  next();
-});
-app.use((req, res, next) => {
-  res.locals.successMessage = req.session.successMessage;
-  res.locals.errorMessage = req.session.errorMessage;
-  delete req.session.successMessage;
-  delete req.session.errorMessage;
-  next();
-});
+// app.use((req, res, next) => {
+//   res.locals.success_msg = req.flash('success_msg');
+//   res.locals.error_msg = req.flash('error_msg');
+//   next();
+// });
+// app.use((req, res, next) => {
+//   res.locals.message = req.query.message || null;
+//   next();
+// });
+// app.use((req, res, next) => {
+//   res.locals.successMessage = req.session.successMessage;
+//   res.locals.errorMessage = req.session.errorMessage;
+//   delete req.session.successMessage;
+//   delete req.session.errorMessage;
+//   next();
+// });
 
 // Handlebars custom helper
 handlebars.registerHelper('shortId', function(id) {
@@ -122,6 +130,12 @@ handlebars.registerHelper('shortId', function(id) {
     return idString.substring(idString.length - 4);
   }
   return '';
+});
+
+// Clerk helper để truyền publishable key vào views
+app.use((req, res, next) => {
+  res.locals.CLERK_PUBLISHABLE_KEY = CLERK_PUBLISHABLE_KEY;
+  next();
 });
 
 // Định tuyến

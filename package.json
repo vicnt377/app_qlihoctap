@@ -19,6 +19,7 @@
   "homepage": "https://github.com/vicnt377/app_qlihoctap#readme",
   "description": "",
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "@handlebars/allow-prototype-access": "^1.0.5",
     "axios": "^1.10.0",
     "bcrypt": "^5.1.1",

@@ -7,7 +7,7 @@ const userController = require('../../controllers/admin/UserController')
 const videoController = require('../../controllers/admin/VideoController')
 const statisticController = require('../../controllers/admin/StatisticController')
 const chatController = require('../../controllers/admin/ChatController');
-const {isAdmin} = require('../../middlewares/adminMiddleware');
+const {isAdmin} = require('../../middlewares/authMiddleware');
 
 //Login
 router.get('/login-admin', loginController.login_admin)

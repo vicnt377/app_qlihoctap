@@ -2,6 +2,7 @@
 const User = require('../../models/User');
 const Notification = require('../../models/Notification')
 const { mongooseToObject } = require('../../src/util/mongoose');
+const { clerk } = require('../../config/clerk');
 
 class LoginController {
     re_login(req, res){
@@ -11,13 +12,29 @@ class LoginController {
     
 
     login_user(req, res) {
+        // Kiểm tra nếu đã đăng nhập qua Clerk
+        if (req.auth && req.auth.userId) {
+            return res.redirect('/home');
+        }
         res.render('auth/login', {layout: "auth", error: null });
     }
 
-    logout(req, res) {
-        req.session.destroy(() => {
-            res.redirect("/",);
-        });
+    async logout(req, res) {
+        try {
+            // Nếu sử dụng Clerk, sign out từ Clerk
+            if (req.auth && req.auth.userId) {
+                // Clerk sẽ tự động xử lý logout
+                return res.redirect("/");
+            }
+            
+            // Fallback cho session cũ
+            req.session.destroy(() => {
+                res.redirect("/");
+            });
+        } catch (error) {
+            console.error("Lỗi logout:", error);
+            res.redirect("/");
+        }
     }
 
     showResetPassword(req, res) {
