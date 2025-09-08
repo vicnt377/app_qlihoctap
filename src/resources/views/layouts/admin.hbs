@@ -66,110 +66,54 @@
   </main>
 
   <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-section">
-        <h6 class="footer-title">
-          <i class="fas fa-graduation-cap me-2"></i>
-          Hệ Thống Quản Lý Tiến Độ Học Tập
-        </h6>
-        <p class="footer-description">
-          Nền tảng quản lý và theo dõi tiến độ học tập hiệu quả, giúp học viên đạt được mục tiêu học tập một cách tối ưu.
-        </p>
-        <div class="footer-features">
-          <span class="feature-badge">
-            <i class="fas fa-shield-alt me-1"></i>Bảo mật cao
-          </span>
-          <span class="feature-badge">
-            <i class="fas fa-mobile-alt me-1"></i>Responsive
-          </span>
-          <span class="feature-badge">
-            <i class="fas fa-rocket me-1"></i>Hiệu suất tốt
-          </span>
+  <footer class="footer-modern">
+    <div class="container py-4">
+      <div class="row align-items-start">
+        
+        <!-- Logo + mô tả -->
+        <div class="col-md-4 mb-3">
+          <h5 class="footer-title">
+            <i class="fas fa-graduation-cap me-2 text-primary"></i>
+            Hệ Thống Quản Lý Tiến Độ Học Tập
+          </h5>
+          <p class="footer-desc">
+            Nền tảng theo dõi và quản lý tiến độ học tập hiệu quả, 
+            giúp sinh viên đạt được mục tiêu học tập.
+          </p>
+          <small class="text-muted">&copy; <span id="year"></span> Team MMT</small>
         </div>
-      </div>
-      
-      <div class="footer-section">
-        <h6 class="footer-title">
-          <i class="fas fa-cogs me-2"></i>
-          Quản Trị Hệ Thống
-        </h6>
-        <ul class="footer-links">
-          <li><a href="/admin/dashboard"><i class="fas fa-chart-bar me-1"></i>Dashboard</a></li>
-          <li><a href="/admin/users"><i class="fas fa-users me-1"></i>Quản lý học viên</a></li>
-          <li><a href="/admin/videos"><i class="fas fa-video me-1"></i>Quản lý khóa học</a></li>
-          <li><a href="/admin/statistic"><i class="fas fa-chart-line me-1"></i>Báo cáo</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-section">
-        <h6 class="footer-title">
-          <i class="fas fa-headset me-2"></i>
-          Hỗ Trợ & Liên Hệ
-        </h6>
-        <ul class="footer-links">
-          <li><a href="/admin/chat"><i class="fas fa-comments me-1"></i>Hộp thư hỗ trợ</a></li>
-          <li><a href="#" onclick="showHelp()"><i class="fas fa-question-circle me-1"></i>Hướng dẫn sử dụng</a></li>
-        </ul>
-      </div>
-      
-      <div class="footer-section">
-        <h6 class="footer-title">
-          <i class="fas fa-info-circle me-2"></i>
-          Thông Tin Hệ Thống
-        </h6>
-        <div class="footer-info">
-          <p><i class="fas fa-code me-1"></i>Phiên bản: <strong>2.0.0</strong></p>
-          <p><i class="fas fa-calendar me-1"></i>Cập nhật: <span class="currentYear">2025</span></p>
-          <p><i class="fas fa-shield-alt me-1"></i>Bảo mật: SSL/TLS</p>
-          <p><i class="fas fa-database me-1"></i>Database: MongoDB</p>
+
+        <!-- Liên kết -->
+        <div class="col-md-4 mb-3 text-start">
+          <h6 class="footer-subtitle">Liên kết nhanh</h6>
+          <ul class="footer-links list-unstyled">
+            <li><a href="/admin/dashboard"><i class="fas fa-home me-1"></i> Dashboard</a></li>
+            <li><a href="/admin/users"><i class="fas fa-user-graduate me-1"></i> Quản lý học viên</a></li>
+            <li><a href="/admin/videos"><i class="fas fa-video me-1"></i> Quản lý khóa học</a></li>
+            <li><a href="/admin/statistic"><i class="fas fa-chart-line me-1"></i> Thống kê</a></li>
+          </ul>
         </div>
-        <div class="footer-status">
-          <span class="status-indicator online">
-            <i class="fas fa-circle me-1"></i>Hệ thống hoạt động
-          </span>
+
+        <!-- Liên hệ -->
+        <div class="col-md-4 mb-3 text-start">
+          <h6 class="footer-subtitle">Liên hệ</h6>
+          <p class="mb-1"><i class="fas fa-envelope me-1"></i> support@edusystem.edu.vn</p>
+          <p class="mb-2"><i class="fas fa-phone me-1"></i> 0123-456-789</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+          </div>
         </div>
-      </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <div class="footer-copyright">
-        <i class="fas fa-copyright me-1"></i>
-        2025 - Hệ Thống Quản Lý Tiến Độ Học Tập. 
-        <span class="text-muted">Phát triển bởi <strong>Team MMT</strong></span>
-      </div>
-      
-      <div class="footer-actions">
-        <button class="btn btn-sm btn-outline-light me-2" onclick="showHelp()">
-          <i class="fas fa-question-circle me-1"></i>Trợ giúp
-        </button>
-        <button class="btn btn-sm btn-outline-light me-2" onclick="showFeedback()">
-          <i class="fas fa-comment me-1"></i>Góp ý
-        </button>
-        <a href="/admin/dashboard" class="btn btn-sm btn-primary">
-          <i class="fas fa-home me-1"></i>Dashboard
-        </a>
-      </div>
-      
-      <div class="footer-social">
-        <a href="#" class="social-link" title="Facebook" onclick="openSocial('facebook')">
-          <i class="fab fa-facebook"></i>
-        </a>
-        <a href="#" class="social-link" title="Twitter" onclick="openSocial('twitter')">
-          <i class="fab fa-twitter"></i>
-        </a>
-        <a href="#" class="social-link" title="LinkedIn" onclick="openSocial('linkedin')">
-          <i class="fab fa-linkedin"></i>
-        </a>
-        <a href="#" class="social-link" title="GitHub" onclick="openSocial('github')">
-          <i class="fab fa-github"></i>
-        </a>
+
       </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
   <script>
+    // Thêm năm hiện tại tự động
+    document.getElementById("year").textContent = new Date().getFullYear();
+
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleSidebar');
