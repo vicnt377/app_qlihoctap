@@ -11,22 +11,28 @@ const methodOverride = require('method-override');
 const helpers = require('./util/helper');
 const Message = require('../models/Message');
 
-const session = require("express-session");   // ✅ thêm
-const flash = require("connect-flash");       // ✅ thêm
+const session = require("express-session");   // ✅ quản lý session
+const flash = require("connect-flash");       // ✅ thông báo flash
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware custom
-app.use(methodOverride('_method'));
+/* ============================================================
+   1. 🔌 Kết nối MongoDB
+============================================================ */
+const db = require('../config/database/db');
+db.connect();
 
-// ⚡ Socket.IO setup
+/* ============================================================
+   2. ⚡️ HTTP server + Socket.IO setup
+============================================================ */
 const http = require('http');
 const socketIo = require('socket.io');
 const server = http.createServer(app);
 const io = socketIo(server);
 app.set('io', io);
 
+// Lưu map userId -> socketId
 const userSockets = new Map();
 io.on('connection', (socket) => {
   console.log('🟢 New socket connected:', socket.id);
@@ -57,35 +63,59 @@ io.on('connection', (socket) => {
   });
 });
 
-// 🔌 Kết nối MongoDB
-const db = require('../config/database/db');
-db.connect();
+/* ============================================================
+   3. ⚙️ Middleware chung
+============================================================ */
+app.use(morgan('combined'));                              // log HTTP request
+app.use(express.static(path.join(__dirname, 'public')));  // phục vụ file tĩnh
+app.use(express.urlencoded({ extended: true }));          // parse form
+app.use(express.json());                                  // parse JSON
+app.use(methodOverride('_method'));                       // hỗ trợ PUT, DELETE
 
-// Middleware chung
-app.use(morgan('combined'));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-/* ✅ Session + Flash setup */
+/* ============================================================
+   4. 🗂️ Session + Flash setup (⚠️ PHẢI đặt trước khi dùng req.session)
+============================================================ */
 app.use(
   session({
-    secret: "secret_key_clerk",   // 👉 đổi thành chuỗi bảo mật riêng
+    secret: "secret_key_clerk",   // 👉 nên để biến môi trường riêng
     resave: false,
     saveUninitialized: false,
   })
 );
 app.use(flash());
 
-// ✅ Inject flash messages vào res.locals (để view hbs sử dụng)
+/* ============================================================
+   5. 🖌️ Inject dữ liệu vào res.locals để dùng trong HBS
+============================================================ */
 app.use((req, res, next) => {
-  res.locals.success_msg = req.flash("success_msg");
-  res.locals.error_msg = req.flash("error_msg");
-  res.locals.error = req.flash("error");
+  res.locals.alertMessage = req.session.alertMessage || null;
+  delete req.session.alertMessage; // clear sau khi show
   next();
 });
 
-// Handlebars setup
+app.use((req, res, next) => {
+  // Navbar active tab
+  res.locals.currentPath = req.path;
+
+  // connect-flash messages
+  res.locals.success_msg = req.flash("success_msg");
+  res.locals.error_msg = req.flash("error_msg");
+  res.locals.error = req.flash("error");
+
+  // custom session message
+  res.locals.successMessage = req.session.successMessage || null;
+  res.locals.errorMessage = req.session.errorMessage || null;
+
+  // clear session message sau khi render
+  delete req.session.successMessage;
+  delete req.session.errorMessage;
+
+  next();
+});
+
+/* ============================================================
+   6. 🔧 Handlebars setup
+============================================================ */
 app.engine(
   '.hbs',
   engine({
@@ -97,6 +127,7 @@ app.engine(
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'resources/views/'));
 
+// helper ví dụ: cắt id ngắn gọn
 handlebars.registerHelper('shortId', function (id) {
   if (id && typeof id.toString === 'function') {
     const idString = id.toString();
@@ -105,16 +136,20 @@ handlebars.registerHelper('shortId', function (id) {
   return '';
 });
 
-// Routes
+/* ============================================================
+   7. 🚏 Routes
+============================================================ */
 const route = require('../routes');
 route(app);
 
-// Debug route
+// Debug route để test session/auth
 app.get('/debug-auth', (req, res) => {
   res.json(req.auth || { message: 'Chưa đăng nhập Clerk' });
 });
 
-// 🚀 Start server
+/* ============================================================
+   8. 🚀 Start server
+============================================================ */
 server.listen(port, () => {
   console.log(`🚀 Server is running at http://localhost:${port}`);
 });

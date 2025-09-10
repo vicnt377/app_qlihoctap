@@ -36,40 +36,15 @@
 
       <div class="collapse navbar-collapse" id="topNavbar">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="/home">Trang Chủ</a></li>
-          <li class="nav-item"><a class="nav-link" href="/document">Tài Liệu</a></li>
-          <li class="nav-item"><a class="nav-link" href="/course">Học Phần</a></li>
-          <li class="nav-item"><a class="nav-link" href="/progress">Tiến Độ</a></li>
-          <li class="nav-item"><a class="nav-link" href="/semester">Lịch Học</a></li>
-          <li class="nav-item"><a class="nav-link" href="/score">Kết Quả</a></li>
-          <li class="nav-item"><a class="nav-link" href="/video">Khóa Học</a></li>
-          <li class="nav-item"><a class="nav-link" href="/chat">Hỏi Đáp</a></li>
-          <li class="nav-item"><a class="nav-link" href="/account">Tài Khoản</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/home'}}" href="/home">Trang Chủ</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/document'}}" href="/document">Tài Liệu</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/course'}}" href="/course">Học Phần</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/progress'}}" href="/progress">Tiến Độ</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/semester'}}" href="/semester">Lịch Học</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/score'}}" href="/score">Kết Quả</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/video'}}" href="/video">Khóa Học</a></li>
+          <li class="nav-item"><a class="nav-link {{isActive currentPath '/chat'}}" href="/chat">Hỏi Đáp</a></li>
         </ul>
-        {{!-- <!-- Nút thông báo -->
-        <div class="dropdown me-3">
-          <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-bell fa-lg text-secondary"></i>
-            <span class="badge bg-danger rounded-pill ms-1">3</span> <!-- số thông báo -->
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" style="width: 300px;">
-            <li class="dropdown-header fw-bold">Thông báo</li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <a class="dropdown-item small" href="#">📅 Lịch học tuần tới đã được cập nhật</a>
-            </li>
-            <li>
-              <a class="dropdown-item small" href="#">📄 Tài liệu mới: Lập trình Web</a>
-            </li>
-            <li>
-              <a class="dropdown-item small" href="#">🎯 Tiến độ học tập đạt 80%</a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <a class="dropdown-item text-center small text-primary" href="#">Xem tất cả</a>
-            </li>
-          </ul>
-        </div> --}}
 
         <!-- Notification Bell -->
         <div class="dropdown me-3">
@@ -96,7 +71,7 @@
             </li>
             <li><hr class="dropdown-divider my-0"></li>
             <li>
-              <a href="/notifications" class="dropdown-item text-center text-decoration-none py-2">
+              <a href="/notifications/page" class="dropdown-item text-center text-decoration-none py-2">
                 <i class="fas fa-external-link-alt me-2"></i>Xem tất cả
               </a>
             </li>
@@ -258,6 +233,12 @@
       </div>
     </div>
   </footer>
+  
+{{#if alertMessage}}
+<script>
+  alert("{{alertMessage}}");
+</script>
+{{/if}}
 
 <script src="/socket.io/socket.io.js"></script>
 <script>

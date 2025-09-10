@@ -53,28 +53,6 @@
   <div class="tab-content" id="docTabsContent">
     <!-- Tài liệu của tôi -->
     <div class="tab-pane fade show active" id="list" role="tabpanel">
-      <!-- Compact Search Form -->
-      <div class="card shadow-sm border-0 mb-3">
-        <div class="card-body py-3">
-          <form method="GET" action="/document" class="row g-2">
-            <div class="col-md-10">
-              <div class="input-group">
-                <span class="input-group-text bg-orange text-white">
-                  <i class="fas fa-search"></i>
-                </span>
-                <input type="text" name="q" class="form-control" placeholder="Tìm kiếm tài liệu..." value="{{query}}">
-              </div>
-            </div>
-            <div class="col-md-2">
-              <button type="submit" class="btn btn-orange w-100">
-                <i class="fas fa-search me-1"></i>Tìm kiếm
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Main Content Grid -->
       <div class="row g-3">
         <!-- Compact Upload Section -->
         <div class="col-lg-4">
@@ -92,7 +70,14 @@
                   </label>
                   <input type="text" id="title" name="title" class="form-control form-control-sm" required>
                 </div>
-                
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="public" id="visibility" name="visibility">
+                  <label class="form-check-label" for="visibility">
+                    Công khai 
+                  </label>
+                </div>
+
+
                 <div class="mb-3">
                   <label for="file" class="form-label fw-bold small">
                     <i class="fas fa-file me-1 text-orange"></i>Chọn tệp
@@ -134,10 +119,18 @@
         <!-- Compact Documents List -->
         <div class="col-lg-8">
           <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-gradient-gray text-white py-2">
+            <div class="card-header bg-gradient-gray text-white py-2 d-flex justify-content-between align-items-center">
               <h6 class="mb-0">
                 <i class="fas fa-list me-2"></i>Danh sách tài liệu của tôi
               </h6>
+              <!-- Ô tìm kiếm nhỏ gọn -->
+              <form method="GET" action="/document" class="d-flex align-items-center">
+                <input type="text" name="q" class="form-control form-control-sm me-2" 
+                      placeholder="Tìm tài liệu..." value="{{query}}" style="width: 200px;">
+                <button type="submit" class="btn btn-sm btn-light text-dark">
+                  <i class="fas fa-search"></i>
+                </button>
+              </form>
             </div>
             <div class="card-body p-0">
               {{#if documents}}
@@ -204,67 +197,96 @@
                     <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
                     <h6 class="text-muted mb-2">Chưa có tài liệu nào</h6>
                     <p class="text-muted mb-3 small">Bắt đầu bằng cách tải lên tài liệu đầu tiên của bạn</p>
-                    <button class="btn btn-orange btn-sm" onclick="document.getElementById('file').click()">
-                      <i class="fas fa-plus me-1"></i>Tải lên tài liệu
-                    </button>
                   </div>
                 </div>
               {{/if}}
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
     <!-- Tài liệu tham khảo -->
     <div class="tab-pane fade" id="reference" role="tabpanel">
-      <div class="row g-4">
-        <div class="col-md-6 col-lg-4">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center p-4">
-              <div class="reference-icon mb-3">
-                <i class="fab fa-node-js fa-3x text-orange"></i>
-              </div>
-              <h5 class="card-title">Node.js Guide</h5>
-              <p class="card-text text-muted">Tài liệu chính thức về Node.js và các tính năng của nó</p>
-              <a href="https://nodejs.org/en/docs" target="_blank" class="btn btn-outline-orange">
-                <i class="fas fa-external-link-alt me-2"></i>Xem tài liệu
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-6 col-lg-4">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center p-4">
-              <div class="reference-icon mb-3">
-                <i class="fas fa-database fa-3x text-orange"></i>
-              </div>
-              <h5 class="card-title">Mongoose Docs</h5>
-              <p class="card-text text-muted">Hướng dẫn sử dụng Mongoose ODM cho MongoDB</p>
-              <a href="https://mongoosejs.com/docs" target="_blank" class="btn btn-outline-orange">
-                <i class="fas fa-external-link-alt me-2"></i>Xem tài liệu
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-6 col-lg-4">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center p-4">
-              <div class="reference-icon mb-3">
-                <i class="fab fa-bootstrap fa-3x text-orange"></i>
-              </div>
-              <h5 class="card-title">Bootstrap 5</h5>
-              <p class="card-text text-muted">Framework CSS để xây dựng giao diện responsive</p>
-              <a href="https://getbootstrap.com/docs/5.0/getting-started/introduction/" target="_blank" class="btn btn-outline-orange">
-                <i class="fas fa-external-link-alt me-2"></i>Xem tài liệu
-              </a>
-            </div>
-          </div>
-        </div>
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-gradient-gray text-white py-2">
+    <h6 class="mb-0">
+      <i class="fas fa-book me-2"></i>Danh sách tài liệu tham khảo
+    </h6>
+  </div>
+  <div class="card-body p-0">
+    {{#if referenceDocs}}
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 table-sm">
+          <thead class="table-light">
+            <tr>
+              <th style="color:black" scope="col">Tên tài liệu</th>
+              <th style="color:black" scope="col">Người chia sẻ</th>
+              <th style="color:black" scope="col">Ngày đăng</th>
+              <th style="color:black" scope="col" class="text-center">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each referenceDocs}}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="document-icon me-2">
+                      {{#if (eq this.fileType 'pdf')}}
+                        <i class="fas fa-file-pdf text-orange"></i>
+                      {{else if (eq this.fileType 'doc')}}
+                        <i class="fas fa-file-word text-orange"></i>
+                      {{else if (eq this.fileType 'xls')}}
+                        <i class="fas fa-file-excel text-orange"></i>
+                      {{else if (eq this.fileType 'ppt')}}
+                        <i class="fas fa-file-powerpoint text-orange"></i>
+                      {{else}}
+                        <i class="fas fa-file-alt text-orange"></i>
+                      {{/if}}
+                    </div>
+                    <div>
+                      <h6 class="mb-0 fw-bold small">{{this.title}}</h6>
+                      <small class="text-muted">{{this.originalName}}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{this.username.username}}</td>
+                <td>
+                  <span class="badge bg-light text-dark small">
+                    <i class="fas fa-clock me-1"></i>{{this.createdAt}}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group" role="group">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-orange" 
+                            onclick="previewDocument('{{this.file}}', '{{this.fileType}}', '{{this._id}}')">
+                      Xem trước
+                    </button>
+                    <a href="/document/download/{{this._id}}" 
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-download"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
       </div>
+    {{else}}
+      <div class="text-center py-4">
+        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+        <h6 class="text-muted mb-2">Chưa có tài liệu công khai nào</h6>
+        <p class="text-muted small">Hãy quay lại sau hoặc tự chia sẻ tài liệu của bạn</p>
+      </div>
+    {{/if}}
+  </div>
+</div>
+
     </div>
+
   </div>
 </main>
 

@@ -3,6 +3,8 @@ const router = express.Router()
 const notificationController = require('../../controllers/user/notificationController')
 const { isUser } = require('../../middlewares/authMiddleware')
 
+
+router.get("/page", isUser, notificationController.renderNotificationsPage)
 // ✅ Route chính để lấy thông báo của user (khớp với frontend)
 router.get("/user", isUser, notificationController.getUserNotifications)
 

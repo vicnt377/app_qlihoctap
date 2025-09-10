@@ -30,6 +30,12 @@ body {
   transform: translateY(-1px);
 }
 
+.navbar-nav .nav-link.active {
+  color: #e08552 !important;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
 .navbar-brand {
   font-size: 1.25rem;
   color: #e08552 !important;
@@ -45,11 +51,44 @@ body {
 }
 
 .nav-tabs .nav-link.active {
-  background-color: #e08552;
-  color: #fff;
-  border-color: #e08552;
-  box-shadow: 0 2px 8px rgba(224,133,82,0.15);
+  color: #e08552;
+  /* border-color: #e08552;
+  box-shadow: 0 2px 8px rgba(224,133,82,0.15); */
 }
+
+/* Header background cho Notification */
+.notification-header {
+  background: linear-gradient(135deg, #e08552, #f39c74);
+  padding: 20px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(224, 133, 82, 0.25);
+}
+
+/* Stats card trong header */
+.stats-card {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.stats-item {
+  text-align: center;
+  color: #fff;
+}
+
+.stats-number {
+  font-size: 1.25rem;
+  font-weight: bold;
+  display: block;
+}
+
+.stats-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+
 
 .dashboard-header {
   display: flex;

@@ -9,7 +9,12 @@ module.exports = {
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
   array: (...args) => args.slice(0, -1),
   toString: (val) => val.toString(), 
-
+  isActive: function (currentPath, matchPath) {
+      if (currentPath.startsWith(matchPath)) {
+      return "active";
+    }
+    return "";
+  },
   thuToNumber: function (thu) {
     const map = {
         'Thứ Hai': 1,

@@ -4,6 +4,48 @@ const Notification = require('../../models/Notification'); // Sử dụng model 
 const { mongooseToObject } = require('../../src/util/mongoose');
 
 class NotificationController {
+    // controllers/user/notificationController.js
+    async renderNotificationsPage(req, res) {
+    try {
+        const userId = req.user._id;
+        const { page = 1, limit = 20 } = req.query;
+
+        const query = { recipient: userId, isDeleted: false };
+
+        const notifications = await Notification.find(query)
+        .populate('sender', 'username avatar')
+        .sort({ createdAt: -1 })
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .lean();
+
+        const total = await Notification.countDocuments(query);
+        const totalPages = Math.ceil(total / limit);
+
+        // Đếm số thông báo chưa đọc
+        const unreadCount = await Notification.countDocuments({
+            recipient: userId,
+            isRead: false,
+            isDeleted: false
+        });
+
+        res.render('user/notification', {
+        user: req.user,
+        unreadCount,
+        notifications,
+        pagination: {
+            currentPage: parseInt(page),
+            totalPages,
+            totalItems: total,
+            itemsPerPage: parseInt(limit)
+        }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Lỗi khi load thông báo");
+    }
+    }
+
     // ✅ Lấy danh sách thông báo của user
     async getUserNotifications(req, res) {
         try {
@@ -13,15 +55,6 @@ class NotificationController {
                 'Pragma': 'no-cache',
                 'Expires': '0',
                 'Last-Modified': new Date().toUTCString()
-            });
-
-            // Debug: Log request info
-            console.log('🔍 getUserNotifications called:', {
-                hasUser: !!req.user,
-                userKeys: req.user ? Object.keys(req.user) : [],
-                userId: req.user?._id,
-                sessionUser: req.session?.user?._id,
-                timestamp: new Date().toISOString()
             });
 
             if (!req.user || !req.user._id) {
@@ -146,37 +179,31 @@ class NotificationController {
 
     // ✅ Xóa thông báo
     async deleteNotification(req, res) {
-        try {
-            const { notificationId } = req.params;
-            const userId = req.user._id;
-            
-            const notification = await Notification.findOne({
-                _id: notificationId,
-                recipient: userId,
-                isDeleted: false
-            });
-            
-            if (!notification) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Không tìm thấy thông báo'
-                });
-            }
-            
-            await notification.markAsDeleted();
-            
-            res.json({
-                success: true,
-                message: 'Đã xóa thông báo'
-            });
-        } catch (error) {
-            console.error('Error deleting notification:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi khi xóa thông báo'
-            });
+    try {
+        const { notificationId } = req.params;
+        const userId = req.user._id;
+
+        const notification = await Notification.findOne({
+        _id: notificationId,
+        recipient: userId,
+        isDeleted: false
+        });
+
+        if (!notification) {
+        req.session.alertMessage = "Không tìm thấy thông báo để xóa.";
+        return res.redirect("/notifications/page");
         }
+
+        await notification.markAsDeleted();
+        req.session.alertMessage = "✅ Xóa thông báo thành công!";
+        res.redirect("/notifications/page");
+    } catch (error) {
+        console.error("Error deleting notification:", error);
+        req.session.alertMessage = "❌ Lỗi khi xóa thông báo.";
+        res.redirect("/notifications/page");
     }
+    }
+
 
     // ✅ Tạo thông báo mới (cho admin hoặc system)
     async createNotification(req, res) {

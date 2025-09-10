@@ -2,6 +2,7 @@ const Document = require('../../models/Document');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const mongoose = require('mongoose');
 const upload = require('../../middlewares/uploadMiddlewares'); // import upload
 
 class DocumentController {
@@ -11,19 +12,32 @@ class DocumentController {
       if (!userId) return res.redirect('/login');
 
       const q = req.query.q || '';
-      const regex = new RegExp(q, 'i'); // tìm không phân biệt hoa thường
+      const regex = new RegExp(q, 'i');
 
-      const documents = await Document.find({
+      // 🔹 Tài liệu của user (private + public)
+      const myDocuments = await Document.find({
         username: userId,
         title: regex,
+        visibility: { $in: ['private', 'public'] }
       }).sort({ createdAt: -1 });
 
-      // Thêm thông tin file size và type cho mỗi document
-      const documentsWithInfo = documents.map(doc => {
+      // 🔹 Tài liệu public của người khác
+      const referenceDocuments = await Document.find({
+        visibility: 'public',
+        username: { $ne: new mongoose.Types.ObjectId(userId) }, // fix kiểu ObjectId
+        title: regex
+      })
+        .populate('username', 'username email')
+        .sort({ createdAt: -1 });
+
+      console.log("📂 MyDocuments:", myDocuments.length);
+      console.log("📂 ReferenceDocuments:", referenceDocuments.length);
+
+      // Gắn thêm info (size, type, originalName)
+      const addFileInfo = (docs) => docs.map(doc => {
         const docObj = doc.toObject();
         const filePath = path.resolve(__dirname, '../src/public/file', doc.file);
-        
-        // Lấy thông tin file
+
         if (fs.existsSync(filePath)) {
           const stats = fs.statSync(filePath);
           docObj.fileSize = this.formatFileSize(stats.size);
@@ -34,19 +48,21 @@ class DocumentController {
           docObj.fileType = 'unknown';
           docObj.originalName = 'File không tồn tại';
         }
-        
         return docObj;
       });
 
       res.render('user/document', {
         user: req.session.user,
-        documents: documentsWithInfo,
         query: q,
+        documents: addFileInfo(myDocuments),        // tab "Tài liệu của tôi"
+        referenceDocs: addFileInfo(referenceDocuments) // tab "Tài liệu tham khảo"
       });
     } catch (err) {
+      console.error("❌ Lỗi getDocument:", err);
       next(err);
     }
   }
+
 
   // Format file size
   formatFileSize(bytes) {
@@ -136,6 +152,7 @@ class DocumentController {
   }
 
   // Logic xử lý sau khi file đã được upload thành công
+// Logic xử lý sau khi file đã được upload thành công
   async uploadDocument(req, res, next) {
     try {
       const userId = req.session?.user?._id;
@@ -145,10 +162,13 @@ class DocumentController {
         return res.redirect('/document');
       }
 
+      const visibility = req.body.visibility === 'public' ? 'public' : 'private';
+
       const newDoc = new Document({
         username: userId,
         title: req.body.title,
-        file: `${userId}/${req.file.filename}`
+        file: `${userId}/${req.file.filename}`,
+        visibility
       });
 
       await newDoc.save();
@@ -159,6 +179,7 @@ class DocumentController {
       next(err);
     }
   }
+
 
   async deleteDocument(req, res, next) {
     try {
