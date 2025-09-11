@@ -23,6 +23,10 @@ const port = process.env.PORT || 3000;
 const db = require('../config/database/db');
 db.connect();
 
+//xóa thông báo cũ
+// Sau khi kết nối MongoDB thành công
+require("../middlewares/notificationCleanup");
+
 /* ============================================================
    2. ⚡️ HTTP server + Socket.IO setup
 ============================================================ */

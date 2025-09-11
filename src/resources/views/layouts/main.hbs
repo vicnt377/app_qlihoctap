@@ -55,13 +55,13 @@
             </span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 notification-dropdown" aria-labelledby="notificationDropdown" style="width: 400px;">
-            <li class="dropdown-header bg-system-primary text-white py-3">
+            <li class="dropdown-header bg-system-primary text-white py-2">
               <div class="d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold">
                   <i class="fas fa-bell me-2"></i>Thông báo
                 </h6>
                 <button class="btn btn-sm btn-outline-light btn-sm" id="markAllRead" onclick="markAllAsRead()">
-                  <i class="fas fa-check-double me-1"></i>Đánh dấu tất cả
+                  <i class="fas fa-check-double me-1"></i>Xem tất cả
                 </button>
               </div>
             </li>
@@ -70,10 +70,10 @@
               <!-- Notifications will be loaded here dynamically -->
             </li>
             <li><hr class="dropdown-divider my-0"></li>
-            <li>
-              <a href="/notifications/page" class="dropdown-item text-center text-decoration-none py-2">
+            <li class="dropdown-item text-center text-decoration-none py-3">
+              {{!-- <a href="/notifications/page" class="dropdown-item text-center text-decoration-none py-2">
                 <i class="fas fa-external-link-alt me-2"></i>Xem tất cả
-              </a>
+              </a> --}}
             </li>
           </ul>
         </div>
@@ -242,212 +242,308 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
   const socket = io();
 
   // Khi user load trang, join vào room của họ
-  fetch('/notifications/user') // API trả thông báo của user hiện tại
-    .then(res => res.json())
-    .then(data => {
-      if (data.success && data.data && data.data.notifications) {
-        // Join vào room với user ID từ session
-        const userId = '{{user._id}}'; // Lấy từ server-side
-        if (userId) {
-          socket.emit('join', userId);
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/notifications/user')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data && data.data.notifications) {
+          const userId = '{{user._id}}'; // Lấy từ server-side
+          if (userId) {
+            socket.emit('join', userId);
+          }
         }
+      });
+
+    // Nhận thông báo mới realtime
+    socket.on('new-notification', (n) => {
+      const badge = document.getElementById('notificationBadge');
+      const list = document.getElementById('notificationList');
+
+      // Tăng số badge
+      let count = parseInt(badge.textContent || '0') + 1;
+      badge.style.display = 'inline';
+      badge.textContent = count;
+
+      // Tạo item mới
+      const item = document.createElement('li');
+      item.className = 'notification-item unread';
+      item.dataset.id = n._id;
+      item.dataset.title = n.title || 'Thông báo mới';
+      item.dataset.message = n.message;
+      item.dataset.time = getTimeAgo(new Date(n.createdAt));
+
+      item.innerHTML = `
+        <div class="dropdown-item py-2 notification-content">
+          <div class="d-flex align-items-start">
+            <div class="notification-icon me-2">
+              <i class="fas fa-info-circle text-primary"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <span class="fw-semibold text-system-dark">${n.title || 'Thông báo mới'}</span>
+                <span class="badge bg-system-primary badge-sm">Mới</span>
+              </div>
+              {{!-- <p class="mb-0 small text-system-muted">${n.message}</p> --}}
+              <small class="text-system-muted">${item.dataset.time}</small>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Xóa thông báo trống
+      if (list.querySelector('.fa-bell-slash')) {
+        list.innerHTML = '';
+      }
+
+      list.prepend(item);
+    });
+
+    // Load thông báo lần đầu
+    loadNotifications();
+
+    // Đánh dấu tất cả đã đọc
+    const markAllReadBtn = document.getElementById('markAllRead');
+    if (markAllReadBtn) {
+      markAllReadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        markAllAsRead();
+      });
+    }
+
+    // Khi click vào 1 thông báo → mở modal + đánh dấu đã đọc
+    document.addEventListener('click', function(e) {
+      const item = e.target.closest('.notification-item');
+      if (item) {
+        const notificationId = item.dataset.id;
+        const title = item.dataset.title;
+        const message = item.dataset.message;
+        const time = item.dataset.time;
+
+        // Gán vào modal
+        document.getElementById('notifTitle').textContent = title;
+        document.getElementById('notifMessage').textContent = message;
+        document.getElementById('notifTime').textContent = time;
+
+        // Hiện modal
+        const notifModal = new bootstrap.Modal(document.getElementById('notificationModal'));
+        notifModal.show();
+
+        // Đánh dấu đã đọc
+        markAsRead(notificationId);
       }
     });
 
-  // Nhận thông báo mới
-  socket.on('new-notification', (n) => {
-    const badge = document.getElementById('notificationBadge');
-    const list = document.getElementById('notificationList');
+    // Tải lại thông báo mỗi 30 giây
+    setInterval(loadNotifications, 30000);
+  });
 
-    // Tăng số badge
-    let count = parseInt(badge.textContent || '0') + 1;
-    badge.style.display = 'inline';
-    badge.textContent = count;
 
-    // Thêm thông báo mới lên đầu danh sách
-    const item = document.createElement('a');
-    item.href = '#';
-    item.className = 'dropdown-item small';
-    item.innerHTML = `
-      <div class="d-flex">
-        <div class="me-2"><i class="fas fa-info-circle text-primary"></i></div>
-        <div>
-          <div>${n.message}</div>
-          <small class="text-muted">${new Date(n.createdAt).toLocaleString()}</small>
+  // Hàm tải thông báo
+  async function loadNotifications() {
+    try {
+      const response = await fetch('/notifications/user');
+      const data = await response.json();
+
+      const notificationList = document.getElementById('notificationList');
+      const notificationBadge = document.getElementById('notificationBadge');
+
+      if (!data.success) {
+        console.error('API error:', data.message);
+        return;
+      }
+
+      const notifications = data.data.notifications;
+
+      if (notifications.length === 0) {
+        notificationList.innerHTML = `
+          <div class="text-center py-5">
+            <div class="empty-notification">
+              <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+              <h6 class="text-muted mb-2">Không có thông báo mới</h6>
+              <p class="text-muted small mb-0">Bạn sẽ nhận được thông báo khi có tin mới</p>
+            </div>
+          </div>
+        `;
+        notificationBadge.style.display = 'none';
+      } else {
+        const unreadCount = notifications.filter(n => !n.isRead).length;
+        if (unreadCount > 0) {
+          notificationBadge.textContent = unreadCount;
+          notificationBadge.style.display = 'block';
+        } else {
+          notificationBadge.style.display = 'none';
+        }
+
+        // 🔥 Dropdown chỉ hiện tiêu đề + thời gian, không hiện message
+        notificationList.innerHTML = notifications.map(notification => {
+          const typeConfig = getNotificationTypeConfig(notification.type);
+          const readClass = notification.isRead ? 'read' : 'unread';
+          const timeAgo = getTimeAgo(new Date(notification.createdAt));
+
+          return `
+            <li class="notification-item ${readClass}" 
+                data-id="${notification._id}" 
+                data-title="${notification.title}" 
+                data-message="${notification.message}" 
+                data-time="${timeAgo}">
+              <div class="dropdown-item py-2 notification-content">
+                <div class="d-flex align-items-start">
+                  <div class="notification-icon me-2">
+                    <i class="${typeConfig.icon} ${typeConfig.color}"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                      <span class="fw-semibold ${notification.isRead ? 'text-system-muted' : 'text-system-dark'}">
+                        ${notification.title || 'Thông báo mới'}
+                      </span>
+                      ${!notification.isRead ? '<span class="badge bg-system-primary badge-sm">Mới</span>' : ''}
+                    </div>
+                    <small class="text-system-muted">${timeAgo}</small>
+                  </div>
+                </div>
+              </div>
+            </li>
+          `;
+        }).join('');
+      }
+    } catch (error) {
+      console.error('Lỗi khi tải thông báo:', error);
+    }
+  }
+
+// Khi nhận thông báo realtime
+socket.on('new-notification', (n) => {
+  const badge = document.getElementById('notificationBadge');
+  const list = document.getElementById('notificationList');
+
+  let count = parseInt(badge.textContent || '0') + 1;
+  badge.style.display = 'inline';
+  badge.textContent = count;
+
+  const item = document.createElement('li');
+  item.className = 'notification-item unread';
+  item.dataset.id = n._id;
+  item.dataset.title = n.title || 'Thông báo mới';
+  item.dataset.message = n.message;
+  item.dataset.time = getTimeAgo(new Date(n.createdAt));
+
+  // 🔥 Chỉ hiển thị title + time, không hiển thị message
+  item.innerHTML = `
+    <div class="dropdown-item py-2 notification-content">
+      <div class="d-flex align-items-start">
+        <div class="notification-icon me-2">
+          <i class="fas fa-info-circle text-primary"></i>
+        </div>
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <span class="fw-semibold text-system-dark">${n.title || 'Thông báo mới'}</span>
+            <span class="badge bg-system-primary badge-sm">Mới</span>
+          </div>
+          <small class="text-system-muted">${item.dataset.time}</small>
         </div>
       </div>
-    `;
+    </div>
+  `;
 
-    // Xóa "Không có thông báo" nếu có
-    if (list.querySelector('.fa-bell-slash')) {
-      list.innerHTML = '';
-    }
+  if (list.querySelector('.fa-bell-slash')) {
+    list.innerHTML = '';
+  }
 
-    list.prepend(item);
-  });
+  list.prepend(item);
 });
+
+
+  // Hàm đánh dấu tất cả đã đọc
+  async function markAllAsRead() {
+    try {
+      await fetch('/notifications/mark-all-read', { method: 'PATCH' });
+      loadNotifications();
+    } catch (error) {
+      console.error('Lỗi khi đánh dấu tất cả đã đọc:', error);
+    }
+  }
+
+  // Hàm đánh dấu một thông báo đã đọc
+  async function markAsRead(notificationId) {
+    try {
+      await fetch(`/notifications/${notificationId}/read`, { method: 'PATCH' });
+      loadNotifications();
+    } catch (error) {
+      console.error('Lỗi khi đánh dấu đã đọc:', error);
+    }
+  }
+
+  // Hàm tính thời gian tương đối
+  function getTimeAgo(date) {
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Vừa xong';
+    if (minutes < 60) return `${minutes} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    return `${days} ngày trước`;
+  }
+
+  // Cấu hình loại thông báo
+  function getNotificationTypeConfig(type) {
+    const configs = {
+      welcome: { icon: 'fas fa-hand-wave', color: 'text-info' },
+      success: { icon: 'fas fa-check-circle', color: 'text-success' },
+      warning: { icon: 'fas fa-exclamation-triangle', color: 'text-warning' },
+      error: { icon: 'fas fa-times-circle', color: 'text-danger' },
+      info: { icon: 'fas fa-info-circle', color: 'text-info' }
+    };
+    return configs[type] || configs.info;
+  }
 </script>
- <script>
-        // Hàm tải thông báo
-        async function loadNotifications() {
-            try {
-                const response = await fetch('/notifications/user');
-                const data = await response.json();
-                
-                if (!data.success) {
-                    console.error('API error:', data.message);
-                    return;
-                }
-                
-                const notifications = data.data.notifications;
-                
-                const notificationList = document.getElementById('notificationList');
-                const notificationBadge = document.getElementById('notificationBadge');
-                
-                if (notifications.length === 0) {
-                    notificationList.innerHTML = `
-                        <div class="text-center py-5">
-                            <div class="empty-notification">
-                                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
-                                <h6 class="text-muted mb-2">Không có thông báo mới</h6>
-                                <p class="text-muted small mb-0">Bạn sẽ nhận được thông báo khi có tin mới</p>
-                            </div>
-                        </div>
-                    `;
-                    notificationBadge.style.display = 'none';
-                } else {
-                    const unreadCount = notifications.filter(n => !n.isRead).length;
-                    
-                    if (unreadCount > 0) {
-                        notificationBadge.textContent = unreadCount;
-                        notificationBadge.style.display = 'block';
-                    } else {
-                        notificationBadge.style.display = 'none';
-                    }
-                    
-                    notificationList.innerHTML = notifications.map(notification => {
-                        // Xác định icon và màu sắc dựa trên loại thông báo
-                        const typeConfig = getNotificationTypeConfig(notification.type);
-                        const readClass = notification.isRead ? 'read' : 'unread';
-                        
-                        // Tính thời gian tương đối
-                        const timeAgo = getTimeAgo(new Date(notification.createdAt));
-                        
-                        return `
-                            <li class="notification-item ${readClass}" data-id="${notification._id}">
-                                <div class="dropdown-item py-2 notification-content" onclick="markAsRead('${notification._id}')">
-                                    <div class="d-flex align-items-start">
-                                        <div class="notification-icon me-2">
-                                            <i class="${typeConfig.icon} ${typeConfig.color}"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                                <span class="fw-semibold ${notification.isRead ? 'text-system-muted' : 'text-system-dark'}">
-                                                    ${notification.title || 'Thông báo mới'}
-                                                </span>
-                                                ${!notification.isRead ? '<span class="badge bg-system-primary badge-sm">Mới</span>' : ''}
-                                            </div>
-                                            <p class="mb-0 small text-system-muted">${notification.message}</p>
-                                            <small class="text-system-muted">${timeAgo}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        `;
-                    }).join('');
-                }
-            } catch (error) {
-                console.error('Lỗi khi tải thông báo:', error);
-            }
-        }
 
-        // Hàm đánh dấu tất cả đã đọc
-        async function markAllAsRead() {
-            try {
-                await fetch('/notifications/mark-all-read', { method: 'PATCH' });
-                loadNotifications();
-            } catch (error) {
-                console.error('Lỗi khi đánh dấu đã đọc:', error);
-            }
-        }
+<!-- Modal chi tiết thông báo -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+      
+      <!-- Header -->
+      <div class="modal-header bg-light border-0">
+        <h5 class="modal-title fw-bold text-orange" id="notificationModalLabel">
+          <i class="fas fa-bell text-orange me-2"></i>Chi tiết thông báo
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
 
-        // Hàm đánh dấu một thông báo đã đọc
-        async function markAsRead(notificationId) {
-            try {
-                await fetch(`/notifications/${notificationId}/read`, { method: 'PATCH' });
-                loadNotifications();
-            } catch (error) {
-                console.error('Lỗi khi đánh dấu đã đọc:', error);
-            }
-        }
+      <!-- Body -->
+      <div class="modal-body px-4 py-4">
+        <div class="d-flex align-items-start">
+          <!-- Icon -->
+          <div class="flex-shrink-0 me-3">
+            <div class="rounded-circle bg-orange text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+              <i class="fas fa-info-circle fa-lg"></i>
+            </div>
+          </div>
 
-        // Hàm tính thời gian tương đối
-        function getTimeAgo(date) {
-            const now = new Date();
-            const diff = now - date;
-            const minutes = Math.floor(diff / 60000);
-            const hours = Math.floor(diff / 3600000);
-            const days = Math.floor(diff / 86400000);
+          <!-- Content -->
+          <div class="flex-grow-1">
+            <h5 id="notifTitle" class="fw-bold text-dark mb-2"></h5>
+            <p id="notifMessage" class="mb-3 text-secondary"></p>
+            <div class="d-flex align-items-center text-muted small">
+              <i class="fas fa-clock me-2"></i>
+              <span id="notifTime"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-            if (minutes < 1) return 'Vừa xong';
-            if (minutes < 60) return `${minutes} phút trước`;
-            if (hours < 24) return `${hours} giờ trước`;
-            return `${days} ngày trước`;
-        }
 
-        // Hàm lấy cấu hình loại thông báo
-        function getNotificationTypeConfig(type) {
-            const configs = {
-                welcome: { icon: 'fas fa-hand-wave', color: 'text-info' },
-                success: { icon: 'fas fa-check-circle', color: 'text-success' },
-                warning: { icon: 'fas fa-exclamation-triangle', color: 'text-warning' },
-                error: { icon: 'fas fa-times-circle', color: 'text-danger' },
-                info: { icon: 'fas fa-info-circle', color: 'text-info' }
-            };
-            return configs[type] || configs.info;
-        }
 
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load notifications khi trang load
-            loadNotifications();
-            
-            // Event listener cho nút "Đánh dấu đã đọc"
-            const markAllReadBtn = document.getElementById('markAllRead');
-            if (markAllReadBtn) {
-                markAllReadBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    markAllAsRead();
-                });
-            }
-        });
-
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNotifications();
-            
-            // Đánh dấu tất cả đã đọc
-            document.getElementById('markAllRead').addEventListener('click', function(e) {
-                e.preventDefault();
-                markAllAsRead();
-            });
-            
-            // Đánh dấu từng thông báo đã đọc
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('.notification-item')) {
-                    const notificationItem = e.target.closest('.notification-item');
-                    const notificationId = notificationItem.dataset.id;
-                    markAsRead(notificationId);
-                }
-            });
-        });
-
-        // Tải lại thông báo mỗi 30 giây
-        setInterval(loadNotifications, 30000);
-        </script>
 </body>
 </html>
+
+

@@ -1,6 +1,6 @@
 <title>Thông Báo</title>
 
-<div class="document-header mb-3">
+{{!-- <div class="document-header mb-3">
   <div class="container-fluid">
     <div class="row align-items-center">
       <div class="col-md-8">
@@ -32,54 +32,48 @@
       </div>
     </div>
   </div>
-</div>
+</div> --}}
 
 <main class="container py-4">
-  <ul class="list-group shadow-sm">
-    {{#if notifications.length}}
-      {{#each notifications}}
-        <li class="list-group-item d-flex justify-content-between align-items-start {{#unless isRead}}bg-light{{/unless}}">
-          <div class="d-flex">
-            <img src="{{sender.avatar}}" alt="avatar" class="rounded-circle me-3" width="40" height="40"
-                 onerror="this.onerror=null;this.src='/img/avatar.png';">
-            <div>
-              <h6 class="fw-bold mb-1">{{title}}</h6>
-              <p class="mb-1 small">{{message}}</p>
-              <small class="text-muted">{{createdAt}}</small>
+  <a href="/home" class="btn btn-primary btn-sm mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Quay lại
+  </a>
+  <!-- Roll List Wrapper -->
+  <div class="notification-list shadow-sm rounded">
+    <ul class="list-group list-group-flush">
+      {{#if notifications.length}}
+        {{#each notifications}}
+          <li class="list-group-item d-flex justify-content-between align-items-start {{#unless isRead}}bg-light{{/unless}}">
+            <div class="d-flex">
+              <img src="{{sender.avatar}}" alt="avatar" class="rounded-circle me-3" width="40" height="40"
+                   onerror="this.onerror=null;this.src='/img/avatar.png';">
+              <div>
+                <h6 class="fw-bold mb-1">{{title}}</h6>
+                <p class="mb-1 small">{{message}}</p>
+                <small class="text-muted">{{createdAt}}</small>
+              </div>
             </div>
-          </div>
-          <div>
-            {{#unless isRead}}
-              <form action="/notifications/{{_id}}/read?_method=PATCH" method="POST" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-link text-primary">Đánh dấu đã đọc</button>
+            <div>
+              {{#unless isRead}}
+                <form action="/notifications/{{_id}}/read?_method=PATCH" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-link text-primary">Đánh dấu đã đọc</button>
+                </form>
+              {{/unless}}
+              <form action="/notifications/{{_id}}?_method=DELETE" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-link text-danger">Xóa</button>
               </form>
-            {{/unless}}
-            <form action="/notifications/{{_id}}?_method=DELETE" method="POST" class="d-inline">
-              <button type="submit" class="btn btn-sm btn-link text-danger">Xóa</button>
-            </form>
-          </div>
-        </li>
-      {{/each}}
-    {{else}}
-      <li class="list-group-item text-center py-5">
-        <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
-        <div>Không có thông báo nào</div>
-      </li>
-    {{/if}}
-  </ul>
-
-  <!-- Pagination -->
-  <div class="d-flex justify-content-center mt-4">
-    <nav>
-      <ul class="pagination">
-        {{#each (range 1 pagination.totalPages)}}
-          <li class="page-item {{#ifEquals this ../pagination.currentPage}}active{{/ifEquals}}">
-            <a class="page-link" href="/notifications/page?page={{this}}">{{this}}</a>
+            </div>
           </li>
         {{/each}}
-      </ul>
-    </nav>
+      {{else}}
+        <li class="list-group-item text-center py-5">
+          <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+          <div>Không có thông báo nào</div>
+        </li>
+      {{/if}}
+    </ul>
   </div>
 </main>
+
 
 
