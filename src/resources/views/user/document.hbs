@@ -76,8 +76,6 @@
                     Công khai 
                   </label>
                 </div>
-
-
                 <div class="mb-3">
                   <label for="file" class="form-label fw-bold small">
                     <i class="fas fa-file me-1 text-orange"></i>Chọn tệp
@@ -142,17 +140,7 @@
                           <td class="ps-3">
                             <div class="d-flex align-items-center">
                               <div class="document-icon me-2">
-                                {{#if (eq this.fileType 'pdf')}}
-                                  <i class="fas fa-file-pdf text-orange"></i>
-                                {{else if (eq this.fileType 'doc')}}
-                                  <i class="fas fa-file-word text-orange"></i>
-                                {{else if (eq this.fileType 'xls')}}
-                                  <i class="fas fa-file-excel text-orange"></i>
-                                {{else if (eq this.fileType 'ppt')}}
-                                  <i class="fas fa-file-powerpoint text-orange"></i>
-                                {{else}}
-                                  <i class="fas fa-file-alt text-orange"></i>
-                                {{/if}}
+                                <i class="{{getFileIcon this}}"></i>
                               </div>
                               <div>
                                 <h6 class="mb-0 fw-bold small">{{this.title}}</h6>
@@ -165,16 +153,16 @@
                               <i class="fas fa-clock me-1"></i>{{this.createdAt}}
                             </span>
                           </td>
-                          <td>
+                          {{!-- <td>
                             <span class="badge bg-orange small">{{this.fileSize}}</span>
-                          </td>
+                          </td> --}}
                           <td class="text-center">
                             <div class="btn-group" role="group">
-                              <button type="button" 
+                              {{!-- <button type="button" 
                                 class="btn btn-sm btn-outline-orange" 
-                                onclick="previewDocument('{{this.file}}', '{{this.fileType}}')">
+                                onclick="previewDocument('{{this.file}}', '{{this._id}}')">
                                 Xem trước
-                              </button>
+                              </button> --}}
                               <a href="/document/download/{{this._id}}" class="btn btn-sm btn-outline-orange" title="Tải xuống">
                                 Tải xuống
                               </a>
@@ -209,81 +197,71 @@
 
     <!-- Tài liệu tham khảo -->
     <div class="tab-pane fade" id="reference" role="tabpanel">
-<div class="card shadow-sm border-0">
-  <div class="card-header bg-gradient-gray text-white py-2">
-    <h6 class="mb-0">
-      <i class="fas fa-book me-2"></i>Danh sách tài liệu tham khảo
-    </h6>
-  </div>
-  <div class="card-body p-0">
-    {{#if referenceDocs}}
-      <div class="table-responsive">
-        <table class="table table-hover mb-0 table-sm">
-          <thead class="table-light">
-            <tr>
-              <th style="color:black" scope="col">Tên tài liệu</th>
-              <th style="color:black" scope="col">Người chia sẻ</th>
-              <th style="color:black" scope="col">Ngày đăng</th>
-              <th style="color:black" scope="col" class="text-center">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each referenceDocs}}
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <div class="document-icon me-2">
-                      {{#if (eq this.fileType 'pdf')}}
-                        <i class="fas fa-file-pdf text-orange"></i>
-                      {{else if (eq this.fileType 'doc')}}
-                        <i class="fas fa-file-word text-orange"></i>
-                      {{else if (eq this.fileType 'xls')}}
-                        <i class="fas fa-file-excel text-orange"></i>
-                      {{else if (eq this.fileType 'ppt')}}
-                        <i class="fas fa-file-powerpoint text-orange"></i>
-                      {{else}}
-                        <i class="fas fa-file-alt text-orange"></i>
-                      {{/if}}
-                    </div>
-                    <div>
-                      <h6 class="mb-0 fw-bold small">{{this.title}}</h6>
-                      <small class="text-muted">{{this.originalName}}</small>
-                    </div>
-                  </div>
-                </td>
-                <td>{{this.username.username}}</td>
-                <td>
-                  <span class="badge bg-light text-dark small">
-                    <i class="fas fa-clock me-1"></i>{{this.createdAt}}
-                  </span>
-                </td>
-                <td class="text-center">
-                  <div class="btn-group" role="group">
-                    <button type="button" 
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-gray text-white py-2">
+          <h6 class="mb-0">
+            <i class="fas fa-book me-2"></i>Danh sách tài liệu tham khảo
+          </h6>
+        </div>
+        <div class="card-body p-0">
+          {{#if referenceDocs}}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th style="color:black" scope="col">Tên tài liệu</th>
+                    <th style="color:black" scope="col">Người chia sẻ</th>
+                    <th style="color:black" scope="col">Ngày đăng</th>
+                    <th style="color:black" scope="col" class="text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each referenceDocs}}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="document-icon me-2">
+                            <i class="{{getFileIcon this}}"></i>
+                          </div>
+                          <div>
+                            <h6 class="mb-0 fw-bold small">{{this.title}}</h6>
+                            <small class="text-muted">{{this.originalName}}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{this.username.username}}</td>
+                      <td>
+                        <span class="badge bg-light text-dark small">
+                          <i class="fas fa-clock me-1"></i>{{this.createdAt}}
+                        </span>
+                      </td>
+                      <td class="text-center">
+                        <div class="btn-group" role="group">
+                          <button type="button" 
                             class="btn btn-sm btn-outline-orange" 
-                            onclick="previewDocument('{{this.file}}', '{{this.fileType}}', '{{this._id}}')">
-                      Xem trước
-                    </button>
-                    <a href="/document/download/{{this._id}}" 
-                       class="btn btn-sm btn-outline-primary">
-                      <i class="fas fa-download"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            {{/each}}
-          </tbody>
-        </table>
+                            onclick="previewDocument('{{this._id}}', '{{this.title}}')">
+                            Xem trước
+                          </button>
+                          <a href="/document/download/{{this._id}}"
+                            class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download"></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          {{else}}
+            <div class="text-center py-4">
+              <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+              <h6 class="text-muted mb-2">Chưa có tài liệu công khai nào</h6>
+              <p class="text-muted small">Hãy quay lại sau hoặc tự chia sẻ tài liệu của bạn</p>
+            </div>
+          {{/if}}
+        </div>
       </div>
-    {{else}}
-      <div class="text-center py-4">
-        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
-        <h6 class="text-muted mb-2">Chưa có tài liệu công khai nào</h6>
-        <p class="text-muted small">Hãy quay lại sau hoặc tự chia sẻ tài liệu của bạn</p>
-      </div>
-    {{/if}}
-  </div>
-</div>
 
     </div>
 
@@ -309,10 +287,10 @@
         </div>
       </div>
       <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closePreviewModal()">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="fas fa-times me-2"></i>Đóng
         </button>
-        <a href="#" id="downloadLink" class="btn btn-orange">
+        <a href="/file/{{this.file}}" id="downloadLink" class="btn btn-orange">
           <i class="fas fa-download me-2"></i>Tải xuống
         </a>
       </div>
@@ -320,363 +298,128 @@
   </div>
 </div>
 
-<!-- Enhanced JavaScript -->
 <script>
-function previewDocument(filename, type, docId) {
-  console.log('previewDocument called with:', { filename, type, docId });
-  
-  // Kiểm tra các elements cần thiết
-  const modalElement = document.getElementById('previewModal');
-  const previewContent = document.getElementById('previewContent');
-  const downloadLink = document.getElementById('downloadLink');
-  const modalTitle = document.getElementById('previewModalLabel');
-  
-  if (!modalElement || !previewContent || !downloadLink || !modalTitle) {
-    console.error('Required elements not found:', { modalElement, previewContent, downloadLink, modalTitle });
-    alert('Lỗi: Không thể mở modal xem trước');
-    return;
-  }
-  
-  // Cập nhật tiêu đề modal
-  modalTitle.innerHTML = `<i class="fas fa-eye me-2"></i>Xem trước: ${filename}`;
-  
-  // Cập nhật link download
-  downloadLink.href = `/document/download/${docId}`;
-  
-  // Hiển thị loading
-  previewContent.innerHTML = `
-    <div class="spinner-border text-orange" role="status">
-      <span class="visually-hidden">Đang tải...</span>
-    </div>
-    <p class="mt-3 text-muted">Đang tải tài liệu...</p>
-  `;
-  
-  // Mở modal
-  try {
-    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
-    } else {
-      // Fallback
-      modalElement.style.display = 'block';
-      modalElement.classList.add('show');
-      document.body.classList.add('modal-open');
-    }
-  } catch (error) {
-    console.error('Error opening modal:', error);
-    modalElement.style.display = 'block';
-    modalElement.classList.add('show');
-  }
-  
-  // Xử lý preview dựa trên loại file
-  const fileUrl = `/file/${filename}`;
-  const ext = filename.split('.').pop().toLowerCase();
-  
-  console.log('Processing file:', { fileUrl, ext, type, filename });
-  
-  // Kiểm tra file có tồn tại không
-  fetch(fileUrl, { method: 'HEAD' })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`File not found: ${res.status} ${res.statusText}`);
-      }
-      return res;
-    })
-    .then(() => {
-      // File tồn tại, tiếp tục xử lý preview
-      if (type === 'pdf' || ext === 'pdf') {
-        previewContent.innerHTML = `
-          <iframe src="${fileUrl}" width="100%" height="600px" frameborder="0" style="border-radius: 10px;"></iframe>
-        `;
-      } 
-      else if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
-        const googleViewerUrl = `https://docs.google.com/viewer?url=${window.location.origin}${fileUrl}&embedded=true`;
-        previewContent.innerHTML = `
-          <iframe src="${googleViewerUrl}" width="100%" height="600px" frameborder="0" style="border-radius: 10px;"></iframe>
-        `;
-      } 
-      else if (type === 'image' || ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
-        previewContent.innerHTML = `
-          <img src="${fileUrl}" class="img-fluid rounded shadow" alt="${filename}" style="max-height: 600px;">
-        `;
-      } 
-      else if (type === 'text' || ['txt', 'md', 'json', 'xml', 'html', 'css', 'js'].includes(ext)) {
-        fetch(fileUrl)
-          .then(res => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            }
-            return res.text();
-          })
-          .then(data => {
-            previewContent.innerHTML = `
-              <pre class="text-start bg-light p-4 rounded shadow" style="max-height: 600px; overflow-y: auto; font-size: 0.9rem;">${data}</pre>
-            `;
-          })
-          .catch(err => {
-            console.error('Error fetching text file:', err);
-            previewContent.innerHTML = `
-              <div class="alert alert-warning shadow-sm">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Không thể xem trước file này. Vui lòng tải xuống để xem.
-                <br><small class="text-muted">Lỗi: ${err.message}</small>
-              </div>
-            `;
-          });
-      } 
-      else {
-        previewContent.innerHTML = `
-          <div class="text-center py-5">
-            <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
-            <h5 class="text-muted">Không thể xem trước file này</h5>
-            <p class="text-muted">File ${filename} không hỗ trợ xem trước trực tiếp.</p>
-            <p class="text-muted">Vui lòng tải xuống để xem nội dung.</p>
-          </div>
-        `;
-      }
-    })
-    .catch(err => {
-      console.error('File not found:', err);
-      previewContent.innerHTML = `
-        <div class="alert alert-danger shadow-sm">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          Không tìm thấy file: ${filename}
-          <br><small class="text-muted">Lỗi: ${err.message}</small>
-        </div>
-      `;
-    });
-}
-
-// Function đóng modal
-function closePreviewModal() {
-  const modalElement = document.getElementById('previewModal');
-  if (modalElement) {
-    try {
-      // Thử sử dụng Bootstrap Modal
-      if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-          modal.hide();
-        } else {
-          // Nếu không có instance, tạo mới
-          const newModal = new bootstrap.Modal(modalElement);
-          newModal.hide();
-        }
-      } else {
-        // Fallback: Đóng modal bằng cách xóa class và style
-        modalElement.classList.remove('show');
-        modalElement.style.display = 'none';
-        modalElement.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('modal-open');
-        
-        // Xóa backdrop
-        const backdrop = document.getElementById('modalBackdrop');
-        if (backdrop) {
-          backdrop.remove();
-        }
-      }
-    } catch (error) {
-      console.error('Error closing modal:', error);
-      // Fallback cuối cùng
-      modalElement.style.display = 'none';
-      modalElement.classList.remove('show');
-    }
-  }
-}
-
-// Simple and effective file upload functionality
 document.addEventListener('DOMContentLoaded', function() {
+  // =========================
+  // Upload tài liệu
+  // =========================
   const fileUploadArea = document.getElementById('fileUploadArea');
   const fileInput = document.getElementById('file');
   const browseBtn = document.getElementById('browseBtn');
   const uploadPlaceholder = document.getElementById('uploadPlaceholder');
   const filePreview = document.getElementById('filePreview');
 
-  if (!fileUploadArea || !fileInput) return;
+  if (fileUploadArea && fileInput) {
+    ['dragover','drop'].forEach(evt =>
+      window.addEventListener(evt, e => e.preventDefault())
+    );
 
-  // --- 1) Ngăn browser mở/tải file khi drop (toàn cục) ---
-  window.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  }, false);
-  window.addEventListener('drop', (e) => {
-    e.preventDefault();
-  }, false);
+    ['dragenter','dragover'].forEach(evt =>
+      fileUploadArea.addEventListener(evt, e => {
+        e.preventDefault();
+        fileUploadArea.classList.add('dragover');
+      })
+    );
 
-  // --- 2) Events cho vùng upload ---
-  ['dragenter', 'dragover'].forEach(evt => {
-    fileUploadArea.addEventListener(evt, (e) => {
+    ['dragleave','dragend'].forEach(evt =>
+      fileUploadArea.addEventListener(evt, () =>
+        fileUploadArea.classList.remove('dragover'))
+    );
+
+    fileUploadArea.addEventListener('drop', e => {
       e.preventDefault();
-      e.stopPropagation();
-      fileUploadArea.classList.add('dragover');
-    });
-  });
-
-  ['dragleave', 'dragend'].forEach(evt => {
-    fileUploadArea.addEventListener(evt, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      // remove dragover (an toàn)
       fileUploadArea.classList.remove('dragover');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) setFile(file);
     });
-  });
 
-  fileUploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    fileUploadArea.classList.remove('dragover');
-
-    const dt = e.dataTransfer;
-    if (!dt || !dt.files || dt.files.length === 0) return;
-    const file = dt.files[0];
-
-    // Gán trực tiếp file vào input để khi submit sẽ gửi file đó
-    try {
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      fileInput.files = dataTransfer.files;
-    } catch (err) {
-      // fallback: không hỗ trợ DataTransfer trong một số trình duyệt cũ
-    }
-
-    handleFileSelection(file);
-  });
-
-  // --- 3) Browse button ---
-  browseBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    fileInput.click();
-  });
-
-  // --- 4) Khi chọn file qua dialog ---
-  fileInput.addEventListener('change', function(e) {
-    if (this.files && this.files[0]) {
-      handleFileSelection(this.files[0]);
-    }
-  });
-
-  // --- 5) Xử lý file (validate + preview) ---
-  function handleFileSelection(file) {
-    const allowed = ['pdf','doc','docx','txt','ppt','pptx','xls','xlsx'];
-    const ext = (file.name.split('.').pop() || '').toLowerCase();
-    if (!allowed.includes(ext)) {
-      alert('Loại file không được hỗ trợ! Vui lòng chọn PDF/DOC/DOCX/TXT/PPT/PPTX/XLS/XLSX.');
-      resetFileUpload();
-      return;
-    }
-
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert('File quá lớn! Kích thước tối đa là 10MB.');
-      resetFileUpload();
-      return;
-    }
-
-    // Hiển thị preview (gọn)
-    uploadPlaceholder.classList.add('d-none');
-    filePreview.classList.remove('d-none');
-    filePreview.innerHTML = `
-      <div class="file-icon mb-2"><i class="${getFileIcon(file.name)} fa-2x text-orange"></i></div>
-      <div class="file-name fw-bold">${escapeHtml(file.name)}</div>
-      <div class="file-size small text-muted">${formatFileSize(file.size)}</div>
-      <div class="mt-2">
-        <button type="button" class="btn btn-outline-orange btn-sm" id="changeFileBtn">
-          <i class="fas fa-times me-2"></i>Chọn file khác
-        </button>
-      </div>
-    `;
-
-    // nút thay file
-    const changeBtn = document.getElementById('changeFileBtn');
-    if (changeBtn) {
-      changeBtn.addEventListener('click', function(e) {
-        resetFileUpload();
-      });
-    }
-  }
-
-  // Format size
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes','KB','MB','GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  // Icon
-  function getFileIcon(name) {
-    const ext = (name.split('.').pop() || '').toLowerCase();
-    switch (ext) {
-      case 'pdf': return 'fas fa-file-pdf';
-      case 'doc': case 'docx': return 'fas fa-file-word';
-      case 'xls': case 'xlsx': return 'fas fa-file-excel';
-      case 'ppt': case 'pptx': return 'fas fa-file-powerpoint';
-      case 'txt': return 'fas fa-file-alt';
-      default: return 'fas fa-file';
-    }
-  }
-
-  // reset không reload trang
-  function resetFileUpload() {
-    fileInput.value = '';
-    filePreview.innerHTML = '';
-    filePreview.classList.add('d-none');
-    uploadPlaceholder.classList.remove('d-none');
-  }
-
-  // Expose để dùng trong form (ví dụ nút reset)
-  window.resetFileUpload = resetFileUpload;
-
-  // helper: escape HTML to avoid XSS when show file.name
-  function escapeHtml(unsafe) {
-    return unsafe.replace(/[&<"'>]/g, function(m) {
-      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]);
+    browseBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      fileInput.click();
     });
+
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) setFile(this.files[0]);
+    });
+
+    function setFile(file) {
+      const allowed = ['pdf','doc','docx','txt','ppt','pptx','xls','xlsx'];
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      const maxSize = 10 * 1024 * 1024;
+
+      if (!allowed.includes(ext)) {
+        alert('Loại file không hỗ trợ.');
+        return reset();
+      }
+      if (file.size > maxSize) {
+        alert('File quá lớn! Tối đa 10MB.');
+        return reset();
+      }
+
+      uploadPlaceholder.classList.add('d-none');
+      filePreview.classList.remove('d-none');
+      filePreview.innerHTML = `
+        <div class="file-name fw-bold">${escapeHtml(file.name)}</div>
+        <div class="file-size small text-muted">${formatFileSize(file.size)}</div>
+        <div class="mt-2">
+          <button type="button" class="btn btn-outline-orange btn-sm" id="changeFileBtn">
+            <i class="fas fa-times me-2"></i>Chọn file khác
+          </button>
+        </div>
+      `;
+      document.getElementById('changeFileBtn').addEventListener('click', reset);
+    }
+
+    function reset() {
+      fileInput.value = '';
+      filePreview.innerHTML = '';
+      filePreview.classList.add('d-none');
+      uploadPlaceholder.classList.remove('d-none');
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024, sizes = ['Bytes','KB','MB','GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function escapeHtml(unsafe) {
+      return unsafe.replace(/[&<"'>]/g, m =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])
+      );
+    }
   }
 
-  // Xử lý đóng modal
-  const modalElement = document.getElementById('previewModal');
-  if (modalElement) {
-    // Xử lý khi modal đóng
-    modalElement.addEventListener('hidden.bs.modal', function () {
+    // Preview tài liệu (theo docId)
+window.previewDocument = function(docId, title) {
+  const modalEl = document.getElementById('previewModal');
+  const previewContent = document.getElementById('previewContent');
+  const downloadLink = document.getElementById('downloadLink');
+  const modalTitle = document.getElementById('previewModalLabel');
+
+  modalTitle.innerHTML = `<i class="fas fa-eye me-2"></i>Xem trước: ${title || ''}`;
+  downloadLink.href = `/document/download/${docId}`;
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+
+  // Gọi trực tiếp route preview
+  previewContent.innerHTML = `
+    <iframe src="/document/preview/${docId}" 
+            width="100%" height="600px" style="border:0"></iframe>`;
+};
+
+    // Reset khi đóng modal
+    document.getElementById('previewModal')?.addEventListener('hidden.bs.modal', () => {
       const previewContent = document.getElementById('previewContent');
       if (previewContent) {
         previewContent.innerHTML = `
-          <div class="spinner-border text-orange" role="status">
-            <span class="visually-hidden">Đang tải...</span>
-          </div>
+          <div class="spinner-border text-orange" role="status"></div>
           <p class="mt-3 text-muted">Đang tải tài liệu...</p>
         `;
       }
     });
-
-    // Xử lý khi modal mở
-    modalElement.addEventListener('show.bs.modal', function (event) {
-      const button = event.relatedTarget;
-      if (button) {
-        // Lấy thông tin từ button
-        const filename = button.getAttribute('data-filename');
-        const type = button.getAttribute('data-type');
-        const docId = button.getAttribute('data-doc-id');
-        
-        if (filename && type && docId) {
-          // Gọi function previewDocument
-          previewDocument(filename, type, docId);
-        }
-      }
-    });
-
-    // Xử lý khi click vào backdrop để đóng modal
-    modalElement.addEventListener('click', function (event) {
-      if (event.target === modalElement) {
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-          modal.hide();
-        }
-      }
-    });
-  }
-
 });
-
 </script>
+

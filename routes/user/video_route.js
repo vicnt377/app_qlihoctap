@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const videoController = require('../../controllers/user/VideoController') 
 const accountController = require('../../controllers/user/AccountController')
-const { isUser } = require('../../middlewares/authMiddleware')
+const { isUser } = require('../../middlewares/userCheck')
 
 router.get('/', videoController.getVideo) // Cho phép xem video mà không cần đăng nhập
 router.post('/join/:id', isUser, videoController.joinVideo)

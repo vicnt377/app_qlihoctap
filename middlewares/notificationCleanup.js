@@ -1,7 +1,7 @@
 const cron = require("node-cron");
 const Notification = require("../models/Notification");
 
-cron.schedule("0 0 * * *", async () => {   // chạy mỗi phút
+cron.schedule("* * * * *", async () => {   // chạy mỗi phút
   try {
     const cutoff = new Date(Date.now() - 1 * 60 * 1000); // cũ hơn 1 phút
     const result = await Notification.deleteMany({ createdAt: { $lt: cutoff } });

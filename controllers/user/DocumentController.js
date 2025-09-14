@@ -1,257 +1,192 @@
 const Document = require('../../models/Document');
-const fs = require('fs');
+const User = require('../../models/User');
 const path = require('path');
-const multer = require('multer');
-const mongoose = require('mongoose');
-const upload = require('../../middlewares/uploadMiddlewares'); // import upload
+const fs = require('fs');
+const upload = require('../../middlewares/uploadFile'); // multer + convert
 
 class DocumentController {
+  // Hiển thị danh sách tài liệu
   async getDocument(req, res, next) {
     try {
-      const userId = req.session?.user?._id;
-      if (!userId) return res.redirect('/login');
+      const userId = req.session.userId || req.session?.user?._id;
+      
+      if (!userId) {
+        return res.redirect('/login-user');
+      }
+      
+      const user = await User.findById(userId).lean();
+        if (!user) {
+          return res.redirect('/login-user');
+        }
 
       const q = req.query.q || '';
       const regex = new RegExp(q, 'i');
 
-      // 🔹 Tài liệu của user (private + public)
-      const myDocuments = await Document.find({
+      const documents = await Document.find({
         username: userId,
-        title: regex,
-        visibility: { $in: ['private', 'public'] }
+        title: { $regex: regex }
       }).sort({ createdAt: -1 });
 
-      // 🔹 Tài liệu public của người khác
-      const referenceDocuments = await Document.find({
+      const referenceDocs = await Document.find({
         visibility: 'public',
-        username: { $ne: new mongoose.Types.ObjectId(userId) }, // fix kiểu ObjectId
-        title: regex
-      })
-        .populate('username', 'username email')
-        .sort({ createdAt: -1 });
+        username: { $ne: userId },
+        title: { $regex: regex }
+      }).populate('username', 'username');
 
-      console.log("📂 MyDocuments:", myDocuments.length);
-      console.log("📂 ReferenceDocuments:", referenceDocuments.length);
-
-      // Gắn thêm info (size, type, originalName)
-      const addFileInfo = (docs) => docs.map(doc => {
-        const docObj = doc.toObject();
-        const filePath = path.resolve(__dirname, '../src/public/file', doc.file);
-
-        if (fs.existsSync(filePath)) {
-          const stats = fs.statSync(filePath);
-          docObj.fileSize = this.formatFileSize(stats.size);
-          docObj.fileType = this.getFileType(doc.file);
-          docObj.originalName = this.getOriginalFileName(doc.file);
-        } else {
-          docObj.fileSize = 'N/A';
-          docObj.fileType = 'unknown';
-          docObj.originalName = 'File không tồn tại';
-        }
-        return docObj;
-      });
+      const successMessage = req.session.successMessage || null;
+      const errorMessage = req.session.errorMessage || null;
+      req.session.successMessage = null;
+      req.session.errorMessage = null;
 
       res.render('user/document', {
-        user: req.session.user,
+        user,
+        documents,
+        referenceDocs,
         query: q,
-        documents: addFileInfo(myDocuments),        // tab "Tài liệu của tôi"
-        referenceDocs: addFileInfo(referenceDocuments) // tab "Tài liệu tham khảo"
+        successMessage,
+        errorMessage
       });
     } catch (err) {
-      console.error("❌ Lỗi getDocument:", err);
       next(err);
     }
   }
 
-
-  // Format file size
-  formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  // Get file type
-  getFileType(filename) {
-    const ext = path.extname(filename).toLowerCase();
-    if (ext === '.pdf') return 'pdf';
-    if (['.doc', '.docx'].includes(ext)) return 'doc';
-    if (['.xls', '.xlsx'].includes(ext)) return 'xls';
-    if (['.ppt', '.pptx'].includes(ext)) return 'ppt';
-    const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-    if (imageExts.includes(ext)) return 'image';
-    const textExts = ['.txt', '.md', '.json', '.xml', '.html', '.css', '.js'];
-    if (textExts.includes(ext)) return 'text';
-    return 'other';
-  }
-
-
-  // Get original file name
-  getOriginalFileName(filePath) {
-    return path.basename(filePath);
-  }
-
-  // Download document
-  async downloadDocument(req, res, next) {
-    try {
-      const docId = req.params.id;
-      const userId = req.session?.user?._id;
-
-      if (!docId || !userId) {
-        req.session.errorMessage = 'Thiếu thông tin khi tải xuống.';
-        return res.redirect('/document');
-      }
-
-      const doc = await Document.findOne({ _id: docId, username: userId });
-      if (!doc) {
-        req.session.errorMessage = 'Không tìm thấy tài liệu hoặc không có quyền tải xuống.';
-        return res.redirect('/document');
-      }
-
-      const filePath = path.resolve(__dirname, '../src/public/file', doc.file);
-      
-      if (!fs.existsSync(filePath)) {
-        req.session.errorMessage = 'File không tồn tại trên server.';
-        return res.redirect('/document');
-      }
-
-      // Lấy tên file gốc
-      const originalName = this.getOriginalFileName(doc.file);
-      
-      // Set headers cho download
-      res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
-      res.setHeader('Content-Type', 'application/octet-stream');
-      
-      // Stream file
-      const fileStream = fs.createReadStream(filePath);
-      fileStream.pipe(res);
-      
-    } catch (err) {
-      console.error('Lỗi khi tải xuống tài liệu:', err);
-      req.session.errorMessage = 'Đã xảy ra lỗi khi tải xuống tài liệu.';
-      res.redirect('/document');
-    }
-  }
-
-  // Middleware xử lý file upload + kiểm tra lỗi
+  // Middleware xử lý upload
   handleUpload(req, res, next) {
-    upload.single('file')(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-        req.session.errorMessage = 'Lỗi upload tệp: ' + err.message;
-        return res.redirect('/document');
-      } else if (err) {
-        req.session.errorMessage = 'Lỗi máy chủ: ' + err.message;
+    upload(req, res, (err) => {
+      if (err) {
+        req.session.errorMessage = err.message || 'Upload thất bại.';
         return res.redirect('/document');
       }
-
-      // Tiếp tục tới logic upload
       next();
     });
   }
 
-  // Logic xử lý sau khi file đã được upload thành công
-// Logic xử lý sau khi file đã được upload thành công
-  async uploadDocument(req, res, next) {
-    try {
-      const userId = req.session?.user?._id;
+  // Lưu tài liệu mới
+async uploadDocument(req, res, next) {
+  try {
+    const userId = req.session?.user?._id;
+    if (!userId || !req.file || !req.body.title) {
+      console.log('❌ Upload thiếu dữ liệu:', { userId, file: req.file, body: req.body });
+      req.session.errorMessage = 'Thiếu thông tin khi tải lên.';
+      return res.redirect('/document');
+    }
 
-      if (!userId || !req.file || !req.body.title) {
-        req.session.errorMessage = 'Thiếu thông tin khi tải lên.';
-        return res.redirect('/document');
+    const visibility = req.body.visibility === 'public' ? 'public' : 'private';
+
+    const newDoc = new Document({
+      user: new mongoose.Types.ObjectId(userId), // đổi username -> user
+      title: req.body.title,
+      file: `${userId}/${req.file.filename}`,
+      originalName: req.file.originalname,
+      fileType: path.extname(req.file.filename).replace('.', ''),
+      fileSize: req.file.size,
+      visibility,
+    });
+
+    await newDoc.save();
+    console.log('✅ Document saved:', newDoc);
+
+    req.session.successMessage = 'Tải lên tài liệu thành công.';
+    res.redirect('/document');
+  } catch (err) {
+    console.error('❌ Upload error:', err);
+    next(err);
+  }
+}
+
+
+// Xem trước file
+
+async previewFile(req, res, next) {
+  try {
+    const doc = await Document.findById(req.params.id);
+    if (!doc) return res.status(404).send('Không tìm thấy tài liệu.');
+
+    const filePath = path.join(__dirname, '../../src/public/file', doc.file);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send('File không tồn tại.');
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+
+    // Gán Content-Type tự động theo ext
+    res.type(ext);
+
+    // Quan trọng: bắt buộc inline để iframe hiển thị
+    res.setHeader(
+      'Content-Disposition',
+      'inline; filename="' + encodeURIComponent(doc.originalName) + '"'
+    );
+
+    fs.createReadStream(filePath).pipe(res);
+  } catch (err) {
+    next(err);
+  }
+}
+
+  // Download file
+  async downloadDocument(req, res, next) {
+    try {
+      const doc = await Document.findById(req.params.id);
+      if (!doc) return res.status(404).send('Không tìm thấy tài liệu.');
+
+      const filePath = path.join(__dirname, '../../src/public/file', doc.file);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).send('File không tồn tại.');
       }
 
-      const visibility = req.body.visibility === 'public' ? 'public' : 'private';
-
-      const newDoc = new Document({
-        username: userId,
-        title: req.body.title,
-        file: `${userId}/${req.file.filename}`,
-        visibility
-      });
-
-      await newDoc.save();
-
-      req.session.successMessage = 'Tải lên tài liệu thành công.';
-      res.redirect('/document');
+      res.download(filePath, doc.originalName || 'download');
     } catch (err) {
       next(err);
     }
   }
 
-
+  // Xóa tài liệu
   async deleteDocument(req, res, next) {
     try {
       const docId = req.params.id;
-      const userId = req.session?.user?._id;
+      const document = await Document.findById(docId);
 
-      if (!docId || !userId) {
-        req.session.errorMessage = 'Thiếu thông tin khi xóa.';
+      if (!document) {
+        req.flash('errorMessage', 'Không tìm thấy tài liệu.');
         return res.redirect('/document');
       }
 
-      const doc = await Document.findOne({ _id: docId, username: userId });
-      if (!doc) {
-        req.session.errorMessage = 'Không tìm thấy tài liệu hoặc không có quyền xóa.';
-        return res.redirect('/document');
+      // Đường dẫn file đã lưu (PDF hoặc file gốc)
+      const filePath = path.join(__dirname, '../../src/public/file', document.file);
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
       }
 
-      // file: 680ff5807e01374e584024c4/tên-file.docx
-      const relativePath = doc.file;
-      const absolutePath = path.resolve(__dirname, '../src/public/file', relativePath);
+      // Nếu file gốc là Office đã được convert → xóa luôn file Office còn sót (phòng trường hợp người dùng copy trực tiếp vào thư mục)
+      const ext = path.extname(filePath).toLowerCase();
+      if (ext === '.pdf') {
+        const baseName = path.basename(filePath, '.pdf');
+        const folderPath = path.dirname(filePath);
 
-      // Kiểm tra và xóa file nếu tồn tại
-      if (fs.existsSync(absolutePath)) {
-        fs.unlinkSync(absolutePath);
-      } else {
-        console.warn('Không tìm thấy file trên ổ đĩa:', absolutePath);
+        const officeExts = ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
+        officeExts.forEach(ext => {
+          const possiblePath = path.join(folderPath, baseName + ext);
+          if (fs.existsSync(possiblePath)) {
+            fs.unlinkSync(possiblePath);
+          }
+        });
       }
 
-      // Xóa tài liệu trong DB
-      await Document.deleteOne({ _id: docId });
-      console.log('Đường dẫn file cần xóa:', absolutePath);
+      // Xóa Document trong DB
+      await Document.findByIdAndDelete(docId);
 
-      req.session.successMessage = 'Đã xóa tài liệu thành công.';
+      req.flash('successMessage', 'Đã xóa tài liệu thành công.');
       res.redirect('/document');
     } catch (err) {
-      console.error('Lỗi khi xóa tài liệu:', err);
-      req.session.errorMessage = 'Đã xảy ra lỗi khi xóa tài liệu.';
+      console.error('Xóa tài liệu lỗi:', err);
+      req.flash('errorMessage', 'Có lỗi xảy ra khi xóa tài liệu.');
       res.redirect('/document');
     }
   }
 
-  async previewFile(){
-    const filename = req.params.filename;
-    const filePath = path.join(__dirname, 'uploads', filename);
-
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).send('File không tồn tại.');
-    }
-
-    // Lấy phần mở rộng để set Content-Type
-    const ext = path.extname(filename).toLowerCase();
-    let contentType = 'application/octet-stream';
-
-    switch (ext) {
-      case '.pdf': contentType = 'application/pdf'; break;
-      case '.jpg':
-      case '.jpeg': contentType = 'image/jpeg'; break;
-      case '.png': contentType = 'image/png'; break;
-      case '.gif': contentType = 'image/gif'; break;
-      case '.txt': contentType = 'text/plain; charset=utf-8'; break;
-      case '.doc': contentType = 'application/msword'; break;
-      case '.docx': contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'; break;
-      case '.xls': contentType = 'application/vnd.ms-excel'; break;
-      case '.xlsx': contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; break;
-      case '.ppt': contentType = 'application/vnd.ms-powerpoint'; break;
-      case '.pptx': contentType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'; break;
-    }
-
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', 'inline'); // Cho phép xem trực tiếp
-    res.sendFile(filePath);
-  }
 }
 
 module.exports = new DocumentController();

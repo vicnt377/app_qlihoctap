@@ -109,7 +109,9 @@ class LoginController {
             // Tìm user theo username
             const user = await User.findOne({ username });
             if (!user) {
-                return res.render('auth/reset-password', { messages: { error: "Tài khoản không tồn tại!" } });
+                return res.render('auth/reset-password', { 
+                    layout: "auth", 
+                    messages: { error: "Tài khoản không tồn tại!" } });
             }
 
             // Cập nhật mật khẩu
@@ -119,7 +121,9 @@ class LoginController {
 
         } catch (error) {
             console.error("Lỗi khi cập nhật mật khẩu:", error);
-            res.render('auth/reset-password', { messages: { error: 'Có lỗi xảy ra khi cập nhật mật khẩu!' } });
+            res.render('auth/reset-password', {
+                layout: "auth",
+                messages: { error: 'Có lỗi xảy ra khi cập nhật mật khẩu!' } });
         }
     }
     

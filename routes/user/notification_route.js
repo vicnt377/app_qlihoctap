@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const notificationController = require('../../controllers/user/notificationController')
-const { isUser } = require('../../middlewares/authMiddleware')
+const { isUser } = require('../../middlewares/userCheck')
 
 
 router.get("/page", isUser, notificationController.renderNotificationsPage)

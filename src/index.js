@@ -72,6 +72,8 @@ io.on('connection', (socket) => {
 ============================================================ */
 app.use(morgan('combined'));                              // log HTTP request
 app.use(express.static(path.join(__dirname, 'public')));  // phục vụ file tĩnh
+// Cho phép truy cập trực tiếp /file/...
+app.use('/file', express.static(path.join(__dirname, 'public/file')));
 app.use(express.urlencoded({ extended: true }));          // parse form
 app.use(express.json());                                  // parse JSON
 app.use(methodOverride('_method'));                       // hỗ trợ PUT, DELETE

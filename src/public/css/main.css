@@ -521,30 +521,6 @@ body {
   box-shadow: 0 4px 12px rgba(224,133,82,0.15);
 }
 
-.text-primary {
-  color: #e08552 !important;
-}
-
-.text-secondary {
-  color: #6c757d !important;
-}
-
-.text-success {
-  color: #27ae60 !important;
-}
-
-.text-warning {
-  color: #f39c12 !important;
-}
-
-.text-danger {
-  color: #e74c3c !important;
-}
-
-.text-info {
-  color: #3498db !important;
-}
-
 .bg-primary {
   background-color: #e08552 !important;
 }
@@ -615,35 +591,6 @@ body {
   margin-bottom: 20px;
 }
 
-.alert-primary {
-  background-color: rgba(224,133,82,0.1);
-  color: #e08552;
-  border-left: 4px solid #e08552;
-}
-
-.alert-success {
-  background-color: rgba(39,174,96,0.1);
-  color: #27ae60;
-  border-left: 4px solid #27ae60;
-}
-
-.alert-warning {
-  background-color: rgba(243,156,18,0.1);
-  color: #f39c12;
-  border-left: 4px solid #f39c12;
-}
-
-.alert-danger {
-  background-color: rgba(231,76,60,0.1);
-  color: #e74c3c;
-  border-left: 4px solid #e74c3c;
-}
-
-.alert-info {
-  background-color: rgba(52,152,219,0.1);
-  color: #3498db;
-  border-left: 4px solid #3498db;
-}
 
 /* Modal improvements */
 .modal-content {

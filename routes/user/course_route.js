@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const courseController = require('../../controllers/user/CourseController')
-const { isUser } = require('../../middlewares/authMiddleware')
+const { isUser } = require('../../middlewares/userCheck')
 const multer = require('multer')
 const path = require('path')
 
