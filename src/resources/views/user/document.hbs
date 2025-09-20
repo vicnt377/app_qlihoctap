@@ -158,11 +158,12 @@
                           </td> --}}
                           <td class="text-center">
                             <div class="btn-group" role="group">
-                              {{!-- <button type="button" 
+                              <button type="button" 
                                 class="btn btn-sm btn-outline-orange" 
-                                onclick="previewDocument('{{this.file}}', '{{this._id}}')">
+                                onclick="previewDocument('{{this._id}}', '{{this.title}}')">
                                 Xem trước
-                              </button> --}}
+                              </button>
+
                               <a href="/document/download/{{this._id}}" class="btn btn-sm btn-outline-orange" title="Tải xuống">
                                 Tải xuống
                               </a>
@@ -229,7 +230,7 @@
                           </div>
                         </div>
                       </td>
-                      <td>{{this.username.username}}</td>
+                      <td>{{this.user.username}}</td>
                       <td>
                         <span class="badge bg-light text-dark small">
                           <i class="fas fa-clock me-1"></i>{{this.createdAt}}

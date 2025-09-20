@@ -3,7 +3,8 @@
 body {
   margin: 0;
   font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
-  background: url('/img/background/Modern Linktree 2.png');
+  /* background: url('/img/background/Modern Linktree 2.png'); */
+  background-color: #f8f9fa;
   background-size: cover;
   background-attachment: fixed;
   color: #495057;

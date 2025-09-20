@@ -7,7 +7,7 @@ const uploadAndConvert = require('../../middlewares/uploadFile');
 router.get('/', isUser, documentController.getDocument);
 
 router.post('/upload', isUser,
-  documentController.handleUpload,
+  uploadAndConvert,
   documentController.uploadDocument
 );
 

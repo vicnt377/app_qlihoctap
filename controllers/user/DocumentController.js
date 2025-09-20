@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Document = require('../../models/Document');
 const User = require('../../models/User');
 const path = require('path');
@@ -23,15 +24,15 @@ class DocumentController {
       const regex = new RegExp(q, 'i');
 
       const documents = await Document.find({
-        username: userId,
+        user: userId,
         title: { $regex: regex }
       }).sort({ createdAt: -1 });
 
       const referenceDocs = await Document.find({
         visibility: 'public',
-        username: { $ne: userId },
+        user: { $ne: userId },
         title: { $regex: regex }
-      }).populate('username', 'username');
+      }).populate('user', 'username');
 
       const successMessage = req.session.successMessage || null;
       const errorMessage = req.session.errorMessage || null;
@@ -65,6 +66,9 @@ class DocumentController {
   // Lưu tài liệu mới
 async uploadDocument(req, res, next) {
   try {
+    console.log("📂 File nhận từ multer:", req.file);
+    console.log("📝 Body form:", req.body);
+
     const userId = req.session?.user?._id;
     if (!userId || !req.file || !req.body.title) {
       console.log('❌ Upload thiếu dữ liệu:', { userId, file: req.file, body: req.body });
@@ -75,7 +79,7 @@ async uploadDocument(req, res, next) {
     const visibility = req.body.visibility === 'public' ? 'public' : 'private';
 
     const newDoc = new Document({
-      user: new mongoose.Types.ObjectId(userId), // đổi username -> user
+      user: new mongoose.Types.ObjectId(userId),
       title: req.body.title,
       file: `${userId}/${req.file.filename}`,
       originalName: req.file.originalname,
@@ -85,7 +89,7 @@ async uploadDocument(req, res, next) {
     });
 
     await newDoc.save();
-    console.log('✅ Document saved:', newDoc);
+    console.log('✅ Document đã lưu MongoDB:', newDoc);
 
     req.session.successMessage = 'Tải lên tài liệu thành công.';
     res.redirect('/document');
@@ -94,6 +98,7 @@ async uploadDocument(req, res, next) {
     next(err);
   }
 }
+
 
 
 // Xem trước file
