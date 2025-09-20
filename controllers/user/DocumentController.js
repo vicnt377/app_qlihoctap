@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Document = require('../../models/Document');
+const Notification = require('../../models/Notification');
 const User = require('../../models/User');
 const path = require('path');
 const fs = require('fs');
@@ -64,40 +65,58 @@ class DocumentController {
   }
 
   // Lưu tài liệu mới
-async uploadDocument(req, res, next) {
-  try {
-    console.log("📂 File nhận từ multer:", req.file);
-    console.log("📝 Body form:", req.body);
+  async uploadDocument(req, res, next) {
+    try {
+      const userId = req.session?.user?._id;
+      if (!userId || !req.file || !req.body.title) {
+        req.session.errorMessage = 'Thiếu thông tin khi tải lên.';
+        return res.redirect('/document');
+      }
 
-    const userId = req.session?.user?._id;
-    if (!userId || !req.file || !req.body.title) {
-      console.log('❌ Upload thiếu dữ liệu:', { userId, file: req.file, body: req.body });
-      req.session.errorMessage = 'Thiếu thông tin khi tải lên.';
-      return res.redirect('/document');
+      const visibility = req.body.visibility === 'public' ? 'public' : 'private';
+
+      const newDoc = new Document({
+        user: new mongoose.Types.ObjectId(userId),
+        title: req.body.title,
+        file: `${userId}/${req.file.filename}`,
+        originalName: req.file.originalname,
+        fileType: path.extname(req.file.filename).replace('.', ''),
+        fileSize: req.file.size,
+        visibility,
+      });
+
+      await newDoc.save();
+
+      // ✅ Tạo thông báo upload
+      try {
+        const uploadNotification = new Notification({
+          recipient: userId,
+          sender: userId,
+          type: 'success',
+          title: 'Tài liệu mới đã được tải lên',
+          message: `Bạn đã tải lên tài liệu "${newDoc.title}".`,
+          relatedModel: 'Document',
+          relatedId: newDoc._id,
+          isRead: false,
+          metadata: {
+            action: 'upload',
+            timestamp: new Date()
+          }
+        });
+
+        await uploadNotification.save();
+        console.log("🔔 Thông báo upload:", uploadNotification);
+      } catch (notifyErr) {
+        console.error("❌ Lỗi tạo thông báo upload:", notifyErr);
+      }
+      
+      req.session.successMessage = 'Tải lên tài liệu thành công.';
+      res.redirect('/document');
+    } catch (err) {
+      console.error('❌ Upload error:', err);
+      next(err);
     }
-
-    const visibility = req.body.visibility === 'public' ? 'public' : 'private';
-
-    const newDoc = new Document({
-      user: new mongoose.Types.ObjectId(userId),
-      title: req.body.title,
-      file: `${userId}/${req.file.filename}`,
-      originalName: req.file.originalname,
-      fileType: path.extname(req.file.filename).replace('.', ''),
-      fileSize: req.file.size,
-      visibility,
-    });
-
-    await newDoc.save();
-    console.log('✅ Document đã lưu MongoDB:', newDoc);
-
-    req.session.successMessage = 'Tải lên tài liệu thành công.';
-    res.redirect('/document');
-  } catch (err) {
-    console.error('❌ Upload error:', err);
-    next(err);
   }
-}
 
 
 
@@ -142,6 +161,30 @@ async previewFile(req, res, next) {
       }
 
       res.download(filePath, doc.originalName || 'download');
+
+      // ✅ Tạo thông báo tải xuống
+      try {
+        const downloadNotification = new Notification({
+          recipient: req.session.user._id,
+          sender: req.session.user._id,
+          type: 'info',
+          title: 'Bạn vừa tải xuống tài liệu',
+          message: `Bạn đã tải xuống "${doc.title}".`,
+          relatedModel: 'Document',
+          relatedId: doc._id,
+          isRead: false,
+          metadata: {
+            action: 'download',
+            timestamp: new Date()
+          }
+        });
+
+        await downloadNotification.save();
+        console.log("Thông báo tải xuống:", downloadNotification);
+      } catch (notifyErr) {
+        console.error("❌ Lỗi tạo thông báo download:", notifyErr);
+      }
+
     } catch (err) {
       next(err);
     }
@@ -182,6 +225,28 @@ async previewFile(req, res, next) {
 
       // Xóa Document trong DB
       await Document.findByIdAndDelete(docId);
+      // ✅ Tạo thông báo xóa
+      try {
+        const deleteNotification = new Notification({
+          recipient: req.session.user._id,
+          sender: req.session.user._id,
+          type: 'warning',
+          title: 'Tài liệu đã bị xóa',
+          message: `Bạn đã xóa tài liệu "${document.title}".`,
+          relatedModel: 'Document',
+          relatedId: document._id,
+          isRead: false,
+          metadata: {
+            action: 'delete',
+            timestamp: new Date()
+          }
+        });
+
+        await deleteNotification.save();
+        console.log("🔔 Thông báo xóa:", deleteNotification);
+      } catch (notifyErr) {
+        console.error("❌ Lỗi tạo thông báo xóa:", notifyErr);
+      }
 
       req.flash('successMessage', 'Đã xóa tài liệu thành công.');
       res.redirect('/document');
