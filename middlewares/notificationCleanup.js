@@ -3,10 +3,10 @@ const Notification = require("../models/Notification");
 
 cron.schedule("* * * * *", async () => {   // chạy mỗi phút
   try {
-    const cutoff = new Date(Date.now() - 1 * 60 * 1000); // cũ hơn 1 phút
+    const cutoff = new Date(Date.now() - 10 * 60 * 1000); 
     const result = await Notification.deleteMany({ createdAt: { $lt: cutoff } });
 
-    console.log(`🗑️ Đã xóa ${result.deletedCount} thông báo cũ hơn 1 phút`);
+    console.log(`🗑️ Đã xóa ${result.deletedCount} thông báo cũ hơn 10 phút`);
   } catch (err) {
     console.error("❌ Lỗi khi xóa thông báo cũ:", err);
   }

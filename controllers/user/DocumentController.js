@@ -86,7 +86,7 @@ class DocumentController {
       });
 
       await newDoc.save();
-
+      
       // ✅ Tạo thông báo upload
       try {
         const uploadNotification = new Notification({
@@ -105,6 +105,9 @@ class DocumentController {
         });
 
         await uploadNotification.save();
+        if (req.io) {
+          req.io.to(userId.toString()).emit('new-notification', uploadNotification);
+        }
         console.log("🔔 Thông báo upload:", uploadNotification);
       } catch (notifyErr) {
         console.error("❌ Lỗi tạo thông báo upload:", notifyErr);
@@ -175,11 +178,15 @@ async previewFile(req, res, next) {
           isRead: false,
           metadata: {
             action: 'download',
+            documentTitle: doc.title,
             timestamp: new Date()
           }
         });
 
         await downloadNotification.save();
+        if (req.io) {
+          req.io.to(userId.toString()).emit('new-notification', uploadNotification);
+        }
         console.log("Thông báo tải xuống:", downloadNotification);
       } catch (notifyErr) {
         console.error("❌ Lỗi tạo thông báo download:", notifyErr);
@@ -243,6 +250,9 @@ async previewFile(req, res, next) {
         });
 
         await deleteNotification.save();
+        if (req.io) {
+          req.io.to(userId.toString()).emit('new-notification', uploadNotification);
+        }
         console.log("🔔 Thông báo xóa:", deleteNotification);
       } catch (notifyErr) {
         console.error("❌ Lỗi tạo thông báo xóa:", notifyErr);

@@ -286,7 +286,7 @@
                 <span class="fw-semibold text-system-dark">${n.title || 'Thông báo mới'}</span>
                 <span class="badge bg-system-primary badge-sm">Mới</span>
               </div>
-              {{!-- <p class="mb-0 small text-system-muted">${n.message}</p> --}}
+              <p class="mb-0 small text-system-muted">${n.message}</p>
               <small class="text-system-muted">${item.dataset.time}</small>
             </div>
           </div>
@@ -322,10 +322,18 @@
         const message = item.dataset.message;
         const time = item.dataset.time;
 
+        // Lấy type từ data
+        const type = item.dataset.type || 'info';
+        const typeConfig = getNotificationTypeConfig(type);
+
         // Gán vào modal
         document.getElementById('notifTitle').textContent = title;
         document.getElementById('notifMessage').textContent = message;
         document.getElementById('notifTime').textContent = time;
+
+        // 🔥 Đổi icon theo loại
+        const notifIcon = document.querySelector('#notificationModal .modal-body i');
+        notifIcon.className = `${typeConfig.icon} ${typeConfig.color} fa-lg`;
 
         // Hiện modal
         const notifModal = new bootstrap.Modal(document.getElementById('notificationModal'));
@@ -388,11 +396,13 @@
                 data-id="${notification._id}" 
                 data-title="${notification.title}" 
                 data-message="${notification.message}" 
-                data-time="${timeAgo}">
+                data-document-title="${notification.metadata?.documentTitle || ''}" 
+                data-time="${timeAgo}"
+                data-type="${notification.type}">
               <div class="dropdown-item py-2 notification-content">
                 <div class="d-flex align-items-start">
                   <div class="notification-icon me-2">
-                    <i class="${typeConfig.icon} ${typeConfig.color}"></i>
+                    <i class="${typeConfig.icon}"></i>
                   </div>
                   <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-start mb-1">
@@ -401,6 +411,7 @@
                       </span>
                       ${!notification.isRead ? '<span class="badge bg-system-primary badge-sm">Mới</span>' : ''}
                     </div>
+                    {{!-- <p class="mb-0 small text-system-muted">${notification.message || ''}</p> --}}
                     <small class="text-system-muted">${timeAgo}</small>
                   </div>
                 </div>
@@ -493,11 +504,11 @@ socket.on('new-notification', (n) => {
   // Cấu hình loại thông báo
   function getNotificationTypeConfig(type) {
     const configs = {
-      welcome: { icon: 'fas fa-hand-paper', color: 'text-info' },
-      success: { icon: 'fas fa-check-circle', color: 'text-success' },
-      warning: { icon: 'fas fa-exclamation-triangle', color: 'text-warning' },
-      error: { icon: 'fas fa-times-circle', color: 'text-danger' },
-      info: { icon: 'fas fa-info-circle', color: 'text-info' }
+      welcome: { icon: 'fas fa-hand-paper text-info' },
+      success: { icon: 'fas fa-check-circle text-success' },
+      warning: { icon: 'fas fa-exclamation-triangle text-warning' },
+      error: { icon: 'fas fa-times-circle text-danger' },
+      info: { icon: 'fas fa-info-circle text-primary' }
     };
     return configs[type] || configs.info;
   }
@@ -521,7 +532,8 @@ socket.on('new-notification', (n) => {
         <div class="d-flex align-items-start">
           <!-- Icon -->
           <div class="flex-shrink-0 me-3">
-            <div class="rounded-circle bg-orange text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+            <div class="rounded-circle bg-orange text-white d-flex align-items-center justify-content-center" 
+                  style="width: 48px; height: 48px;">
               <i class="fas fa-info-circle fa-lg"></i>
             </div>
           </div>
@@ -540,9 +552,6 @@ socket.on('new-notification', (n) => {
     </div>
   </div>
 </div>
-
-
-
 </body>
 </html>
 

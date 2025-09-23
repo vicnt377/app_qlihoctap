@@ -1338,11 +1338,7 @@ body {
 
 /* Orange Background Colors */
 .bg-orange {
-  background-color: #e08552 !important;
-}
-
-.bg-orange:hover {
-  background-color: #d67a47 !important;
+  background-color: #d8d8d8 !important;
 }
 
 /* Orange Gradient Backgrounds */
