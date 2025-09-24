@@ -1,6 +1,7 @@
 const User = require('../../models/User');
 const Score = require('../../models/Score');
-const Video = require('../../models/Video'); 
+const Video = require('../../models/Video');
+const Document = require('../../models/Document');
 
 class HomeController {
   async index(req, res, next) {
@@ -33,13 +34,30 @@ class HomeController {
       });
 
       const totalNoSubjects = monNo.length;
- 
       const totalCreditsExceeded = totalCredits > maxCredits;
+
       const populatedUser = await User.findById(userId)
-        .populate('enrolledVideos') // populate để lấy chi tiết video
+        .populate('enrolledVideos')
+        .lean();
+      const enrolledVideos = populatedUser?.enrolledVideos || [];
+
+      // 🔥 Lấy tài liệu public trong 3 ngày gần nhất
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const recentDocs = await Document.find({
+        visibility: 'public',
+        createdAt: { $gte: threeDaysAgo }
+      })
+        .populate('user', 'username')
+        .sort({ createdAt: -1 })
+        .limit(6) // tối đa 6 tài liệu
         .lean();
 
-      const enrolledVideos = populatedUser?.enrolledVideos || [];
+      const recentDocsCount = await Document.countDocuments({
+        visibility: 'public',
+        createdAt: { $gte: threeDaysAgo }
+      });
 
       res.render('user/home', {
         user,
@@ -48,6 +66,8 @@ class HomeController {
         totalCreditsExceeded,
         totalNoSubjects,
         enrolledVideos,
+        recentDocs,
+        recentDocsCount
       });
     } catch (error) {
       console.error("Lỗi trang chủ:", error);

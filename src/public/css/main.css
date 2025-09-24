@@ -556,8 +556,7 @@ body {
 }
 
 .table th {
-  background-color: #e08552;
-  color: white;
+  color: #545454;
   border: none;
   padding: 16px 20px;
   font-weight: 600;

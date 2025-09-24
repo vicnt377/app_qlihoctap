@@ -15,29 +15,23 @@
 <main class="container mt-4">
 
 <!-- Tabs -->
-<div class="card shadow-sm border-0 mb-4">
-  <div class="card-body p-0">
-    <ul class="nav nav-pills nav-fill" id="semesterTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="list-tab" data-bs-toggle="pill" data-bs-target="#listSection" type="button">
-          <i class="fas fa-list me-2"></i><strong>Danh sách học kỳ</strong>
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="add-tab" data-bs-toggle="pill" data-bs-target="#addSection" type="button">
-          <i class="fas fa-plus-circle me-2"></i><strong>Thêm học kỳ</strong>
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#calendarSection" type="button">
-          <i class="fas fa-calendar-week me-2"></i><strong>Thời khóa biểu</strong>
-        </button>
-      </li>
-
-
-    </ul>
-  </div>
-</div>
+<ul class="nav nav-pills nav-fill" id="semesterTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#calendarSection" type="button">
+      <i class="fas fa-calendar-week me-2"></i><strong>Thời khóa biểu</strong>
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+     <button class="nav-link" id="add-tab" data-bs-toggle="pill" data-bs-target="#addSection" type="button">
+       <i class="fas fa-plus-circle me-2"></i><strong>Thêm học kỳ</strong>
+     </button>
+   </li>
+   <li class="nav-item" role="presentation">
+     <button class="nav-link" id="list-tab" data-bs-toggle="pill" data-bs-target="#listSection" type="button">
+       <i class="fas fa-list me-2"></i><strong>Danh sách học kỳ</strong>
+     </button>
+   </li>
+ </ul>
 
 <!-- Nội dung tab -->
 <div class="tab-content" id="semesterTabContent">
@@ -50,7 +44,7 @@
 
   <!-- Tab 2: Form thêm học kỳ + Danh sách học phần -->
   <div class="tab-pane fade" id="addSection">
-         <form id="addSemesterForm" class="mb-3">
+    <form id="addSemesterForm" class="mb-3">
        <div class="card mb-3 shadow-sm">
          <div class="card-body row g-2 py-3">
            <div class="col-md-3">
@@ -68,19 +62,22 @@
            <div class="col-md-2 d-flex align-items-end">
              <button type="submit" class="btn btn-success btn-sm w-100">Thêm học kỳ</button>
            </div>
+           <div class="col-md-2 d-flex align-items-end">
+             <button type="submit" class="btn btn-primary btn-sm w-100">Import học phần</button>
+           </div>
          </div>
        </div>
-     </form>
+    </form>
 
          <!-- Danh sách học phần -->
      <div class="card shadow-sm mb-3">
-       <div class="card-header bg-light fw-bold py-2">
+       <div class="card-header bg-gradient-gray fw-bold py-2">
          <strong>Danh sách học phần</strong>
        </div>
        <div class="card-body p-0">
          <div class="table-responsive">
-           <table class="table table-bordered table-hover align-middle mb-0 table-sm">
-             <thead class="table-light text-center">
+           <table class="table table-hover table-sm">
+             <thead class="table-light">
                <tr>
                  <th class="py-2">STT</th>
                  <th class="py-2">Tên học phần</th>
@@ -140,8 +137,8 @@
             </div>
           </div>
           <div class="card-body table-responsive">
-            <table class="table table-bordered align-middle">
-              <thead>
+            <table class="table table-hover table-sm">
+              <thead class="table-light">
                 <tr>
                   <th>STT</th>
                   <th>Tên học phần</th>

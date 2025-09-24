@@ -38,7 +38,7 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link {{isActive currentPath '/home'}}" href="/home">Trang Chủ</a></li>
           <li class="nav-item"><a class="nav-link {{isActive currentPath '/document'}}" href="/document">Tài Liệu</a></li>
-          <li class="nav-item"><a class="nav-link {{isActive currentPath '/course'}}" href="/course">Học Phần</a></li>
+          {{!-- <li class="nav-item"><a class="nav-link {{isActive currentPath '/course'}}" href="/course">Học Phần</a></li> --}}
           <li class="nav-item"><a class="nav-link {{isActive currentPath '/progress'}}" href="/progress">Tiến Độ</a></li>
           <li class="nav-item"><a class="nav-link {{isActive currentPath '/semester'}}" href="/semester">Lịch Học</a></li>
           <li class="nav-item"><a class="nav-link {{isActive currentPath '/score'}}" href="/score">Kết Quả</a></li>
@@ -319,7 +319,7 @@
       if (item) {
         const notificationId = item.dataset.id;
         const title = item.dataset.title;
-        const message = item.dataset.message;
+        const message = decodeURIComponent(item.dataset.message);
         const time = item.dataset.time;
 
         // Lấy type từ data
@@ -395,7 +395,7 @@
             <li class="notification-item ${readClass}" 
                 data-id="${notification._id}" 
                 data-title="${notification.title}" 
-                data-message="${notification.message}" 
+                data-message='${encodeURIComponent(notification.message)}'
                 data-document-title="${notification.metadata?.documentTitle || ''}" 
                 data-time="${timeAgo}"
                 data-type="${notification.type}">
@@ -438,7 +438,7 @@ socket.on('new-notification', (n) => {
   item.className = 'notification-item unread';
   item.dataset.id = n._id;
   item.dataset.title = n.title || 'Thông báo mới';
-  item.dataset.message = n.message;
+  item.dataset.message = n.message || '(Không có nội dung)';
   item.dataset.time = getTimeAgo(new Date(n.createdAt));
 
   // 🔥 Chỉ hiển thị title + time, không hiển thị message
@@ -453,6 +453,7 @@ socket.on('new-notification', (n) => {
             <span class="fw-semibold text-system-dark">${n.title || 'Thông báo mới'}</span>
             <span class="badge bg-system-primary badge-sm">Mới</span>
           </div>
+          <p class="mb-0 small text-system-muted">${n.message || ''}</p>
           <small class="text-system-muted">${item.dataset.time}</small>
         </div>
       </div>

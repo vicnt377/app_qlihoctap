@@ -100,6 +100,7 @@ class DocumentController {
           isRead: false,
           metadata: {
             action: 'upload',
+            documentTitle: newDoc.title,
             timestamp: new Date()
           }
         });
@@ -185,7 +186,8 @@ async previewFile(req, res, next) {
 
         await downloadNotification.save();
         if (req.io) {
-          req.io.to(userId.toString()).emit('new-notification', uploadNotification);
+          req.io.to(req.session.user._id.toString())
+            .emit('new-notification', downloadNotification.toObject());
         }
         console.log("Thông báo tải xuống:", downloadNotification);
       } catch (notifyErr) {
@@ -245,13 +247,15 @@ async previewFile(req, res, next) {
           isRead: false,
           metadata: {
             action: 'delete',
+            documentTitle: document.title,
             timestamp: new Date()
           }
         });
 
         await deleteNotification.save();
         if (req.io) {
-          req.io.to(userId.toString()).emit('new-notification', uploadNotification);
+          req.io.to(req.session.user._id.toString())
+            .emit('new-notification', deleteNotification.toObject());
         }
         console.log("🔔 Thông báo xóa:", deleteNotification);
       } catch (notifyErr) {
