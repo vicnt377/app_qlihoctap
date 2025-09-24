@@ -8,6 +8,54 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Stepper */
+.stepper {
+  position: relative;
+}
+.step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+.step .circle {
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  border-radius: 50%;
+  background: #dee2e6;
+  color: #495057;
+  display: inline-block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.step.active .circle {
+  background: #ff8c42;
+  color: #fff;
+}
+.step.completed .circle {
+  background: #28a745;
+  color: #fff;
+}
+.step span {
+  font-size: 0.85rem;
+  display: block;
+}
+
+/* Line between steps */
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background: #dee2e6;
+  z-index: -1;
+}
+.step.completed:not(:last-child)::after {
+  background: #28a745;
+}
+
 .auth-container {
   max-width: 400px;
   padding: 30px;
@@ -20,7 +68,7 @@ body {
 .auth-header {
   font-size: 24px;
   font-weight: bold;
-  color: #ea9b66;
+  color: #ff8c4d;
   margin-bottom: 20px;
 }
 
@@ -234,4 +282,9 @@ body.landing-page {
 
 body.landing-page main {
   flex: 1;
+}
+
+.btn-orange{
+  background:#ff8c42;
+  color:white;
 }

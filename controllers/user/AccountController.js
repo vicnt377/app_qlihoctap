@@ -1,4 +1,5 @@
 const User = require('../../models/User');
+const Notification = require('../../models/Notification');
 const path = require('path');
 
 
@@ -34,8 +35,6 @@ class AccountController {
                 updateData.avatar = avatarPath;
             }
 
-
-
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
                 { $set: updateData },
@@ -53,15 +52,41 @@ class AccountController {
             };
 
             // Ghi đè session và đảm bảo được lưu
-            req.session.save(err => {
-                if (err) {
-                    console.error('Lỗi khi lưu session:', err);
-                }
+            req.session.save(async (err) => {
+            if (err) {
+                console.error('Lỗi khi lưu session:', err);
+            }
 
-                res.render('user/account', {
-                    user: updatedUser.toObject(),
-                    successMessage: 'Cập nhật tài khoản thành công!',
+            // ✅ Tạo thông báo cập nhật hồ sơ
+            try {
+                const profileNotification = new Notification({
+                recipient: userId,
+                sender: userId,
+                type: 'success',
+                title: 'Cập nhật hồ sơ thành công',
+                message: `Thông tin tài khoản của bạn đã được cập nhật.`,
+                relatedModel: 'User',
+                relatedId: updatedUser._id,
+                isRead: false,
+                metadata: {
+                    action: 'updateProfile',
+                    timestamp: new Date()
+                }
                 });
+
+                await profileNotification.save();
+                if (req.io) {
+                req.io.to(userId.toString()).emit('new-notification', profileNotification);
+                }
+            } catch (notifyErr) {
+                console.error("❌ Lỗi tạo thông báo updateProfile:", notifyErr);
+            }
+
+            // Trả về view
+            res.render('user/account', {
+                user: updatedUser.toObject(),
+                // successMessage: 'Cập nhật tài khoản thành công!',
+            });
             });
 
         } catch (err) {
@@ -107,6 +132,31 @@ class AccountController {
 
             // Lưu lại user (không cần updateOne)
             await user.save({ validateBeforeSave: false });
+            
+            // ✅ Tạo thông báo đổi mật khẩu
+            try {
+            const passwordNotification = new Notification({
+                recipient: userId,
+                sender: userId,
+                type: 'info',
+                title: 'Đổi mật khẩu thành công',
+                message: `Bạn vừa đổi mật khẩu tài khoản.`,
+                relatedModel: 'User',
+                relatedId: user._id,
+                isRead: false,
+                metadata: {
+                action: 'updatePassword',
+                timestamp: new Date()
+                }
+            });
+
+            await passwordNotification.save();
+            if (req.io) {
+                req.io.to(userId.toString()).emit('new-notification', passwordNotification);
+            }
+            } catch (notifyErr) {
+            console.error("❌ Lỗi tạo thông báo updatePassword:", notifyErr);
+            }
 
             req.session.successMessage = 'Đổi mật khẩu thành công!';
             return res.redirect('/account');

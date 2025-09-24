@@ -2,36 +2,138 @@
 <title>Đăng Ký - Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</title>
 
 <div class="auth-container">
-    <div class="auth-header">Đăng Ký Tài Khoản</div>
-    {{#if success_msg}}
-      <div class="alert alert-success">{{success_msg}}</div>
-    {{/if}}
+  <div class="auth-header">Đăng Ký Tài Khoản</div>
 
-    {{#if error}}
-      <div class="alert alert-danger">{{error}}</div>
-    {{/if}}
+  {{#if success_msg}}
+    <div class="alert alert-success">{{success_msg}}</div>
+  {{/if}}
+  {{#if error}}
+    <div class="alert alert-danger">{{error}}</div>
+  {{/if}}
 
-    <form method="POST" action="/register">
-        <div class="mb-3 input-group">
-            <span class="input-group-text"><i class="fas fa-user icon"></i></span>
-            <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập" required>
-        </div>
-        <div class="mb-3 input-group">
-            <span class="input-group-text"><i class="fas fa-envelope icon"></i></span>
-            <input type="email" class="form-control" name="email" placeholder="Email" required>
-        </div>
-        <div class="mb-3 input-group">
-            <span class="input-group-text"><i class="fas fa-phone icon"></i></span>
-            <input type="text" class="form-control" name="phone" placeholder="Số điện thoại" required>
-        </div>
-        <div class="mb-3 input-group">
-            <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
-            <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
-        </div>
-        <button type="submit" class="btn btn-auth btn-sm px-3">Đăng Ký</button>
-    </form>
-    <div class="auth-links">
-        <a href="/login-user">Đã có tài khoản? Đăng nhập</a>
+  <!-- Step Indicator -->
+  <div class="stepper d-flex justify-content-between mb-4">
+    <div class="step active">
+      <div class="circle">1</div>
+      {{!-- <span>Thông tin cơ bản</span> --}}
     </div>
+    <div class="step">
+      <div class="circle">2</div>
+      {{!-- <span>Mật khẩu</span> --}}
+    </div>
+    <div class="step">
+      <div class="circle">3</div>
+      {{!-- <span>Ngành học</span> --}}
+    </div>
+  </div>
+
+  <form id="registerForm" method="POST" action="/register">
+    <!-- Step 1 -->
+    <div class="form-step active">
+      <div class="mb-3 input-group">
+        <span class="input-group-text"><i class="fas fa-user icon"></i></span>
+        <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập" required>
+      </div>
+      <div class="mb-3 input-group">
+        <span class="input-group-text"><i class="fas fa-envelope icon"></i></span>
+        <input type="email" class="form-control" name="email" placeholder="Email" required>
+      </div>
+      <div class="mb-3 input-group">
+        <span class="input-group-text"><i class="fas fa-phone icon"></i></span>
+        <input type="text" class="form-control" name="phone" placeholder="Số điện thoại" required>
+      </div>
+      <button type="button" class="btn btn-orange next-btn"><i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="form-step d-none">
+      <div class="mb-3 input-group">
+        <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
+        <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
+      </div>
+      <div class="mb-3 input-group">
+        <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
+        <input type="password" class="form-control" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
+      </div>
+      <button type="button" class="btn btn-secondary prev-btn"><i class="fas fa-arrow-left"></i></button>
+      <button type="button" class="btn btn-orange next-btn"><i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="form-step d-none">
+        <div class="mb-3 input-group">
+            <span class="input-group-text">
+                <i class="fas fa-university icon"></i>
+            </span>
+            <select class="form-select" name="major" required>
+                <option value="">-- Lĩnh vực --</option>
+                <option value="CNTT">Công nghệ thông tin</option>
+                <option value="YT">Y tế</option>
+                <option value="GD">Giáo dục</option>
+                <option value="KT-TC">Kinh tế - Tài chính</option>
+                <option value="KD-QL">Kinh doanh - Quản lý</option>
+                <option value="KT-XD">Kỹ thuật - Xây dựng</option>
+                <option value="L-NV">Luật - Nhân văn</option>
+                <option value="ST-NT">Sáng tạo - Nghệ thuật</option>
+                <option value="DV-DL">Dịch vụ - Du lịch</option>
+
+            </select>
+        </div>
+      <div class="mb-3 input-group">
+        <span class="input-group-text"><i class="fas fa-graduation-cap icon"></i></span>
+        <input type="number" class="form-control" name="totalCredits" placeholder="Tổng số tín chỉ yêu cầu" required>
+      </div>
+      <button type="button" class="btn btn-secondary prev-btn"><i class="fas fa-arrow-left"></i></button>
+      <button type="submit" class="btn btn-success">Đăng ký</button>
+    </div>
+  </form>
+
+  <div class="auth-links mt-3">
+    <a href="/login-user">Đã có tài khoản? Đăng nhập</a>
+  </div>
 </div>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const steps = document.querySelectorAll(".form-step");
+  const stepIndicators = document.querySelectorAll(".step");
+  const nextBtns = document.querySelectorAll(".next-btn");
+  const prevBtns = document.querySelectorAll(".prev-btn");
+
+  let currentStep = 0;
+
+  function showStep(index) {
+    steps.forEach((step, i) => {
+      step.classList.toggle("d-none", i !== index);
+      step.classList.toggle("active", i === index);
+    });
+
+    stepIndicators.forEach((ind, i) => {
+      ind.classList.remove("active", "completed");
+      if (i < index) ind.classList.add("completed");
+      if (i === index) ind.classList.add("active");
+    });
+  }
+
+  nextBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    });
+  });
+
+  prevBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    });
+  });
+
+  showStep(currentStep);
+});
+</script>

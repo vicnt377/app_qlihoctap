@@ -113,26 +113,28 @@
         </div>
         <div class="card-body p-0">
           {{#if recentDocs.length}}
-            <ul class="list-group list-group-flush">
-              {{#each recentDocs}}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <div>
-                    <i class="{{getFileIcon this}} me-2"></i>
-                    <strong>{{this.title}}</strong>
-                    <small class="text-muted"> - {{this.user.username}}</small>
-                    <div class="small text-muted">
-                      {{formatDate this.createdAt}} • {{formatFileSize this.fileSize}}
+            <div style="max-height: 250px; overflow-y: auto;">   <!-- ✅ cuộn dọc -->
+              <ul class="list-group list-group-flush">
+                {{#each recentDocs}}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      <i class="{{getFileIcon this}} me-2"></i>
+                      <strong>{{this.title}}</strong>
+                      <small class="text-muted"> - {{this.user.username}}</small>
+                      <div class="small text-muted">
+                        {{formatDate this.createdAt}} • {{formatFileSize this.fileSize}}
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <a href="/document/preview/{{this._id}}" 
-                      class="btn btn-sm btn-outline-orange" target="_blank">
-                      Xem
-                    </a>
-                  </div>
-                </li>
-              {{/each}}
-            </ul>
+                    <div>
+                      <a href="/document/preview/{{this._id}}" 
+                        class="btn btn-sm btn-outline-orange" target="_blank">
+                        Xem
+                      </a>
+                    </div>
+                  </li>
+                {{/each}}
+              </ul>
+            </div>
           {{else}}
             <div class="text-center py-4">
               <div class="empty-state">
@@ -147,6 +149,7 @@
           {{/if}}
         </div>
       </div>
+
     </div>
 
     <!-- Cột phải -->
