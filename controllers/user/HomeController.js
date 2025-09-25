@@ -67,8 +67,13 @@ class HomeController {
         totalNoSubjects,
         enrolledVideos,
         recentDocs,
-        recentDocsCount
+        recentDocsCount,
+        showCongrats: req.session.showCongrats,
+        congratsMessage: req.session.congratsMessage
       });
+      req.session.showCongrats = null;
+      req.session.congratsMessage = null;
+      
     } catch (error) {
       console.error("Lỗi trang chủ:", error);
       next(error);

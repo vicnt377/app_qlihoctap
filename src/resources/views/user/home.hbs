@@ -207,7 +207,77 @@
       {{/if}}
     </div>
   </div>
+
+  {{!-- Modal chúc mừng --}}
+  {{#if showCongrats}}
+  <div class="modal fade" id="congratsModal" tabindex="-1" aria-labelledby="congratsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow-lg border-0 overflow-hidden">
+        
+        <!-- Header với nền gradient -->
+        <div class="modal-header border-0 text-success">
+          <h5 style="color: #198754" class="modal-title fw-bold d-flex align-items-center" id="congratsModalLabel">
+            🎉 Chào {{user.username}}!
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        
+        <!-- Nội dung -->
+        <div class="modal-body text-center p-4">
+          <h4 class="fw-bold text-success mb-3">Đăng ký thành công!</h4>
+          <p class="text-muted mb-4">Chào mừng bạn đến với <span class="fw-bold text-dark">Hệ thống hỗ trợ quản lý học tập</span>.</p>
+          <img src="/img/congrat.png" alt="Congrats" class="img-fluid mb-4" style="max-height:200px;">
+        </div>
+        
+        {{!-- <!-- Footer với nút đóng -->
+        <div class="modal-footer border-0 justify-content-center pb-4">
+          <button type="button" class="btn btn-success px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">
+            <i class="fas fa-check-circle me-2"></i>Bắt đầu ngay
+          </button>
+        </div> --}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
 </main>
+{{!-- Modal congrats --}}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modalEl = document.getElementById('congratsModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl, {
+        backdrop: 'static',
+        keyboard: false
+      });
+
+      let running = true;
+
+      // Hàm bắn confetti liên tục
+      function fireConfetti() {
+        if (!running) return;
+        confetti({
+          particleCount: 5,
+          startVelocity: 25,
+          spread: 360,
+          origin: { x: Math.random(), y: Math.random() - 0.2 }
+        });
+        requestAnimationFrame(fireConfetti);
+      }
+
+      // Khi modal hiển thị
+      modal.show();
+      fireConfetti();
+
+      // Khi modal đóng => dừng confetti
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        running = false;
+      });
+    }
+  });
+</script>
+
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -238,4 +308,4 @@
       plugins: { legend: { display: false } }
     }
   });
-</script>
+</>
