@@ -1,4 +1,5 @@
 const User = require('../../models/User');
+const Notification = require('../../models/Notification');
 
 class RegisterController {
   index(req, res, next) {
@@ -45,7 +46,6 @@ class RegisterController {
 
         // 🔔 Tạo notification chào mừng
         try {
-          const Notification = require('../../models/Notification');
           const welcomeNotification = new Notification({
             recipient: newUser._id,
             sender: newUser._id,
@@ -61,7 +61,12 @@ class RegisterController {
             }
           });
           await welcomeNotification.save();
-
+          console.log("🔔 Thông báo chào mừng:", {
+                    id: welcomeNotification._id,
+                    recipient: welcomeNotification.recipient,
+                    title: welcomeNotification.title,
+                    message: welcomeNotification.message
+                });
           if (req.io) {
             req.io.to(newUser._id.toString()).emit('new-notification', welcomeNotification);
           }

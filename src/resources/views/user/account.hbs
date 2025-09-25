@@ -1,4 +1,4 @@
-{{#if successMessage}}
+{{!-- {{#if successMessage}}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
     {{successMessage}}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -10,7 +10,7 @@
     {{errorMessage}}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-{{/if}}
+{{/if}} --}}
 
 <!-- Header Section with Gradient Background -->
 <div class="document-header mb-3">
@@ -49,6 +49,7 @@
 
           <div class="profile-info">
             <h5 class="fw-bold mb-2">{{user.username}}</h5>
+            <p class="text-muted mb-1"><i class="fas fa-university me-2"></i>{{majorName user.major}}</p>
             <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{user.email}}</p>
             <p class="text-muted mb-3"><i class="fas fa-phone me-2"></i>{{user.phone}}</p>
           </div>
@@ -72,7 +73,12 @@
           <ul class="nav nav-pills mb-4" id="accountTabs" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab">
-                <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                <i class="fas fa-user me-2"></i>Thông tin
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="study-tab" data-bs-toggle="pill" data-bs-target="#study" type="button" role="tab">
+                <i class="fas fa-graduation-cap me-2"></i>Học tập
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -146,6 +152,43 @@
                 </div>
               </form>
             </div>
+
+            {{!-- Tab 3: cập nhật ngành học --}}
+            <div class="tab-pane fade" id="study" role="tabpanel">
+              <form action="/account/update-profile" method="POST">
+                <div class="mb-3">
+                  <label for="major" class="form-label fw-bold">
+                    <i class="fas fa-university me-2 text-orange"></i>Ngành học
+                  </label>
+                  <select class="form-select" id="major" name="major" required>
+                    <option value="">-- Lĩnh vực --</option>
+                    <option value="CNTT" {{#if (eq user.major "CNTT")}}selected{{/if}}>Công nghệ thông tin</option>
+                    <option value="YT" {{#if (eq user.major "YT")}}selected{{/if}}>Y tế</option>
+                    <option value="GD" {{#if (eq user.major "GD")}}selected{{/if}}>Giáo dục</option>
+                    <option value="KT-TC" {{#if (eq user.major "KT-TC")}}selected{{/if}}>Kinh tế - Tài chính</option>
+                    <option value="KD-QL" {{#if (eq user.major "KD-QL")}}selected{{/if}}>Kinh doanh - Quản lý</option>
+                    <option value="KT-XD" {{#if (eq user.major "KT-XD")}}selected{{/if}}>Kỹ thuật - Xây dựng</option>
+                    <option value="L-NV" {{#if (eq user.major "L-NV")}}selected{{/if}}>Luật - Nhân văn</option>
+                    <option value="ST-NT" {{#if (eq user.major "ST-NT")}}selected{{/if}}>Sáng tạo - Nghệ thuật</option>
+                    <option value="DV-DL" {{#if (eq user.major "DV-DL")}}selected{{/if}}>Dịch vụ - Du lịch</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="totalCredits" class="form-label fw-bold">
+                    <i class="fas fa-layer-group me-2 text-orange"></i>Tổng số tín chỉ chương trình
+                  </label>
+                  <input type="number" class="form-control" id="totalCredits" name="totalCredits" value="{{user.totalCredits}}" min="0" required>
+                </div>
+
+                <div class="form-button">
+                  <button type="submit" class="btn btn-orange">
+                    <i class="fas fa-save me-1"></i>Lưu thay đổi
+                  </button>
+                </div>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>

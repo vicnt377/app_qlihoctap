@@ -116,6 +116,7 @@ class NotificationController {
         }
     }
 
+
     // ✅ Đánh dấu thông báo đã đọc
     async markAsRead(req, res) {
         try {

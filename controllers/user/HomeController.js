@@ -20,7 +20,7 @@ class HomeController {
       const scores = await Score.find({ username: userId }).populate('HocPhan').lean();
 
       let totalCredits = 0;
-      const maxCredits = 152;
+      const maxCredits = user?.totalCredits
       let monNo = [];
 
       scores.forEach(score => {
@@ -62,6 +62,7 @@ class HomeController {
       res.render('user/home', {
         user,
         totalCredits,
+        maxCredits,
         monNo,
         totalCreditsExceeded,
         totalNoSubjects,

@@ -159,7 +159,7 @@
           <h6 class="mb-0"><i class="fas fa-chart-column me-2"></i>Thống kê học tập</h6>
         </div>
         <div class="card-body p-4">
-          <p class="mb-3"><strong>{{totalCredits}} / 152 tín chỉ đã hoàn thành</strong></p>
+          <p class="mb-3"><strong>{{totalCredits}} / {{maxCredits}} tín chỉ đã hoàn thành</strong></p>
           <canvas id="creditChart" height="180"></canvas>
           {{#if totalCreditsExceeded}}
             <div class="alert alert-warning mt-3 mb-0" role="alert">
@@ -225,7 +225,7 @@
         <!-- Nội dung -->
         <div class="modal-body text-center p-4">
           <h4 class="fw-bold text-success mb-3">Đăng ký thành công!</h4>
-          <p class="text-muted mb-4">Chào mừng bạn đến với <span class="fw-bold text-dark">Hệ thống hỗ trợ quản lý học tập</span>.</p>
+          <p class="text-muted mb-4">Chào mừng bạn đến với <span class="fw-bold text-dark">Hệ thống hỗ trợ quản lý tiến độ học tập</span>.</p>
           <img src="/img/congrat.png" alt="Congrats" class="img-fluid mb-4" style="max-height:200px;">
         </div>
         
@@ -308,4 +308,4 @@
       plugins: { legend: { display: false } }
     }
   });
-</>
+</script>

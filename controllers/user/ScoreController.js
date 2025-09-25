@@ -31,20 +31,27 @@ function getAcademicYear(startDate) {
   return `${year} - ${year + 1}`;
 }
 
-
-
 class ScoreController {
-  // Trang xem điểm và tính GPA
+  // 📌 Trang xem điểm và tính GPA
   async getScore(req, res) {
     try {
       const userId = req.user?._id || req.session?.user?._id;
       if (!userId) {
-        return res.render('auth/login');
+        return res.redirect('/login-user');
       }
 
+      // 🔹 Lấy thông tin user để biết tổng số tín chỉ chương trình
+      const user = await User.findById(userId).lean();
+      if (!user) {
+        return res.redirect('/login-user');
+      }
+      const maxCredits = user.totalCredits || 0;
+
+      // Bộ lọc học kỳ / năm học
       const selectedYear = req.query.year || 'Tất cả';
       const selectedSemester = req.query.semester || 'Tất cả';
 
+      // Lấy toàn bộ học kỳ của user
       const allSemesters = await Semester.find({ username: userId })
         .populate({
           path: 'score',
@@ -53,27 +60,32 @@ class ScoreController {
         })
         .lean();
 
-
-      // Gắn năm học vào từng học kỳ
+      // Gắn năm học
       const semestersWithYear = allSemesters.map(s => ({
         ...s,
         namHoc: getAcademicYear(s.startDate)
       }));
 
-      // Lọc theo học kỳ và năm học (nếu chọn)
+      // Lọc theo năm học / học kỳ
       const filteredSemesters = semestersWithYear.filter(s => {
-        const matchYear = selectedYear === 'Tất cả' || getAcademicYear(s.startDate) === selectedYear;
-        const matchSemester = selectedSemester === 'Tất cả' || s.tenHocKy === selectedSemester;
+        const matchYear =
+          selectedYear === 'Tất cả' || getAcademicYear(s.startDate) === selectedYear;
+        const matchSemester =
+          selectedSemester === 'Tất cả' || s.tenHocKy === selectedSemester;
         return matchYear && matchSemester && Array.isArray(s.score) && s.score.length > 0;
       });
 
-      // Danh sách tất cả năm học và học kỳ
+      // Danh sách filter cho dropdown
       const years = [...new Set(semestersWithYear.map(s => getAcademicYear(s.startDate)))];
       const semestersList = [...new Set(semestersWithYear.map(s => s.tenHocKy))];
 
-      // Tính GPA tích lũy
-      const allScores = await Score.find({ username: userId }).populate('HocPhan').lean();
-      let tongDiem = 0, tongTinChi = 0;
+      // 📊 Tính GPA tích lũy
+      const allScores = await Score.find({ username: userId })
+        .populate('HocPhan')
+        .lean();
+
+      let tongDiem = 0,
+        tongTinChi = 0;
 
       for (const score of allScores) {
         if (score.diemSo != null && score.HocPhan?.soTinChi) {
@@ -84,10 +96,10 @@ class ScoreController {
         }
       }
 
-      const gpa = tongTinChi > 0 ? (tongDiem / tongTinChi) : 0;
+      const gpa = tongTinChi > 0 ? tongDiem / tongTinChi : 0;
       const hocLuc = xepLoaiHocLuc(gpa);
 
-      // Xác định nếu GPA dưới mức cảnh báo
+      // 📌 Xác định cảnh báo học vụ
       let canhBaoHocVu = '';
       if (gpa < 1.0) {
         canhBaoHocVu = 'Cảnh báo học vụ mức 2 (GPA dưới 1.0)';
@@ -103,18 +115,18 @@ class ScoreController {
         selectedYear,
         selectedSemester,
         gpa: gpa.toFixed(2),
-        cumulative: gpa.toFixed(2),
         hocLuc,
-        canhBaoHocVu
+        canhBaoHocVu,
+        tongTinChi,
+        maxCredits
       });
-
     } catch (err) {
-      console.error('Lỗi khi lấy điểm:', err);
+      console.error('❌ Lỗi khi lấy điểm:', err);
       res.status(500).send('Đã có lỗi xảy ra');
     }
   }
 
-  // Cập nhật điểm số và điểm chữ
+  // 📌 Cập nhật điểm số và điểm chữ
   async updateScore(req, res) {
     try {
       const updates = req.body.scores;
@@ -122,7 +134,6 @@ class ScoreController {
       for (const scoreId in updates) {
         let { diemSo, diemChu } = updates[scoreId];
 
-        // Nếu diemChu là mảng thì lấy phần tử đầu tiên
         if (Array.isArray(diemChu)) {
           diemChu = diemChu[0];
         }
@@ -135,11 +146,10 @@ class ScoreController {
 
       res.redirect('/score');
     } catch (err) {
-      console.error('Lỗi khi cập nhật điểm:', err);
+      console.error('❌ Lỗi khi cập nhật điểm:', err);
       res.status(500).send('Cập nhật điểm thất bại!');
     }
   }
-
 }
 
 module.exports = new ScoreController();

@@ -171,5 +171,21 @@ module.exports = {
         return 'fas fa-file-image text-info';
       default: return 'fas fa-file text-muted';
     }
-  }
+  },
+
+  majorName: (code) => {
+    const majors = {
+      'CNTT': 'Công nghệ thông tin',
+      'YT': 'Y tế',
+      'GD': 'Giáo dục',
+      'KT-TC': 'Kinh tế - Tài chính',
+      'KD-QL': 'Kinh doanh - Quản lý',
+      'KT-XD': 'Kỹ thuật - Xây dựng',
+      'L-NV': 'Luật - Nhân văn',
+      'ST-NT': 'Sáng tạo - Nghệ thuật',
+      'DV-DL': 'Dịch vụ - Du lịch',
+    };
+    return majors[code] || code;
+  },
+
 };
