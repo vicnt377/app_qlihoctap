@@ -6,7 +6,7 @@ module.exports = {
   shortId: (id) => id ? id.toString().slice(-4) : '',
   eq: (a, b) => a === b,
   ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
-
+  not: (value) => !value,
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
   array: (...args) => args.slice(0, -1),
   toString: (val) => val?.toString(),
@@ -58,17 +58,18 @@ module.exports = {
     return d;
   },
 
-  ifCond: (v1, operator, v2, options) => {
+  ifCond: function (v1, operator, v2, options) {
     switch (operator) {
-      case '===': return v1 === v2 ? options.fn(this) : options.inverse(this);
-      case '!==': return v1 !== v2 ? options.fn(this) : options.inverse(this);
-      case '<': return v1 < v2 ? options.fn(this) : options.inverse(this);
-      case '<=': return v1 <= v2 ? options.fn(this) : options.inverse(this);
-      case '>': return v1 > v2 ? options.fn(this) : options.inverse(this);
-      case '>=': return v1 >= v2 ? options.fn(this) : options.inverse(this);
-      default: return options.inverse(this);
+      case '===': return (v1 === v2) ? options.fn(this) : options.inverse(this);
+      case '!==': return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+      case '<':   return (v1 < v2)   ? options.fn(this) : options.inverse(this);
+      case '<=':  return (v1 <= v2)  ? options.fn(this) : options.inverse(this);
+      case '>':   return (v1 > v2)   ? options.fn(this) : options.inverse(this);
+      case '>=':  return (v1 >= v2)  ? options.fn(this) : options.inverse(this);
+      default:    return options.inverse(this);
     }
   },
+
 
   add: (a, b) => a + b,
   subtract: (a, b) => a - b,

@@ -93,7 +93,6 @@
               <p class="mb-0">Bạn chưa có học kỳ nào để tính điểm</p>
             </div>
           {{/ifCond}}
-
         </div>
       </div>
     </div>
@@ -130,20 +129,26 @@
                           <td class="py-1">{{HocPhan.tenHocPhan}}</td>
                           <td class="text-center py-1">{{HocPhan.soTinChi}}</td>
                           <td class="text-center py-1">
-                            <input type="number" step="0.1" min="0" max="10"
+                            <input 
+                              type="number" 
+                              step="0.1" 
+                              min="0" 
+                              max="10"
                               name="scores[{{_id}}][diemSo]" 
                               class="form-control form-control-sm text-center py-1"
-                              value="{{default diemSo 0}}">
+                              value="{{diemSo}}">
                           </td>
                           <td class="text-center py-1">
-                            <input type="text" 
-                              name="scores[{{_id}}][diemChu]]"
+                            <input 
+                              type="text" 
+                              name="scores[{{_id}}][diemChu]" 
                               class="form-control form-control-sm text-center py-1" 
                               value="{{diemChu}}">
                           </td>
                         </tr>
                         {{/each}}
                       </tbody>
+
                     </table>
                   </div>
                 </div>
@@ -185,9 +190,9 @@
       input.addEventListener('input', (e) => {
         const scoreInput = e.target;
         const diemChuInput = scoreInput.closest('tr').querySelector('input[name$="[diemChu]"]');
-        const diemSo = scoreInput.value;
-        diemChuInput.value = convertDiemSoToDiemChu(diemSo);
+        diemChuInput.value = convertDiemSoToDiemChu(scoreInput.value);
       });
     });
   });
 </script>
+

@@ -6,7 +6,7 @@ const Semester = require('./Semester')
 const scoreSchema = new mongoose.Schema({
     username: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     HocPhan: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-    diemSo: { type: String, required: false,},
+    diemSo: { type: Number, required: false,},
     diemChu: { type: String, required: false, },
     gioBatDau: { type: String,required: true, },
     gioKetThuc: { type: String,required: true, },
