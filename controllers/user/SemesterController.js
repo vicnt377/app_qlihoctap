@@ -1,7 +1,7 @@
 const Semester = require('../../models/Semester');
 const Score = require('../../models/Score');
 const Course = require('../../models/Course');
-
+const User = require('../../models/User');
 const helper = require('../../src/util/helper');
 const moment = require('moment');
 
@@ -40,14 +40,15 @@ class SemesterController {
       // 4. Tìm các HocPhan đã có trong Score
       const usedCourseIds = await Score.find({ username: userId }).distinct('HocPhan');
 
-      // 5. Tìm các Course chưa được thêm vào Score
+      // 5. Tìm các Course của user chưa được thêm vào Score
       const availableCourses = await Course.find({
+        user: userId,
         _id: { $nin: usedCourseIds }
       }).lean();
 
       // 6. Lấy các Score chưa gán semester (dành cho modal thêm học kỳ)
       const allScores = await Score.find({
-        username: userId,
+        user: userId,
         semester: { $exists: false }
       })
         .populate('HocPhan')
@@ -64,7 +65,7 @@ class SemesterController {
         selectedYear: '',
         years,
         semestersList,
-        courses: availableCourses, // ✅ course chưa gán vào score
+        courses: availableCourses, // ✅ chỉ course của user
         scores: allScores,         // ✅ score chưa gán vào semester
         events,
       });
@@ -74,6 +75,7 @@ class SemesterController {
       res.status(500).send('Lỗi khi lấy dữ liệu lớp học!');
     }
   }
+
 
   async addNewSemester(req, res) {
     try {

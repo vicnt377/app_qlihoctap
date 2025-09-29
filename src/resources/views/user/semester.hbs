@@ -62,66 +62,58 @@
            <div class="col-md-2 d-flex align-items-end">
              <button type="submit" class="btn btn-success btn-sm w-100">Thêm học kỳ</button>
            </div>
-           <div class="col-md-2 d-flex align-items-end">
-             <button type="submit" class="btn btn-primary btn-sm w-100">Import học phần</button>
-           </div>
+           
+
          </div>
        </div>
     </form>
-
-         <!-- Danh sách học phần -->
-     <div class="card shadow-sm mb-3">
-       <div class="card-header bg-gradient-gray fw-bold py-2">
-         <strong>Danh sách học phần</strong>
-       </div>
-       <div class="card-body p-0">
-         <div class="table-responsive">
-           <table class="table table-hover table-sm">
-             <thead class="table-light">
-               <tr>
-                 <th class="py-2">STT</th>
-                 <th class="py-2">Tên học phần</th>
-                 <th class="py-2">Mã học phần</th>
-                 <th class="py-2">Thứ</th>
-                 <th class="py-2">Giờ bắt đầu</th>
-                 <th class="py-2">Giờ kết thúc</th>
-                 <th class="py-2">Chọn</th>
-               </tr>
-             </thead>
-             <tbody>
-               {{#each courses}}
-                 <tr>
-                   <td class="text-center py-1">{{inc @index}}</td>
-                   <td class="py-1">{{tenHocPhan}}</td>
-                   <td class="py-1">{{maHocPhan}}</td>
-                   <td class="py-1">
-                     <select class="form-select form-select-sm" name="thu_{{_id}}" id="thu_{{_id}}">
-                       {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
-                         <option value="{{this}}">{{this}}</option>
-                       {{/each}}
-                     </select>
-                   </td>
-                   <td class="py-1">
-                     <input type="time" class="form-control form-control-sm" name="gioBatDau_{{_id}}" id="gioBatDau_{{_id}}">
-                   </td>
-                   <td class="py-1">
-                     <input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}" id="gioKetThuc_{{_id}}">
-                   </td>
-                   <td class="text-center py-1">
-                     <input type="checkbox" name="selectedCourses" value="{{_id}}">
-                   </td>
-                 </tr>
-               {{else}}
-                 <tr>
-                   <td colspan="7" class="text-center text-muted py-2">Không có học phần nào khả dụng.</td>
-                 </tr>
-               {{/each}}
-             </tbody>
-           </table>
-         </div>
-       </div>
-     </div>
-
+<div class="col-md-2 d-flex align-items-end">
+            <form id="importForm" action="/course/import" method="POST" enctype="multipart/form-data" class="w-100">
+              <input type="file" name="excelFile" id="excelFile" accept=".xlsx,.xls" class="form-control form-control-sm mb-1" required>
+              <button type="submit" class="btn btn-primary btn-sm w-100">Import học phần</button>
+            </form>
+          </div>
+    <!-- Danh sách học phần -->
+    <div class="card-body p-0">
+      <div class="table-scroll-wrapper">
+        <table class="table table-hover table-sm mb-0">
+          <thead>
+            <tr>
+              <th class="col-stt">STT</th>
+              <th class="col-name">Tên học phần</th>
+              <th class="col-code">Mã học phần</th>
+              <th class="col-day">Thứ</th>
+              <th class="col-time">Giờ bắt đầu</th>
+              <th class="col-time">Giờ kết thúc</th>
+              <th class="col-choose text-center">Chọn</th>
+            </tr>
+          </thead>
+          <tbody>
+          {{#if courses.length}}
+            {{#each courses}}
+              <tr>
+                <td class="text-center col-stt">{{inc @index}}</td>
+                <td class="col-name">{{tenHocPhan}}</td>
+                <td class="col-code">{{maHocPhan}}</td>
+                <td class="col-day">
+                  <select class="form-select form-select-sm" name="thu_{{_id}}">
+                    {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
+                      <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                  </select>
+                </td>
+                <td class="col-time"><input type="time" class="form-control form-control-sm" name="gioBatDau_{{_id}}"></td>
+                <td class="col-time"><input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}"></td>
+                <td class="text-center col-choose"><input type="checkbox" name="selectedCourses" value="{{_id}}"></td>
+              </tr>
+            {{/each}}
+          {{else}}
+            <p class="text-muted">Chưa có học phần nào được tạo.</p>
+          {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Tab 3: Danh sách học kỳ -->
@@ -224,10 +216,6 @@ document.getElementById('addSemesterForm').addEventListener('submit', async func
   }
 });
 </script>
-
-
-
-
 
 <script>
   function deleteSemester(id) {
