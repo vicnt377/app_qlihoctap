@@ -14,13 +14,10 @@ class SemesterController {
       }
 
       // 1. Lấy tất cả học kỳ của user
-      const semesterDocs = await Semester.find({ username: userId })
+      const semesterDocs = await Semester.find({ user: userId })
         .populate({
           path: 'score',
-          populate: [
-            { path: 'HocPhan' },
-            { path: 'username' }
-          ]
+          populate: { path: 'HocPhan' }   // ✅ lấy chi tiết môn học
         })
         .lean();
 
@@ -30,7 +27,7 @@ class SemesterController {
         tenHocKy: sem.tenHocKy,
         startDate: sem.startDate,
         soTuan: sem.soTuan,
-        scores: sem.score || []
+        scores: sem.score || []   // ✅ giờ đây score đã có HocPhan
       }));
 
       // 3. Tạo danh sách năm và tên học kỳ
@@ -38,7 +35,7 @@ class SemesterController {
       const semestersList = semesterDocs.map(sem => sem.tenHocKy);
 
       // 4. Tìm các HocPhan đã có trong Score
-      const usedCourseIds = await Score.find({ username: userId }).distinct('HocPhan');
+      const usedCourseIds = await Score.find({ user: userId }).distinct('HocPhan');
 
       // 5. Tìm các Course của user chưa được thêm vào Score
       const availableCourses = await Course.find({
@@ -46,7 +43,7 @@ class SemesterController {
         _id: { $nin: usedCourseIds }
       }).lean();
 
-      // 6. Lấy các Score chưa gán semester (dành cho modal thêm học kỳ)
+      // 6. Lấy các Score chưa gán semester
       const allScores = await Score.find({
         user: userId,
         semester: { $exists: false }
@@ -59,14 +56,14 @@ class SemesterController {
 
       // 8. Render view
       res.render('user/semester', {
-        user: req.session.user,
+        user: userId,
         classesGroupedBySemester,
         selectedSemester: '',
         selectedYear: '',
         years,
         semestersList,
-        courses: availableCourses, // ✅ chỉ course của user
-        scores: allScores,         // ✅ score chưa gán vào semester
+        courses: availableCourses,
+        scores: allScores,
         events,
       });
 
@@ -75,7 +72,6 @@ class SemesterController {
       res.status(500).send('Lỗi khi lấy dữ liệu lớp học!');
     }
   }
-
 
   async addNewSemester(req, res) {
     try {
@@ -87,7 +83,7 @@ class SemesterController {
         tenHocKy,
         startDate,
         soTuan,
-        username: userId,
+        user: userId,   // ✅ dùng user thay vì username
       });
       await newSemester.save();
 
@@ -97,7 +93,7 @@ class SemesterController {
         const { courseId, thu, gioBatDau, gioKetThuc } = course;
 
         const newScore = await Score.create({
-          username: userId,
+          user: userId,   // ✅ chỉnh lại field
           HocPhan: courseId,
           thu,
           gioBatDau,
@@ -108,11 +104,9 @@ class SemesterController {
         scoreIds.push(newScore._id);
       }
 
-      // Gán danh sách score vào semester
       newSemester.score = scoreIds;
       await newSemester.save();
 
-      // Populate trả về
       const populatedSemester = await Semester.findById(newSemester._id)
         .populate({ path: 'score', populate: 'HocPhan' })
         .lean();
@@ -128,7 +122,6 @@ class SemesterController {
     }
   }
 
-
   async deleteSemester(req, res) {
     try {
       const userId = req.session?.user?._id;
@@ -136,7 +129,7 @@ class SemesterController {
 
       const deleted = await Semester.findOneAndDelete({
         _id: semesterId,
-        username: userId,
+        user: userId,   // ✅ đổi username -> user
       });
 
       if (!deleted) {
@@ -150,13 +143,12 @@ class SemesterController {
     }
   }
 
-
   async editSemesterForm(req, res) {
     try {
       const userId = req.session?.user?._id;
       const semesterId = req.params.id;
 
-      const semester = await Semester.findOne({ _id: semesterId, username: userId })
+      const semester = await Semester.findOne({ _id: semesterId, user: userId })
         .populate({ path: 'score', populate: 'HocPhan' })
         .lean();
 
@@ -164,7 +156,7 @@ class SemesterController {
         return res.status(404).send('Không tìm thấy học kỳ');
       }
 
-      const allScores = await Score.find({ username: userId })
+      const allScores = await Score.find({ user: userId })
         .populate('HocPhan')
         .lean();
 
@@ -192,10 +184,9 @@ class SemesterController {
 
     const validScores = await Score.find({
       _id: { $in: scoresToAdd },
-      username: userId,
+      user: userId,   // ✅ chỉnh lại
     });
 
-    // Cập nhật thông tin từng score
     for (let score of validScores) {
       const updates = scores?.[score._id.toString()];
       if (updates) {
@@ -206,9 +197,8 @@ class SemesterController {
       }
     }
 
-    // Cập nhật học kỳ
     const semester = await Semester.findOneAndUpdate(
-      { _id: semesterId, username: userId },
+      { _id: semesterId, user: userId },  // ✅ đổi username -> user
       {
         tenHocKy,
         startDate: new Date(startDate),
@@ -220,14 +210,12 @@ class SemesterController {
 
     if (!semester) return res.status(404).send('Không tìm thấy học kỳ');
 
-    // cập nhật endDate
     const msPerWeek = 7 * 24 * 60 * 60 * 1000;
     semester.endDate = new Date(new Date(startDate).getTime() + soTuan * msPerWeek);
     await semester.save();
 
     res.redirect('/semester');
   }
-
 }
 
 module.exports = new SemesterController();

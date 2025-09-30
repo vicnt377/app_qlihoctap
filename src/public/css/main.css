@@ -585,7 +585,7 @@ body {
 /* Chỉ tbody mới cuộn, thead giữ nguyên */
 .table-scroll-wrapper {
   max-height: 350px;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   display: block;
 }
 

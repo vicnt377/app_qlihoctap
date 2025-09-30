@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const User = require('../models/User')
+const Score = require('../models/Score')
 
 const semesterSchema = new mongoose.Schema({
   tenHocKy: { type: String, required: true },

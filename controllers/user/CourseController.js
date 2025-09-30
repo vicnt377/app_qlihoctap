@@ -33,6 +33,28 @@ class CourseController {
     }
   }
 
+  async createCourse(req, res) {
+    try {
+      const userId = req.user?._id || req.session?.user?._id;
+      if (!userId) return res.status(401).send("Bạn chưa đăng nhập.");
+
+      const { maHocPhan, tenHocPhan, soTinChi } = req.body;
+
+      const existing = await Course.findOne({ user: userId, maHocPhan });
+      if (existing) {
+        return res.status(400).send("Mã học phần đã tồn tại.");
+      }
+
+      await Course.create({ user: userId, maHocPhan, tenHocPhan, soTinChi });
+
+      res.redirect('/semester'); // hoặc res.json({message:'ok'})
+    } catch (err) {
+      console.error("Lỗi thêm học phần:", err);
+      res.status(500).send("Lỗi server khi thêm học phần.");
+    }
+  }
+
+
   // Thêm học phần vào bảng điểm (Score)
   async addCourseToScore(req, res) {
     try {

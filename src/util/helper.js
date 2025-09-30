@@ -179,6 +179,8 @@ module.exports = {
       'CNTT': 'Công nghệ thông tin',
       'YT': 'Y tế',
       'GD': 'Giáo dục',
+      'NN': 'Ngoại ngữ',
+      'TN-MT': 'Tự nhiên - Môi trường',
       'KT-TC': 'Kinh tế - Tài chính',
       'KD-QL': 'Kinh doanh - Quản lý',
       'KT-XD': 'Kỹ thuật - Xây dựng',

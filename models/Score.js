@@ -4,7 +4,7 @@ const User = require('./User')
 const Semester = require('./Semester')
 
 const scoreSchema = new mongoose.Schema({
-    username: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     HocPhan: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
     diemSo: { type: Number, required: false,},
     diemChu: { type: String, required: false, },
