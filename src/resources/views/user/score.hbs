@@ -181,11 +181,37 @@
 
               <!-- Nút lưu -->
               <div class="text-center mt-4">
-                <button type="submit" class="btn btn-orange btn-lg px-5">
+                <button type="submit" class="btn btn-orange px-5">
                   <i class="fas fa-save me-2"></i>Lưu điểm
                 </button>
               </div>
             </form>
+
+            <!-- Pagination -->
+            {{#if pagination.totalPages}}
+            <nav aria-label="Page navigation" class="mt-4">
+              <ul class="pagination justify-content-center">
+                {{#if pagination.hasPrevPage}}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{pagination.prevPage}}{{#if queryString.year}}&year={{queryString.year}}{{/if}}{{#if queryString.semester}}&semester={{queryString.semester}}{{/if}}">&laquo;</a>
+                  </li>
+                {{/if}}
+
+                {{#each pagination.pages}}
+                  <li class="page-item {{#ifEquals this ../pagination.currentPage}}active{{/ifEquals}}">
+                    <a class="page-link" href="?page={{this}}{{#if ../queryString.year}}&year={{../queryString.year}}{{/if}}{{#if ../queryString.semester}}&semester={{../queryString.semester}}{{/if}}">{{this}}</a>
+                  </li>
+                {{/each}}
+
+                {{#if pagination.hasNextPage}}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{pagination.nextPage}}{{#if queryString.year}}&year={{queryString.year}}{{/if}}{{#if queryString.semester}}&semester={{queryString.semester}}{{/if}}">&raquo;</a>
+                  </li>
+                {{/if}}
+              </ul>
+            </nav>
+            {{/if}}
+
           {{else}}
             <div class="text-center text-muted py-4">
               <i class="fas fa-info-circle me-2"></i>
@@ -195,7 +221,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </main>
 

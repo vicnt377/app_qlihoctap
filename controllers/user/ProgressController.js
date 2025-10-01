@@ -14,7 +14,7 @@ class ProgressController {
                 return res.redirect('/login-user');
             }
 
-            const scores = await Score.find({ username: userId })  
+            const scores = await Score.find({ user: userId })  
                 .populate('HocPhan')
                 .lean();
     
@@ -44,7 +44,7 @@ class ProgressController {
             const hasMonNo = monNo.length > 0;
     
             res.render('user/progress', {
-                user: req.session.user,
+                user,
                 scores,
                 totalCredits,
                 diemChuStats,

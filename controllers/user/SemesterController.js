@@ -12,7 +12,7 @@ class SemesterController {
       if (!userId) {
         return res.render('auth/login');
       }
-
+      const user = await User.findById(userId).lean();
       // 1. Lấy tất cả học kỳ của user
       const semesterDocs = await Semester.find({ user: userId })
         .populate({
@@ -56,7 +56,7 @@ class SemesterController {
 
       // 8. Render view
       res.render('user/semester', {
-        user: userId,
+        user,
         classesGroupedBySemester,
         selectedSemester: '',
         selectedYear: '',

@@ -5,6 +5,7 @@ module.exports = {
   inc: (value) => parseInt(value) + 1,
   shortId: (id) => id ? id.toString().slice(-4) : '',
   eq: (a, b) => a === b,
+  gt: (a, b) => a > b,
   ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
   not: (value) => !value,
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
@@ -74,6 +75,7 @@ module.exports = {
   add: (a, b) => a + b,
   subtract: (a, b) => a - b,
   multiply: (a, b) => a * b,
+
 
   times: (n, block) => {
     let accum = '';
@@ -190,5 +192,20 @@ module.exports = {
     };
     return majors[code] || code;
   },
+
+  paginate: (pagination, options) => {
+    let out = '';
+    for (let i = 1; i <= pagination.totalPages; i++) {
+      out += options.fn({
+        page: i,
+        active: i === pagination.currentPage
+      });
+    }
+    return out;
+  },
+
+  hasPrevPage: (pagination) => pagination.currentPage > 1,
+  hasNextPage: (pagination) => pagination.currentPage < pagination.totalPages,
+
 
 };

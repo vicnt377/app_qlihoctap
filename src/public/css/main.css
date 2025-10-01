@@ -2329,4 +2329,22 @@ main {
     right: 20px;
     left: 20px;
   }
-} 
+}
+
+.fc .fc-col-header-cell-cushion {
+  display: inline-block;
+  padding: 2px 4px;
+  text-decoration: none;
+}
+
+.page-link {
+  color: #484848;
+  border-color: #e8e5e5;
+}
+
+.active>.page-link, .page-link.active {
+  z-index: 3;
+  color: blue;
+  background-color: unset;
+  border-color: #e8e5e5 ;
+}
