@@ -1,5 +1,6 @@
 const Course = require('../../models/Course');
 const Score = require('../../models/Score');
+const Notification = require('../../models/Notification');
 const xlsx = require('xlsx');
 const fs = require('fs');
 
@@ -40,57 +41,57 @@ class CourseController {
 
       const { maHocPhan, tenHocPhan, soTinChi } = req.body;
 
+      // Kiểm tra mã học phần đã tồn tại
       const existing = await Course.findOne({ user: userId, maHocPhan });
       if (existing) {
-        return res.status(400).send("Mã học phần đã tồn tại.");
+        req.session.errorMessage = "❌ Mã học phần đã tồn tại.";
+        return res.redirect('/semester');
       }
 
-      await Course.create({ user: userId, maHocPhan, tenHocPhan, soTinChi });
+      // Tạo học phần mới
+      const newCourse = await Course.create({
+        user: userId,
+        maHocPhan,
+        tenHocPhan,
+        soTinChi
+      });
 
-      res.redirect('/semester'); // hoặc res.json({message:'ok'})
+      // ✅ Tạo notification khi thêm học phần
+      const courseNotification = new Notification({
+        recipient: userId,
+        sender: userId,
+        type: 'success',
+        title: 'Thêm học phần thành công',
+        message: `Bạn vừa thêm học phần ${tenHocPhan} (${maHocPhan}).`,
+        relatedModel: 'Course',
+        relatedId: newCourse._id,
+        isRead: false,
+        metadata: {
+          action: 'createCourse',
+          courseCode: maHocPhan,
+          courseName: tenHocPhan,
+          credits: soTinChi,
+          timestamp: new Date()
+        }
+      });
+
+      await courseNotification.save();
+      console.log("🔔 Notification đã lưu:", courseNotification);
+
+
+      // 🔔 Gửi notification realtime bằng socket
+      if (req.io) {
+        req.io.to(userId.toString()).emit('new-notification', courseNotification);
+      }
+
+      // Gắn session success message
+      // req.session.successMessage = '✅ Học phần mới đã được thêm thành công!';
+      return res.redirect('/semester');
+
     } catch (err) {
-      console.error("Lỗi thêm học phần:", err);
-      res.status(500).send("Lỗi server khi thêm học phần.");
-    }
-  }
-
-
-  // Thêm học phần vào bảng điểm (Score)
-  async addCourseToScore(req, res) {
-    try {
-      const { HocPhan, gioBatDau, gioKetThuc, thu, diemSo, diemChu } = req.body;
-      const userId = req.user?._id || req.session?.user?._id;
-
-      if (!userId) {
-        return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
-      }
-
-      const course = await Course.findOne({ _id: HocPhan, user: userId });
-      if (!course) {
-        return res.status(404).json({ message: 'Không tìm thấy học phần.' });
-      }
-
-      const newScore = new Score({
-        HocPhan,
-        gioBatDau,
-        gioKetThuc,
-        thu,
-        diemSo: diemSo ? parseFloat(diemSo) : null,
-        diemChu: diemChu || '',
-        username: userId
-      });
-
-      await newScore.save();
-      await newScore.populate('HocPhan');
-
-      res.json({
-        message: '✅ Thêm học phần thành công!',
-        score: newScore
-      });
-
-    } catch (error) {
-      console.error('Lỗi khi thêm học phần:', error);
-      res.status(500).json({ message: '❌ Lỗi server!' });
+      console.error("❌ Lỗi thêm học phần:", err);
+      req.session.errorMessage = "Lỗi server khi thêm học phần.";
+      return res.redirect('/semester');
     }
   }
 
@@ -172,60 +173,30 @@ class CourseController {
     }
   }
 
-  // Lấy template Excel để download
-  async getExcelTemplate(req, res) {
-    try {
-      const sampleData = [
-        { maHocPhan: 'CS101', tenHocPhan: 'Lập trình C', soTinChi: 3 },
-        { maHocPhan: 'CS102', tenHocPhan: 'Cấu trúc dữ liệu', soTinChi: 4 }
-      ];
-
-      const workbook = xlsx.utils.book_new();
-      const worksheet = xlsx.utils.json_to_sheet(sampleData);
-
-      xlsx.utils.sheet_add_aoa(worksheet, [
-        ['maHocPhan', 'tenHocPhan', 'soTinChi']
-      ], { origin: 'A1' });
-
-      xlsx.utils.book_append_sheet(workbook, worksheet, 'Courses');
-
-      const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', 'attachment; filename="template_courses.xlsx"');
-
-      res.send(buffer);
-
-    } catch (error) {
-      console.error('Lỗi khi tạo template Excel:', error);
-      res.status(500).json({ message: '❌ Lỗi server khi tạo template!' });
-    }
-  }
-
   // Xóa học phần (hard delete cho user)
-  async deleteCourse(req, res) {
-    try {
-      const { courseId } = req.params;
-      const userId = req.user?._id || req.session?.user?._id;
+  // async deleteCourse(req, res) {
+  //   try {
+  //     const { courseId } = req.params;
+  //     const userId = req.user?._id || req.session?.user?._id;
 
-      if (!userId) {
-        return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
-      }
+  //     if (!userId) {
+  //       return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
+  //     }
 
-      const course = await Course.findOne({ _id: courseId, user: userId });
-      if (!course) {
-        return res.status(404).json({ message: 'Không tìm thấy học phần.' });
-      }
+  //     const course = await Course.findOne({ _id: courseId, user: userId });
+  //     if (!course) {
+  //       return res.status(404).json({ message: 'Không tìm thấy học phần.' });
+  //     }
 
-      await Course.deleteOne({ _id: courseId, user: userId });
+  //     await Course.deleteOne({ _id: courseId, user: userId });
 
-      res.json({ message: '✅ Xóa học phần thành công!' });
+  //     res.json({ message: '✅ Xóa học phần thành công!' });
 
-    } catch (error) {
-      console.error('Lỗi khi xóa học phần:', error);
-      res.status(500).json({ message: '❌ Lỗi server khi xóa học phần!' });
-    }
-  }
+  //   } catch (error) {
+  //     console.error('Lỗi khi xóa học phần:', error);
+  //     res.status(500).json({ message: '❌ Lỗi server khi xóa học phần!' });
+  //   }
+  // }
 }
 
 module.exports = new CourseController();

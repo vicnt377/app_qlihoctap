@@ -75,10 +75,7 @@
             </div>
           {{/unless}}
         </div>
-
       </div>
-
-
     </div>
 
     <!-- Cột bên phải -->
@@ -89,7 +86,7 @@
         </div>
         <div class="card-body p-3">
           {{#if scores.length}}
-            <div class="list-group list-group-flush" style="max-height: 350px; overflow-y: auto;">
+            <div class="list-group list-group-flush" style="max-height: 550px; overflow-y: auto;">
               {{#each scores}}
                 <div class="list-group-item border-0 px-0 py-2">
                   <div class="d-flex align-items-center">
@@ -113,15 +110,6 @@
     </div>
   </div>
 </main>
-
-<style>
-  #creditChart {
-    max-width: 260px;
-    max-height: 260px;
-    margin: 0 auto;
-    display: block;
-  }
-</style>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -114,7 +114,7 @@ class DocumentController {
         console.error("❌ Lỗi tạo thông báo upload:", notifyErr);
       }
       
-      req.session.successMessage = 'Tải lên tài liệu thành công.';
+      // req.session.successMessage = 'Tải lên tài liệu thành công.';
       res.redirect('/document');
     } catch (err) {
       console.error('❌ Upload error:', err);
@@ -122,36 +122,33 @@ class DocumentController {
     }
   }
 
+  // Xem trước file
+  async previewFile(req, res, next) {
+    try {
+      const doc = await Document.findById(req.params.id);
+      if (!doc) return res.status(404).send('Không tìm thấy tài liệu.');
 
+      const filePath = path.join(__dirname, '../../src/public/file', doc.file);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).send('File không tồn tại.');
+      }
 
-// Xem trước file
+      const ext = path.extname(filePath).toLowerCase();
 
-async previewFile(req, res, next) {
-  try {
-    const doc = await Document.findById(req.params.id);
-    if (!doc) return res.status(404).send('Không tìm thấy tài liệu.');
+      // Gán Content-Type tự động theo ext
+      res.type(ext);
 
-    const filePath = path.join(__dirname, '../../src/public/file', doc.file);
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).send('File không tồn tại.');
+      // Quan trọng: bắt buộc inline để iframe hiển thị
+      res.setHeader(
+        'Content-Disposition',
+        'inline; filename="' + encodeURIComponent(doc.originalName) + '"'
+      );
+
+      fs.createReadStream(filePath).pipe(res);
+    } catch (err) {
+      next(err);
     }
-
-    const ext = path.extname(filePath).toLowerCase();
-
-    // Gán Content-Type tự động theo ext
-    res.type(ext);
-
-    // Quan trọng: bắt buộc inline để iframe hiển thị
-    res.setHeader(
-      'Content-Disposition',
-      'inline; filename="' + encodeURIComponent(doc.originalName) + '"'
-    );
-
-    fs.createReadStream(filePath).pipe(res);
-  } catch (err) {
-    next(err);
   }
-}
 
   // Download file
   async downloadDocument(req, res, next) {
@@ -262,7 +259,7 @@ async previewFile(req, res, next) {
         console.error("❌ Lỗi tạo thông báo xóa:", notifyErr);
       }
 
-      req.flash('successMessage', 'Đã xóa tài liệu thành công.');
+      // req.flash('successMessage', 'Đã xóa tài liệu thành công.');
       res.redirect('/document');
     } catch (err) {
       console.error('Xóa tài liệu lỗi:', err);

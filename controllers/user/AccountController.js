@@ -32,7 +32,6 @@ class AccountController {
         }
     }
 
-
     async updateProfile(req, res) {
     try {
         if (!req.session.user) {
@@ -111,80 +110,82 @@ class AccountController {
     }
     }
 
-
     async updatePassword(req, res) {
         const { currentPassword, newPassword, confirmPassword } = req.body;
         const userId = req.session.user?._id;
 
         try {
             if (!userId) {
-                req.session.errorMessage = 'Không xác định được người dùng!';
-                return res.redirect('/account');
+            req.session.errorMessage = 'Không xác định được người dùng!';
+            return res.redirect('/account');
             }
 
             if (!currentPassword || !newPassword || !confirmPassword) {
-                req.session.errorMessage = 'Vui lòng điền đầy đủ các trường!';
-                return res.redirect('/account');
+            req.session.errorMessage = 'Vui lòng điền đầy đủ các trường!';
+            return res.redirect('/account');
             }
 
             if (newPassword !== confirmPassword) {
-                req.session.errorMessage = 'Mật khẩu xác nhận không khớp!';
-                return res.redirect('/account');
+            req.session.errorMessage = 'Mật khẩu xác nhận không khớp!';
+            return res.redirect('/account');
             }
 
             const user = await User.findById(userId);
             if (!user) {
-                req.session.errorMessage = 'Không tìm thấy người dùng!';
-                return res.redirect('/account');
+            req.session.errorMessage = 'Không tìm thấy người dùng!';
+            return res.redirect('/account');
             }
 
-            // So sánh mật khẩu hiện tại (không hash)
+            // So sánh mật khẩu hiện tại 
             if (currentPassword !== user.password) {
-                req.session.errorMessage = 'Mật khẩu hiện tại không đúng!';
-                return res.redirect('/account');
+            req.session.errorMessage = 'Mật khẩu hiện tại không đúng!';
+            return res.redirect('/account');
             }
 
             // Cập nhật mật khẩu mới
             user.password = newPassword;
-
-            // Lưu lại user (không cần updateOne)
             await user.save({ validateBeforeSave: false });
-            
+
             // ✅ Tạo thông báo đổi mật khẩu
-            try {
             const passwordNotification = new Notification({
                 recipient: userId,
                 sender: userId,
-                type: 'info',
+                type: 'success',
                 title: 'Đổi mật khẩu thành công',
-                message: `Bạn vừa đổi mật khẩu tài khoản.`,
+                message: 'Bạn vừa đổi mật khẩu tài khoản.',
                 relatedModel: 'User',
                 relatedId: user._id,
                 isRead: false,
                 metadata: {
-                action: 'updatePassword',
-                timestamp: new Date()
+                    action: 'updatePassword',
+                    timestamp: new Date()
                 }
             });
 
             await passwordNotification.save();
+
+            // Nếu có socket.io thì bắn realtime
             if (req.io) {
-                req.io.to(userId.toString()).emit('new-notification', passwordNotification);
-            }
-            } catch (notifyErr) {
-            console.error("❌ Lỗi tạo thông báo updatePassword:", notifyErr);
+            req.io.to(userId.toString()).emit('new-notification', passwordNotification);
             }
 
-            req.session.successMessage = 'Đổi mật khẩu thành công!';
+            // Session thông báo thành công
+            // req.session.successMessage = 'Đổi mật khẩu thành công!';
             return res.redirect('/account');
         } catch (err) {
-            console.error('Lỗi đổi mật khẩu:', err);
-            req.session.errorMessage = 'Có lỗi xảy ra khi đổi mật khẩu!';
+            console.error('❌ Lỗi đổi mật khẩu:', err);
+
+            // Nếu lỗi xảy ra trong khi tạo notification
+            if (err.name === 'ValidationError') {
+                req.session.errorMessage = 'Lỗi dữ liệu: ' + err.message;
+            } else {
+                req.session.errorMessage = 'Có lỗi xảy ra khi đổi mật khẩu!';
+            }
+
             return res.redirect('/account');
         }
     }
 
-    
 
 }
 

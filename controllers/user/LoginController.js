@@ -8,8 +8,6 @@ class LoginController {
         res.render('auth/re-login', {layout: "auth", error: null, bodyClass: 'landing-page' });
     }
 
-    
-
     login_user(req, res) {
         res.render('auth/login', {layout: "auth", error: null });
     }
@@ -99,8 +97,6 @@ class LoginController {
             res.status(500).send("Lỗi máy chủ!");
         }
     }
-
-
 
     async updatePassword(req, res) {
         const { username, newPassword } = req.body;

@@ -44,9 +44,9 @@
 
   <!-- Tab 2: Form thêm học kỳ + Danh sách học phần -->
   <div class="tab-pane fade" id="addSection">
-    <div class="row g-3">
+    <div class="row g-2">
       <!-- Form thêm học kỳ -->
-      <div class="col-md-8">
+      <div class="col-md-8 p-3">
         <div class="card shadow-sm h-100">
           <div class="card-header bg-success text-white py-2 small fw-bold">
             Thêm học kỳ
@@ -66,7 +66,7 @@
               <div class="col-md-2">
                 <label for="soTuan" class="form-label small fw-bold">Số tuần</label>
                 <input type="number" class="form-control form-control-sm"
-                      id="soTuan" name="soTuan" min="1" max="52" value="18" required>
+                      id="soTuan" name="soTuan" min="1" max="52" value="15" required>
               </div>
               <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-success btn-sm w-100">
@@ -78,7 +78,7 @@
         </div>
       </div>
       <!-- Form import học phần -->
-      <div class="col-md-4">
+      <div class="col-md-4 p-3">
         <div class="card shadow-sm h-100">
           <div class="card-header bg-primary text-white py-2 small fw-bold">
             Import học phần
@@ -140,7 +140,7 @@
                   <tr>
                     <td class="text-center col-stt">{{inc @index}}</td>
                     <td class="col-name">{{tenHocPhan}}</td>
-                    <td class="col-code">{{maHocPhan}}</td>
+                    <td><code>{{maHocPhan}}</code></td>
                     <td class="col-day">
                       <select class="form-select form-select-sm" name="thu_{{_id}}">
                         {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
@@ -169,7 +169,7 @@
   </div>
 
   <!-- Tab 3: Danh sách học kỳ -->
-  <div class="tab-pane fade" id="listSection">
+  <div class="tab-pane fade mt-3" id="listSection">
     {{#if classesGroupedBySemester.length}}
       {{#each classesGroupedBySemester}}
         <div class="card mb-4">
@@ -185,8 +185,8 @@
               <thead class="table-light">
                 <tr>
                   <th>STT</th>
-                  <th>Tên học phần</th>
                   <th>Mã học phần</th>
+                  <th>Tên học phần</th>
                   <th>Thứ</th>
                   <th>Giờ bắt đầu</th>
                   <th>Giờ kết thúc</th>
@@ -197,8 +197,8 @@
                 {{#each scores}}
                   <tr>
                     <td>{{inc @index}}</td>
+                    <td><code>{{HocPhan.maHocPhan}}</code></td>
                     <td>{{HocPhan.tenHocPhan}}</td>
-                    <td>{{HocPhan.maHocPhan}}</td>
                     <td>{{thu}}</td>
                     <td>{{gioBatDau}}</td>
                     <td>{{gioKetThuc}}</td>
@@ -225,11 +225,11 @@
   <div class="modal-dialog">
     <form action="/course/add-course" method="POST" class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addCourseModalLabel">Thêm học phần mới</h5>
+        <h5 class="modal-title" id="addCourseModalLabel"><strong>Thêm học phần mới</strong></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-body m-2">
         <div class="mb-3">
           <label for="maHocPhan" class="form-label">Mã học phần</label>
           <input type="text" class="form-control" id="maHocPhan" name="maHocPhan" required>

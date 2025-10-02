@@ -645,38 +645,6 @@ body {
   margin-bottom: 20px;
 }
 
-
-/* Modal improvements */
-.modal-content {
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(224,133,82,0.25);
-}
-
-.modal-header {
-  border-bottom: 1px solid #dee2e6;
-  background-color: #f8f9fa;
-  border-radius: 16px 16px 0 0;
-}
-
-.modal-title {
-  color: #e08552;
-  font-weight: 600;
-}
-
-.modal-body {
-  padding: 24px;
-  color: #495057;
-}
-
-.modal-footer {
-  border-top: 1px solid #dee2e6;
-  background-color: #f8f9fa;
-  border-radius: 0 0 16px 16px;
-  padding: 16px 24px;
-}
-
 /* Document preview modal specific styles */
 .modal-xl {
   max-width: 90%;
@@ -935,7 +903,6 @@ body {
   padding: 0.5rem;
   box-shadow: 0 4px 16px rgba(73, 80, 87, 0.08);
   border: 1px solid #dee2e6;
-  margin-bottom: 2rem;
 }
 
 .nav-pills .nav-link {
@@ -1202,19 +1169,20 @@ body {
 }
 
 .modal-content {
+  background-color: #ffff;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(224,133,82,0.3);
 }
 
-.modal-header.bg-gradient-orange {
-  background: linear-gradient(135deg, #e08552 0%, #d67a47 100%);
-  border-bottom: none;
+.modal-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
   padding: 1.5rem 2rem;
 }
 
 .modal-header .modal-title {
-  color: white;
+  color: rgb(106, 106, 106);
   font-weight: 600;
   font-size: 1.25rem;
 }
@@ -1225,7 +1193,7 @@ body {
 
 .modal-body {
   padding: 0;
-  background: #f8f9fa;
+  background: #ffffff;
 }
 
 #previewContent {

@@ -152,15 +152,17 @@
 
     </div>
 
-    <!-- Cột phải -->
+    <!-- Cột phải - Thống kê học tập -->
     <div class="col-lg-7">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-header bg-gradient-gray text-white py-2">
           <h6 class="mb-0"><i class="fas fa-chart-column me-2"></i>Thống kê học tập</h6>
         </div>
-        <div class="card-body p-4">
-          <p class="mb-3"><strong>{{totalCredits}} / {{maxCredits}} tín chỉ đã hoàn thành</strong></p>
-          <canvas id="creditChart" height="180"></canvas>
+        <div class="card-body p-4" style="height: 320px;">
+          <p class="mb-3">
+            <strong>{{totalCredits}} / {{maxCredits}} tín chỉ đã hoàn thành</strong>
+          </p>
+          <canvas style="width:100%; height:100%;" id="creditChart"></canvas>
           {{#if totalCreditsExceeded}}
             <div class="alert alert-warning mt-3 mb-0" role="alert">
               <i class="fas fa-exclamation-triangle me-2"></i>Số tín chỉ vượt quá giới hạn!
@@ -171,7 +173,7 @@
     </div>
   </div>
 
-  <!-- Các khóa học đã tham gia (nhỏ lại) -->
+  <!-- Các khóa học đã tham gia -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-gradient-gray text-white py-2">
       <h6 class="mb-0"><i class="fas fa-list me-2"></i>Các khóa học đã tham gia</h6>
@@ -241,6 +243,16 @@
   {{/if}}
 
 </main>
+
+<style>
+#creditChart {
+  width: 92% !important;
+  height: 92% !important;
+  margin: 0;
+  display: block;
+}
+</style>
+
 {{!-- Modal congrats --}}
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
@@ -278,12 +290,11 @@
   });
 </script>
 
-
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const totalCredits = {{totalCredits}};
-  const remainingCredits = 152 - totalCredits;
+  const remainingCredits = {{maxCredits}} - totalCredits;
   const totalNoSubjects = {{totalNoSubjects}};
 
   const ctx = document.getElementById('creditChart').getContext('2d');
@@ -297,15 +308,33 @@
         backgroundColor: ['#ff8c42', '#cfd8dc', '#ef9a9a'],
         borderColor: ['#ff6f00', '#b0bec5', '#e57373'],
         borderWidth: 1,
-        borderRadius: 6
+        borderRadius: 8,
+        barPercentage: 0.5,
+        categoryPercentage: 0.6
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false, // ✅ fit với card
       scales: {
-        y: { beginAtZero: true, max: 152, title: { display: true, text: 'Số lượng' } }
+        x: {
+          ticks: { maxRotation: 30, minRotation: 0 }
+        },
+        y: {
+          beginAtZero: true,
+          max: {{maxCredits}},
+          title: { display: true, text: 'Số tín chỉ' },
+          ticks: { stepSize: 20 }
+        }
       },
-      plugins: { legend: { display: false } }
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y} tín chỉ`
+          }
+        }
+      }
     }
   });
 </script>

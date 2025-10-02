@@ -17,7 +17,7 @@ class HomeController {
         return res.redirect('/login-user');
       }
 
-      const scores = await Score.find({ username: userId }).populate('HocPhan').lean();
+      const scores = await Score.find({ user: userId }).populate('HocPhan').lean();
 
       let totalCredits = 0;
       const maxCredits = user?.totalCredits
@@ -49,7 +49,7 @@ class HomeController {
         visibility: 'public',
         createdAt: { $gte: threeDaysAgo }
       })
-        .populate('user', 'username')
+        .populate('user', 'user')
         .sort({ createdAt: -1 })
         .limit(6) // tối đa 6 tài liệu
         .lean();

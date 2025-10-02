@@ -1,6 +1,6 @@
 
 const User = require('../../models/User');
-const Notification = require('../../models/Notification'); // Sử dụng model từ thư mục models
+const Notification = require('../../models/Notification');
 const { mongooseToObject } = require('../../src/util/mongoose');
 
 class NotificationController {
@@ -204,7 +204,6 @@ class NotificationController {
         res.redirect("/notifications/page");
     }
     }
-
 
     // ✅ Tạo thông báo mới (cho admin hoặc system)
     async createNotification(req, res) {
