@@ -72,13 +72,29 @@ body {
   margin-bottom: 20px;
 }
 
+.auth-header-admin {
+  font-size: 24px;
+  font-weight: bold;
+  color: #005dba;
+  margin-bottom: 20px;
+}
+
 .form-control {
   border-radius: 25px;
   padding: 12px;
 }
 
 .btn-auth {
-  background: #ea9b66;
+  background: #005dba;
+  color: white;
+  font-weight: bold;
+  border-radius: 25px;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+.btn-auth-admin {
+  background: #005dba;
   color: white;
   font-weight: bold;
   border-radius: 25px;
@@ -88,6 +104,11 @@ body {
 
 .btn-auth:hover {
   background: #d17d43;
+}
+
+.btn-auth-admin:hover {
+  background: #2592ff;
+  color:white;
 }
 
 .icon {

@@ -65,73 +65,23 @@
     {{{body}}}
   </main>
 
-  {{!-- <!-- Footer -->
-  <footer class="footer-modern">
-    <div class="container py-4">
-      <div class="row align-items-start">
-        
-        <!-- Logo + mô tả -->
-        <div class="col-md-4 mb-3">
-          <h5 class="footer-title">
-            <i class="fas fa-graduation-cap me-2 text-primary"></i>
-            Hệ Thống Quản Lý Tiến Độ Học Tập
-          </h5>
-          <p class="footer-desc">
-            Nền tảng theo dõi và quản lý tiến độ học tập hiệu quả, 
-            giúp sinh viên đạt được mục tiêu học tập.
-          </p>
-          <small class="text-muted">&copy; <span id="year"></span> Team MMT</small>
-        </div>
-
-        <!-- Liên kết -->
-        <div class="col-md-4 mb-3 text-start">
-          <h6 class="footer-subtitle">Liên kết nhanh</h6>
-          <ul class="footer-links list-unstyled">
-            <li><a href="/admin/dashboard"><i class="fas fa-home me-1"></i> Dashboard</a></li>
-            <li><a href="/admin/users"><i class="fas fa-user-graduate me-1"></i> Quản lý học viên</a></li>
-            <li><a href="/admin/videos"><i class="fas fa-video me-1"></i> Quản lý khóa học</a></li>
-            <li><a href="/admin/statistic"><i class="fas fa-chart-line me-1"></i> Thống kê</a></li>
-          </ul>
-        </div>
-
-        <!-- Liên hệ -->
-        <div class="col-md-4 mb-3 text-start">
-          <h6 class="footer-subtitle">Liên hệ</h6>
-          <p class="mb-1"><i class="fas fa-envelope me-1"></i> support@edusystem.edu.vn</p>
-          <p class="mb-2"><i class="fas fa-phone me-1"></i> 0123-456-789</p>
-          <div class="footer-social">
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-github"></i></a>
-            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </footer> --}}
-
   <script>
     // Thêm năm hiện tại tự động
-    document.getElementById("year").textContent = new Date().getFullYear();
 
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleSidebar');
 
     toggleBtn.addEventListener('click', () => {
-      const collapsed = sidebar.classList.contains('collapsed');
-      if (collapsed) {
-        sidebar.classList.remove('collapsed');
-        content.classList.remove('shifted');
-      } else {
-        sidebar.classList.add('collapsed');
-        content.classList.add('shifted');
-      }
+      sidebar.classList.toggle('collapsed');
+      content.classList.toggle('shifted');
     });
+
 
     // Default: collapsed sidebar
     sidebar.classList.add('collapsed');
     content.classList.add('shifted');
+
 
     // Set active menu item based on current page
     function setActiveMenuItem() {
@@ -150,169 +100,6 @@
     // Call on page load
     setActiveMenuItem();
 
-    // Hàm hiển thị hướng dẫn
-    function showHelp() {
-      const helpContent = `
-        <div class="modal fade" id="helpModal" tabindex="-1">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                  <i class="fas fa-question-circle me-2"></i>
-                  Hướng Dẫn Sử Dụng Hệ Thống
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <div class="row">
-                  <div class="col-md-6">
-                    <h6 class="text-primary"><i class="fas fa-chart-bar me-2"></i>Dashboard</h6>
-                    <p class="small">Xem tổng quan hệ thống, thống kê học viên và khóa học</p>
-                    
-                    <h6 class="text-primary"><i class="fas fa-users me-2"></i>Quản Lý Học Viên</h6>
-                    <p class="small">Thêm, sửa, xóa và quản lý thông tin học viên</p>
-                    
-                    <h6 class="text-primary"><i class="fas fa-video me-2"></i>Quản Lý Khóa Học</h6>
-                    <p class="small">Tạo và quản lý các khóa học video</p>
-                  </div>
-                  <div class="col-md-6">
-                    <h6 class="text-primary"><i class="fas fa-comments me-2"></i>Hộp Thư</h6>
-                    <p class="small">Tương tác và hỗ trợ học viên qua chat</p>
-                    
-                    <h6 class="text-primary"><i class="fas fa-chart-line me-2"></i>Thống Kê</h6>
-                    <p class="small">Xem báo cáo chi tiết về hiệu suất hệ thống</p>
-                    
-                    <h6 class="text-primary"><i class="fas fa-cog me-2"></i>Cài Đặt</h6>
-                    <p class="small">Tùy chỉnh cấu hình hệ thống</p>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <a href="/admin/dashboard" class="btn btn-primary">Đến Dashboard</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      if (!document.getElementById('helpModal')) {
-        document.body.insertAdjacentHTML('beforeend', helpContent);
-      }
-      
-      const helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
-      helpModal.show();
-    }
-
-    // Hàm hiển thị form liên hệ
-    function showContact() {
-      const contactContent = `
-        <div class="modal fade" id="contactModal" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">
-                  <i class="fas fa-envelope me-2"></i>
-                  Liên Hệ Admin
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <p><strong>Email:</strong> admin@hethong.edu.vn</p>
-                <p><strong>Điện thoại:</strong> 0123-456-789</p>
-                <p><strong>Địa chỉ:</strong> Trường Đại học ABC, TP.HCM</p>
-                <p><strong>Thời gian làm việc:</strong> 8:00 - 17:00 (Thứ 2 - Thứ 6)</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <a href="mailto:admin@hethong.edu.vn" class="btn btn-info">
-                  <i class="fas fa-envelope me-1"></i>Gửi Email
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      if (!document.getElementById('contactModal')) {
-        document.body.insertAdjacentHTML('beforeend', contactContent);
-      }
-      
-      const contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
-      contactModal.show();
-    }
-
-    // Hàm hiển thị form góp ý
-    function showFeedback() {
-      const feedbackContent = `
-        <div class="modal fade" id="feedbackModal" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title">
-                  <i class="fas fa-comment-dots me-2"></i>
-                  Góp Ý Hệ Thống
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <form>
-                  <div class="mb-3">
-                    <label class="form-label">Loại góp ý:</label>
-                    <select class="form-select">
-                      <option>Góp ý tính năng</option>
-                      <option>Báo lỗi</option>
-                      <option>Đề xuất cải tiến</option>
-                      <option>Khác</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Nội dung:</label>
-                    <textarea class="form-control" rows="4" placeholder="Nhập nội dung góp ý..."></textarea>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-warning">
-                  <i class="fas fa-paper-plane me-1"></i>Gửi Góp Ý
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      if (!document.getElementById('feedbackModal')) {
-        document.body.insertAdjacentHTML('beforeend', feedbackContent);
-      }
-      
-      const feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
-      feedbackModal.show();
-    }
-
-    // Hàm mở social media
-    function openSocial(platform) {
-      const urls = {
-        facebook: 'https://facebook.com/hethongedu',
-        twitter: 'https://twitter.com/hethongedu',
-        linkedin: 'https://linkedin.com/company/hethongedu',
-        github: 'https://github.com/team-mmt'
-      };
-      
-      if (urls[platform]) {
-        window.open(urls[platform], '_blank');
-      }
-    }
-
-    // Thêm năm hiện tại vào footer
-    document.addEventListener('DOMContentLoaded', function() {
-      const currentYearElements = document.querySelectorAll('.currentYear');
-      const currentYear = new Date().getFullYear();
-      currentYearElements.forEach(element => {
-        element.textContent = currentYear;
-      });
-    });
   </script>
 </body>
 </html>

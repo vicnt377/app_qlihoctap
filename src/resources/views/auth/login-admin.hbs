@@ -1,9 +1,13 @@
 {{!< auth}}
 
 <title>Admin - Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</title>
-
+<style>
+    body {
+        background: url('/img/background/Modern Linktree.png') no-repeat center center fixed;
+    }
+</style>
 <div class="auth-container">
-    <div class="auth-header">Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</div>
+    <div class="auth-header-admin">Hệ Thống Hỗ Trợ Quản Lý Tiến Độ Học Tập</div>
     <form method="POST" action="/admin/login-admin">
         {{#if success_msg}}
         <div class="alert alert-success">{{success_msg}}</div>
@@ -22,6 +26,6 @@
             <span class="input-group-text"><i class="fas fa-lock icon"></i></span>
             <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
         </div>
-        <button type="submit" class="btn btn-auth btn-sm px-3">Đăng Nhập</button>
+        <button type="submit" class="btn btn-auth-admin btn-sm px-3">Đăng Nhập</button>
     </form>
 </div>

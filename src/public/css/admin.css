@@ -6,6 +6,17 @@ body {
   background-color: #f0f2f5;
 }
 
+#mainContent {
+  margin-left: 220px;
+  transition: margin-left 0.3s ease;
+  padding: 25px;
+}
+
+#mainContent.shifted {
+  margin-left: 60px;
+}
+
+
 .toggle-btn {
   position: fixed;
   top: 12px;

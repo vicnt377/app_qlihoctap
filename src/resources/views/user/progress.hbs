@@ -24,7 +24,7 @@
         <div class="card-body text-center p-3">
           <h6 class="text-dark mb-2">🎯 Tổng số tín chỉ đã hoàn thành</h5>
           <p class="h5 fw-bold text-orange mb-2">{{totalCredits}} / {{maxCredits}} tín chỉ</p>
-          <canvas id="creditChart" height="150"></canvas>
+          <canvas id="creditChart" ></canvas>
 
           {{#if totalCreditsExceeded}}
             <div class="alert alert-warning mt-2 mb-0 py-2" role="alert">
@@ -86,7 +86,7 @@
         </div>
         <div class="card-body p-3">
           {{#if scores.length}}
-            <div class="list-group list-group-flush" style="max-height: 550px; overflow-y: auto;">
+            <div class="list-group list-group-flush" style="max-height: 350px; overflow-y: auto;">
               {{#each scores}}
                 <div class="list-group-item border-0 px-0 py-2">
                   <div class="d-flex align-items-center">
@@ -110,6 +110,16 @@
     </div>
   </div>
 </main>
+
+<style>
+#creditChart {
+  max-width: 250px;
+  max-height: 250px;
+  margin: 0 auto;
+  display: block;
+}
+
+</style>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -86,7 +86,6 @@
     </div>
   </div>
 
-
   <!-- form tìm kiếm và thêm học viên -->
   <form method="GET" action="/admin/users" class="row g-3 mb-4">
     <div class="col-md-4">
@@ -116,8 +115,6 @@
         <tr>
           <th>Học viên</th>
           <th>Email</th>
-          <th>Tiến độ</th>
-          <th>Hoàn thành</th>
           <th>Ngày tham gia</th>
           <th>Trạng thái</th>
           <th>Thao tác</th>
@@ -131,10 +128,8 @@
               <small class="text-muted">ID: {{_id}}</small>
             </td>
             <td>{{email}}</td>
-            <td>{{stats.avgProgress}}%</td>
-            <td>{{stats.completedCourses}}</td>
             <td>{{formatDate createdAt}}</td>
-                         <td>
+            <td>
                {{#if isActive}}
                  <span class="badge bg-white text-success px-3 py-2 fs-6">
                    <i class="fas fa-circle me-2 text-success"></i>Hoạt động
@@ -150,9 +145,13 @@
                 <button type="button" class="btn btn-sm btn-primary" 
                         data-bs-toggle="modal" 
                         data-bs-target="#viewUserModal"
-                        data-name="{{name}}" data-email="{{email}}"
-                        data-phone="{{phone}}" data-avatar="{{avatar}}"
+                        data-name="{{name}}"
+                        data-email="{{email}}"
+                        data-phone="{{phone}}"
+                        data-avatar="{{avatar}}"
                         data-created="{{formatDate createdAt}}"
+                        data-major="{{majorName major}}"
+                        data-totalcredits="{{totalCredits}}"
                         data-status="{{#if isActive}}Hoạt động{{else}}Không hoạt động{{/if}}">
                   Xem
                 </button>
@@ -168,7 +167,8 @@
                         data-bs-target="#deleteUserModal"
                         data-user-id="{{_id}}"
                         data-user-name="{{name}}"
-                        data-user-email="{{email}}">
+                        data-user-email="{{email}}"
+                        >
                   Xóa
                 </button>
               </div>
@@ -201,6 +201,8 @@
         <p><strong>Email:</strong> <span id="userEmail"></span></p>
         <p><strong>Điện thoại:</strong> <span id="userPhone"></span></p>
         <p><strong>Ngày tạo:</strong> <span id="userCreated"></span></p>
+        <p><strong>Ngành học:</strong> <span id="userMajor"></span></p>
+        <p><strong>Tổng tín chỉ:</strong> <span id="userTotalCredits"></span></p>
         <p><strong>Trạng thái:</strong> <span id="userStatus"></span></p>
       </div>
     </div>
@@ -268,6 +270,27 @@
               <input type="tel" class="form-control" id="phone" name="phone">
             </div>
             <div class="col-md-6">
+              <label for="major" class="form-label">Ngành học <span class="text-danger">*</span></label>
+              <select class="form-select" id="major" name="major" required>
+                <option value="">-- Chọn ngành --</option>
+                <option value="CNTT">Công nghệ thông tin</option>
+                <option value="YT">Y tế</option>
+                <option value="GD">Giáo dục</option>
+                <option value="NN">Ngoại ngữ</option>
+                <option value="TN-MT">Tự nhiên - Môi trường</option>
+                <option value="KT-TC">Kinh tế - Tài chính</option>
+                <option value="KD-QL">Kinh doanh - Quản lý</option>
+                <option value="KT-XD">Kỹ thuật - Xây dựng</option>
+                <option value="L-NV">Luật - Nhân văn</option>
+                <option value="ST-NT">Sáng tạo - Nghệ thuật</option>
+                <option value="DV-DL">Dịch vụ - Du lịch</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="totalCredits" class="form-label">Tổng tín chỉ</label>
+              <input type="number" class="form-control" id="totalCredits" name="totalCredits" value="0" min="0">
+            </div>
+            <div class="col-md-6">
               <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
               <input type="password" class="form-control" id="password" name="password" required>
             </div>
@@ -275,10 +298,10 @@
               <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
               <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
             </div>
-            <div class="col-12">
+            {{!-- <div class="col-12">
               <label for="avatar" class="form-label">Avatar URL</label>
               <input type="url" class="form-control" id="avatar" name="avatar" placeholder="https://example.com/avatar.jpg">
-            </div>
+            </div> --}}
           </div>
         </form>
       </div>
@@ -304,6 +327,10 @@
     document.getElementById('userPhone').textContent = button.getAttribute('data-phone') || 'Chưa cập nhật';
     document.getElementById('userCreated').textContent = button.getAttribute('data-created');
     document.getElementById('userStatus').textContent = button.getAttribute('data-status');
+    document.getElementById('userTotalCredits').textContent = button.getAttribute('data-totalcredits') || 0;
+
+    const majorText = button.getAttribute('data-major');
+    document.getElementById('userMajor').textContent = majorText;
   });
 
   // Form thêm học viên mới
@@ -427,6 +454,4 @@
       submitBtn.disabled = false;
     });
   });
-
-
 </script>

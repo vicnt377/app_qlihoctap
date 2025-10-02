@@ -9,22 +9,21 @@ class UserController {
     async getUsers(req, res) {
         try {
             const { search, status } = req.query;
-    
+
             let filter = { role: 'user' };
-    
+
             if (search) {
-                const regex = new RegExp(search, 'i');
-                filter.$or = [{ username: regex }, { email: regex }];
+            const regex = new RegExp(search, 'i');
+            filter.$or = [{ username: regex }, { email: regex }];
             }
-    
-            // Giả sử bạn lưu trạng thái người dùng theo logic riêng (ví dụ: active = true/false)
+
             if (status === 'active') filter.isActive = true;
             else if (status === 'inactive') filter.isActive = false;
-    
+
             // Truy vấn danh sách học viên
             const allUsers = await User.find(filter);
-    
-            // Xây dựng mảng học viên
+
+            // Xây dựng mảng học viên (đúng field với modal)
             const students = allUsers.map(user => ({
                 _id: user._id,
                 name: user.username,
@@ -32,13 +31,11 @@ class UserController {
                 phone: user.phone,
                 avatar: user.avatar,
                 createdAt: user.createdAt,
-                isActive: user.isActive ?? true, // fallback nếu chưa có trường isActive
-                stats: {
-                    avgProgress: Math.floor(Math.random() * 100),
-                    completedCourses: Math.floor(Math.random() * 10),
-                }
+                isActive: user.isActive ?? true,
+                major: user.major,       // ✅ thêm ngành học
+                totalCredits: user.totalCredits,   // ✅ thêm tín chỉ
             }));
-    
+
             const now = new Date();
             const studentStats = {
                 total: students.length,
@@ -47,9 +44,8 @@ class UserController {
                     const d = new Date(s.createdAt);
                     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                 }).length,
-                totalEnrollments: students.reduce((sum, s) => sum + s.stats.completedCourses, 0),
-                };
-    
+            };
+
             res.render('admin/users', {
                 user: req.session.user,
                 students,
@@ -58,7 +54,7 @@ class UserController {
                 layout: 'admin',
                 query: { search, status }
             });
-    
+
         } catch (err) {
             console.error(err);
             res.status(500).send('Lỗi khi tải danh sách học viên');
@@ -89,97 +85,47 @@ class UserController {
 
     async addUser(req, res) {
         try {
-            console.log('📝 Request body:', req.body);
-            const { name, email, phone, password, confirmPassword, avatar } = req.body;
+            const { name, email, phone, password, confirmPassword, avatar, major, totalCredits } = req.body;
             
-            console.log('📝 Extracted data:', { name, email, phone, password: password ? '***' : 'undefined', confirmPassword: confirmPassword ? '***' : 'undefined', avatar });
-            
-            // Validation
-            if (!name || !email || !password) {
-                console.log('❌ Validation failed - missing required fields');
+            // Validation cơ bản
+            if (!name || !email || !password || !major) {
                 req.flash('error', 'Vui lòng điền đầy đủ thông tin bắt buộc');
                 return res.redirect('/admin/users');
             }
-            
-            // Kiểm tra độ dài tên
-            if (name.trim().length < 2) {
-                console.log('❌ Validation failed - name too short');
-                req.flash('error', 'Tên phải có ít nhất 2 ký tự');
-                return res.redirect('/admin/users');
-            }
-            
-            // Kiểm tra format email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                console.log('❌ Validation failed - invalid email format');
-                req.flash('error', 'Email không đúng định dạng');
-                return res.redirect('/admin/users');
-            }
-            
             if (password !== confirmPassword) {
-                console.log('❌ Validation failed - password mismatch');
                 req.flash('error', 'Mật khẩu và xác nhận mật khẩu không khớp');
                 return res.redirect('/admin/users');
             }
-            
-            // Kiểm tra độ dài mật khẩu
-            if (password.length < 1) {
-                console.log('❌ Validation failed - password too short');
-                req.flash('error', 'Mật khẩu phải có ít nhất 6 ký tự');
-                return res.redirect('/admin/users');
-            }
-            
-            // Kiểm tra format số điện thoại nếu có
-            if (phone && phone.trim()) {
-                const phoneRegex = /^[0-9+\-\s()]+$/;
-                if (!phoneRegex.test(phone.trim())) {
-                    console.log('❌ Validation failed - invalid phone format');
-                    req.flash('error', 'Số điện thoại không đúng định dạng');
-                    return res.redirect('/admin/users');
-                }
-            }
-            
-            // Kiểm tra email đã tồn tại
+
             const existingUser = await User.findOne({ email });
             if (existingUser) {
-                console.log('❌ Validation failed - email already exists');
-                req.flash('error', 'Email đã được sử dụng');
+                req.flash('error', 'Email đã tồn tại');
                 return res.redirect('/admin/users');
             }
-            
-            // Kiểm tra format avatar URL nếu có
-            if (avatar && avatar.trim()) {
-                try {
-                    new URL(avatar.trim());
-                } catch (error) {
-                    console.log('❌ Validation failed - invalid avatar URL');
-                    req.flash('error', 'Avatar URL không đúng định dạng');
-                    return res.redirect('/admin/users');
-                }
-            }
-            
-            const user = await User.create({ 
-                username: name, 
-                email, 
-                phone: phone || '', 
+
+            // Tạo user mới
+            const user = await User.create({
+                username: name,
+                email,
+                phone: phone || '',
                 password, 
-                avatar: avatar || '',
+                avatar: avatar && avatar.trim() ? avatar.trim() : '/img/avatar.png',
                 role: 'user',
+                major,
+                totalCredits: totalCredits ? Number(totalCredits) : 0,
                 isActive: true
             });
-            
-            console.log(`✅ Thêm học viên mới thành công: ${user.email}`);
-            
-            // Redirect về trang users với thông báo thành công
+
+            console.log(`✅ Thêm học viên mới: ${user.username} (${user.email})`);
             req.flash('success', 'Thêm học viên mới thành công!');
             res.redirect('/admin/users');
-            
         } catch (error) {
             console.error("❌ Lỗi server khi thêm học viên:", error);
             req.flash('error', 'Lỗi máy chủ khi thêm học viên');
             res.redirect('/admin/users');
         }
     }
+
 
     async deleteUser(req, res) {
         try {
