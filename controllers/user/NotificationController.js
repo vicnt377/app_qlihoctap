@@ -30,15 +30,15 @@ class NotificationController {
         });
 
         res.render('user/notification', {
-        user: req.user,
-        unreadCount,
-        notifications,
-        pagination: {
-            currentPage: parseInt(page),
-            totalPages,
-            totalItems: total,
-            itemsPerPage: parseInt(limit)
-        }
+            user: req.user,
+            unreadCount,
+            notifications,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalItems: total,
+                itemsPerPage: parseInt(limit)
+            }
         });
     } catch (err) {
         console.error(err);

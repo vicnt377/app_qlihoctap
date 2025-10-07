@@ -17,13 +17,17 @@
     <div class="card-header bg-gradient-gray text-white py-3">
       <h6 class="mb-0"><i class="fas fa-comments me-2"></i>Hộp thư hỗ trợ</h6>
     </div>
+
     <div class="card-body p-0">
       <!-- Messages Area -->
-      <div class="messages p-4" id="messages" style="height: 400px; overflow-y: auto; background: #f8f9fa;">
+      <div class="messages p-4" id="messages" 
+           style="height: 400px; overflow-y: auto; background: #f8f9fa;">
+
+        <!-- ✅ Tin nhắn cũ -->
         {{#each messages}}
           {{#if (eq (toString sender._id) (toString ../user._id))}}
             <div class="text-end mb-3">
-              <div class="bg-orange text-white d-inline-block p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+              <div class="bg-orange text-white d-inline-block p-3 rounded-3 shadow-sm">
                 <div class="mb-1">{{content}}</div>
                 <small class="text-white-50">{{sender.name}} (Bạn)</small>
               </div>
@@ -37,17 +41,42 @@
             </div>
           {{/if}}
         {{/each}}
+        <!-- ✅ Tin nhắn chào từ Admin -->
+        <div class="text-start mb-3">
+          <div class="bg-light d-inline-block p-3 rounded-3 shadow-sm" style="max-width: 80%;">
+            <div class="mb-2">
+              Xin chào 👋, tôi có thể hỗ trợ gì cho bạn?
+            </div>
+            <small class="text-muted">(Admin)</small>
+          </div>
+        </div>
+
+        <!-- ✅ Danh sách gợi ý hiển thị trong chat -->
+        <div class="text-start mb-3">
+          <div class="bg-white border d-inline-block p-3 rounded-3 shadow-sm" style="max-width: 80%;">
+            <p class="fw-bold mb-2">Bạn muốn hỏi về:</p>
+            <div class="list-group list-group-flush">
+              {{#each suggestions}}
+                <button class="list-group-item list-group-item-action suggestion-btn text-primary border-0 px-0 py-1 text-start"
+                        data-keyword="{{this.keyword}}">
+                  {{this.text}}
+                </button>
+              {{/each}}
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Chat Input Form -->
-      <div class="p-4 border-top bg-white">
+      <div class="p-3 border-top bg-white">
         <form id="chatForm" class="chat-form">
           <div class="input-group">
-            <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn của bạn..." required>
+            <input type="text" id="messageInput" class="form-control" 
+                   placeholder="Nhập yêu cầu của bạn tại đây..." required>
             <button type="submit" class="btn btn-orange">
               <i class="fas fa-paper-plane me-1"></i>Gửi
             </button>
-            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -57,7 +86,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
+
   const userId = '{{user._id}}';
   const adminId = '{{adminId}}';
 
@@ -68,7 +97,7 @@
   const form = document.getElementById('chatForm');
   const input = document.getElementById('messageInput');
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const message = input.value.trim();
     if (!message) return;
@@ -83,6 +112,20 @@
     // ✅ Hiển thị ngay trên giao diện
     addMessage(message, 'user-message');
     input.value = '';
+
+    // ✅ Lưu vào DB qua fetch
+    const res = await fetch('/chat/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    const data = await res.json();
+
+    if (data.autoReply) {
+      addMessage(data.autoReply, 'admin-message');
+    } else if (data.reply) {
+      addMessage(data.reply, 'admin-message');
+    }
   });
 
   socket.on('newMessage', ({ senderId, message }) => {
@@ -97,4 +140,19 @@
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
+
+  // ✅ Xử lý gợi ý
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("messageInput");
+
+    document.querySelectorAll(".suggestion-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const keyword = btn.dataset.keyword;
+        input.value = keyword;
+        form.dispatchEvent(new Event("submit")); // giả lập submit
+      });
+    });
+  });
+
 </script>

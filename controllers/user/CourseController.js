@@ -173,30 +173,6 @@ class CourseController {
     }
   }
 
-  // Xóa học phần (hard delete cho user)
-  // async deleteCourse(req, res) {
-  //   try {
-  //     const { courseId } = req.params;
-  //     const userId = req.user?._id || req.session?.user?._id;
-
-  //     if (!userId) {
-  //       return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
-  //     }
-
-  //     const course = await Course.findOne({ _id: courseId, user: userId });
-  //     if (!course) {
-  //       return res.status(404).json({ message: 'Không tìm thấy học phần.' });
-  //     }
-
-  //     await Course.deleteOne({ _id: courseId, user: userId });
-
-  //     res.json({ message: '✅ Xóa học phần thành công!' });
-
-  //   } catch (error) {
-  //     console.error('Lỗi khi xóa học phần:', error);
-  //     res.status(500).json({ message: '❌ Lỗi server khi xóa học phần!' });
-  //   }
-  // }
 }
 
 module.exports = new CourseController();

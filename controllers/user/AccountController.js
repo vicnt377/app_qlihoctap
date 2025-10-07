@@ -5,10 +5,6 @@ const path = require('path');
 
 class AccountController {
     async index(req, res, next) {
-        if (!req.session.user) {
-            return res.redirect('/login'); 
-        }
-
         try {
             const userId = req.session.user._id;
             const user = await User.findById(userId).lean();

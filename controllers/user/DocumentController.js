@@ -17,9 +17,9 @@ class DocumentController {
       }
       
       const user = await User.findById(userId).lean();
-        if (!user) {
-          return res.redirect('/login-user');
-        }
+      if (!user) {
+        return res.redirect('/login-user');
+      }
 
       const q = req.query.q || '';
       const regex = new RegExp(q, 'i');
