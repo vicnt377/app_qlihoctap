@@ -39,7 +39,7 @@ class HomeController {
       const populatedUser = await User.findById(userId)
         .populate('enrolledVideos')
         .lean();
-      const enrolledVideos = populatedUser?.enrolledVideos || [];
+      const videos = await Video.find({ category: user.major, daXoa: false }).lean();
 
       // 🔥 Lấy tài liệu public trong 3 ngày gần nhất
       const threeDaysAgo = new Date();
@@ -66,7 +66,8 @@ class HomeController {
         monNo,
         totalCreditsExceeded,
         totalNoSubjects,
-        enrolledVideos,
+        videos,
+        videoCount: videos.length,
         recentDocs,
         recentDocsCount,
         showCongrats: req.session.showCongrats,

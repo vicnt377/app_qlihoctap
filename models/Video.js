@@ -5,14 +5,10 @@ const videoSchema = new mongoose.Schema({
     title: { type: String, required: true, trim: true },
     description: { type: String, default: '', trim: true },
     thumbnail: { type: String, default: 'default.jpg' }, // ảnh thumbnail trong thư mục public/img/thumbnails
-    category: { type: String, default: 'Khác' }, // ví dụ: "Lập trình", "Backend"
-    level: {
+    category: {
         type: String,
-        enum: ['Cơ bản', 'Trung bình', 'Nâng cao'],
-        default: 'Cơ bản'
+        enum: ['CNTT', 'YT', 'GD', 'NN', 'KT-TC', 'TN-MT', 'KD-QL', 'KT-XD', 'L-NV', 'ST-NT', 'DV-DL' ],
     },
-    duration: { type: Number, default: 1 }, // đơn vị: giờ
-    lessons: { type: Number, default: 1 },
     createdAt: { type: Date, default: Date.now },
     daXoa: { type: Boolean, default: false },
     reviews: [{

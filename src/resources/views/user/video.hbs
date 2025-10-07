@@ -4,145 +4,65 @@
     <div class="row align-items-center">
       <div class="col-md-8">
         <h1 class="h2 fw-bold text-white mb-1">
-          <i class="fas fa-video me-2"></i>Các Khóa Học Tham Khảo
+          <i class="fas fa-video me-2"></i>Các Video Tham Khảo
         </h1>
-        <p class="text-white-50 mb-0">Khám phá và đăng ký các khóa học trực tuyến</p>
+        <p class="text-white-50 mb-0">Khám phá và đăng ký các video trực tuyến</p>
+      </div>
+
+      <div class="col-md-4">
+        <div class="row g-2">
+            <div class="stats-card p-2 text-center">
+              <div class="stats-item">
+                <i class="fas fa-video text-orange mb-1"></i>
+                <div class="stats-number small">{{videoCount}}</div>
+                <div class="stats-label small">Video</div>
+              </div>
+            </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+
 <main class="container mt-4">
-  <!-- Bộ lọc -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-gradient-gray text-white py-3">
-      <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Bộ lọc video</h6>
-    </div>
-    <div class="card-body p-4">
-      <form method="GET" action="/video" id="filterForm">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-4">
-            <label class="form-label fw-bold text-muted">
-              <i class="fas fa-search me-2 text-orange"></i>Tìm kiếm
-            </label>
-            <input type="text" class="form-control" name="search" placeholder="Tìm kiếm video..." value="{{filters.search}}">
-          </div>
-          <div class="col-md-2">
-            <label class="form-label fw-bold text-muted">
-              <i class="fas fa-tags me-2 text-orange"></i>Danh mục
-            </label>
-            <select class="form-select" name="category">
-              <option value="all" {{#if (eq filters.category 'all')}}selected{{/if}}>Tất cả danh mục</option>
-              {{#each categories}}
-                <option value="{{this}}" {{#if (eq ../filters.category this)}}selected{{/if}}>{{this}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="col-md-2">
-            <label class="form-label fw-bold text-muted">
-              <i class="fas fa-signal me-2 text-orange"></i>Cấp độ
-            </label>
-            <select class="form-select" name="level">
-              <option value="all" {{#if (eq filters.level 'all')}}selected{{/if}}>Tất cả cấp độ</option>
-              {{#each levels}}
-                <option value="{{this}}" {{#if (eq ../filters.level this)}}selected{{/if}}>{{this}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="col-md-2">
-            <button type="submit" class="btn btn-orange w-100">
-              <i class="fas fa-filter me-1"></i>Lọc
-            </button>
-          </div>
-          <div class="col-md-2">
-            <a href="/video" class="btn btn-secondary w-100">
-              <i class="fas fa-times me-1"></i>Xóa lọc
-            </a>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Thông báo kết quả tìm kiếm -->
-  {{#if filters.search}}
-    <div class="alert alert-info d-flex align-items-center mb-3">
-      <i class="fas fa-search me-2"></i>
-      <div>
-        <strong>Kết quả tìm kiếm:</strong> "{{filters.search}}"
-        {{#if hasResults}}
-          - Tìm thấy <strong>{{totalResults}}</strong> video
-        {{else}}
-          - Không tìm thấy video nào
-        {{/if}}
-      </div>
-    </div>
-  {{/if}}
-
-  <!-- Danh sách khóa học -->
-  <div class="card shadow-sm border-0">
-    <div class="card-header bg-gradient-gray text-white py-3 d-flex justify-content-between align-items-center">
-      <h6 class="mb-0">
-        <i class="fas fa-play-circle me-2"></i>Danh sách khóa học
-      </h6>
-      {{#if hasResults}}
-        <span class="badge bg-light text-dark">{{totalResults}} video</span>
-      {{/if}}
-    </div>
-
-    <div class="card-body p-3">
-      <div class="accordion" id="accordionCourses">
-        {{#each groupedVideos}}
-          <div class="accordion-item mb-3 border rounded-3 shadow-sm">
-            <h2 class="accordion-header" id="heading-{{@index}}">
-              <button 
-                class="accordion-button collapsed fw-bold text-primary" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#collapse-{{@index}}" 
-                aria-expanded="false" 
-                aria-controls="collapse-{{@index}}">
-                <i class="fas fa-folder me-2 text-warning"></i>
-                {{@key}}
-                <span class="badge bg-light text-dark ms-2">{{this.length}} khóa học</span>
-              </button>
-            </h2>
-
-            <div 
-              id="collapse-{{@index}}" 
-              class="accordion-collapse collapse" 
-              aria-labelledby="heading-{{@index}}" 
-              data-bs-parent="#accordionCourses">
-              <div class="accordion-body">
-                <div class="row g-4">
-                  {{#each this}}
-                    <div class="col-lg-4 col-md-6">
-                      <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="position-relative">
-                          <img src="{{thumbnail}}" class="card-img-top rounded-top" alt="{{title}}" style="height: 160px; object-fit: cover;" />
-                          <span class="badge bg-{{levelColor}} position-absolute top-0 start-0 m-2 fs-6">{{level}}</span>
-                          <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 fs-6">
-                            <i class="fas fa-star me-1"></i>{{rating}}
-                          </span>
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                          <h6 class="card-title fw-bold mb-2">{{title}}</h6>
-                          <p class="card-text text-muted small mb-2">{{description}}</p>
-                          <a href="video/showdetail/{{_id}}" class="btn btn-orange btn-sm mt-auto w-100">
-                            <i class="fas fa-play me-1"></i>Xem chi tiết
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  {{/each}}
+  <!-- Danh sách video -->
+  <div class="accordion" id="accordionCourses">
+      <div id="collapse-major" class="accordion-collapse collapse show">
+        <div class="accordion-body">
+          <div class="row g-4">
+            {{#each videos}}
+              <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm border-0 hover-shadow">
+                  <div class="position-relative">
+                    <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg" 
+                        class="card-img-top rounded-top" 
+                        alt="{{title}}" 
+                        style="height: 160px; object-fit: cover;" />
+                    {{#if level}}
+                      <span class="badge bg-{{levelColor}} position-absolute top-0 start-0 m-2 fs-6">{{level}}</span>
+                    {{/if}}
+                    {{#if rating}}
+                      <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 fs-6">
+                        <i class="fas fa-star me-1"></i>{{rating}}
+                      </span>
+                    {{/if}}
+                  </div>
+                  <div class="card-body d-flex flex-column p-3">
+                    <h6 class="card-title fw-bold mb-2">{{title}}</h6>
+                    <p class="card-text text-muted small mb-2">{{description}}</p>
+                    <a href="video/showdetail/{{_id}}" class="btn btn-orange btn-sm mt-auto w-100">
+                      <i class="fas fa-play me-1"></i>Xem chi tiết
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
+            {{/each}}
           </div>
-        {{/each}}
+        </div>
       </div>
     </div>
-  </div>
+
 </main>
 
 <script>
