@@ -14,17 +14,15 @@
         <div class="col-md-8 p-5 d-flex flex-column justify-content-center bg-white">
         <div class="d-flex gap-2 mb-2">
             <span class="badge bg-primary text-white">{{video.category}}</span>
-            <span class="badge bg-secondary text-white">{{video.level}}</span>
         </div>
 
         <h2 class="fw-bold fs-3 mb-3">{{video.title}}</h2>
         <p class="text-muted mb-4">{{video.description}}</p>
 
         <div class="d-flex flex-wrap gap-3 text-muted small mb-4">
-            <span><i class="far fa-clock me-1 text-primary"></i>{{video.duration}} giờ</span>
-            <span><i class="fas fa-list me-1 text-success"></i>{{video.lessons}} bài học</span>
-            <span><i class="fas fa-user-graduate me-1 text-info"></i>{{video.students}} học viên</span>
-            <span><i class="fas fa-star me-1 text-warning"></i>{{video.rating}}</span>
+          <span><i class="far fa-clock me-1 text-primary"></i>{{video.duration}}</span>
+          <span><i class="fas fa-user-graduate me-1 text-info"></i>{{video.students}} học viên</span>
+          <span><i class="fas fa-star me-1 text-warning"></i>{{video.rating}}</span>
         </div>
 
         </div>
@@ -43,11 +41,11 @@
         ></iframe>
 
         {{#if enrolled}}
-          <span class="text-success fw-semibold mt-2">Đã đăng ký</span>
-          <a href="/video/start/{{video._id}}" class="btn btn-success w-100 mt-2 rounded-pill">Bắt đầu học</a>
+          <span class="text-success fw-semibold mt-2">Đang quan tâm</span>
+          <a href="/video/start/{{video._id}}" class="btn btn-success w-100 mt-2 rounded-pill">Bắt đầu xem</a>
         {{else}}
           <form action="/video/join/{{video._id}}" method="POST" class="w-100 mt-2">
-            <button type="submit" class="btn btn-primary w-100 rounded-pill">Đăng ký khóa học</button>
+            <button type="submit" class="btn btn-primary w-100 rounded-pill">Quan tâm</button>
           </form>
         {{/if}}
         </div>

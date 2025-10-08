@@ -1,68 +1,67 @@
-<!-- Header Section with Gradient Background -->
 <div class="document-header mb-3">
   <div class="container-fluid">
     <div class="row align-items-center">
       <div class="col-md-8">
-        <h1 class="h2 fw-bold text-white mb-1">
+        <h1 class="h3 fw-bold text-white mb-1">
           <i class="fas fa-video me-2"></i>Các Video Tham Khảo
         </h1>
         <p class="text-white-50 mb-0">Khám phá và đăng ký các video trực tuyến</p>
       </div>
-
-      <div class="col-md-4">
-        <div class="row g-2">
-            <div class="stats-card p-2 text-center">
-              <div class="stats-item">
-                <i class="fas fa-video text-orange mb-1"></i>
-                <div class="stats-number small">{{videoCount}}</div>
-                <div class="stats-label small">Video</div>
-              </div>
-            </div>
+      <div class="col-md-4 text-end">
+        <div class="stats-card">
+          <div class="stats-item">
+            <i class="fas fa-file-pdf text-orange"></i>
+            <span class="stats-number">{{#if videos}}{{videoCount}}{{else}}0{{/if}}</span>
+            <span class="stats-label">Video</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-
 <main class="container mt-4">
-  <!-- Danh sách video -->
-  <div class="accordion" id="accordionCourses">
-      <div id="collapse-major" class="accordion-collapse collapse show">
-        <div class="accordion-body">
-          <div class="row g-4">
-            {{#each videos}}
-              <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-sm border-0 hover-shadow">
-                  <div class="position-relative">
-                    <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg" 
-                        class="card-img-top rounded-top" 
-                        alt="{{title}}" 
-                        style="height: 160px; object-fit: cover;" />
-                    {{#if level}}
-                      <span class="badge bg-{{levelColor}} position-absolute top-0 start-0 m-2 fs-6">{{level}}</span>
-                    {{/if}}
-                    {{#if rating}}
-                      <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 fs-6">
-                        <i class="fas fa-star me-1"></i>{{rating}}
-                      </span>
-                    {{/if}}
-                  </div>
-                  <div class="card-body d-flex flex-column p-3">
-                    <h6 class="card-title fw-bold mb-2">{{title}}</h6>
-                    <p class="card-text text-muted small mb-2">{{description}}</p>
-                    <a href="video/showdetail/{{_id}}" class="btn btn-orange btn-sm mt-auto w-100">
-                      <i class="fas fa-play me-1"></i>Xem chi tiết
-                    </a>
-                  </div>
-                </div>
-              </div>
-            {{/each}}
+  <!-- Danh sách Video -->
+  <div class="video-list container-fluid mt-4">
+    <div class="row g-4">
+      {{#each videos}}
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+          <div class="card video-card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+            <!-- Thumbnail -->
+            <div class="position-relative">
+              <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg" 
+                  class="card-img-top" 
+                  alt="{{title}}" 
+                  style="height: 180px; object-fit: cover;" />
+              {{#if level}}
+                <span class="badge position-absolute top-0 start-0 m-2 px-2 py-1 rounded-pill bg-{{levelColor}}">
+                  {{level}}
+                </span>
+              {{/if}}
+              {{#if rating}}
+                <span class="badge position-absolute top-0 end-0 m-2 px-2 py-1 rounded-pill bg-warning text-dark">
+                  <i class="fas fa-star me-1"></i>{{rating}}
+                </span>
+              {{/if}}
+            </div>
+
+            <!-- Nội dung -->
+            <div class="card-body d-flex flex-column p-3">
+              <h6 class="card-title fw-bold text-truncate mb-2" title="{{title}}">
+                {{title}}
+              </h6>
+              <p class="card-text text-muted small mb-3 text-truncate-2">
+                {{description}}
+              </p>
+              <a href="/video/showdetail/{{_id}}" class="btn btn-orange btn-sm mt-auto w-100">
+                <i class="fas fa-play me-1"></i>Xem chi tiết
+              </a>
+            </div>
           </div>
         </div>
-      </div>
+      {{/each}}
     </div>
-
+  </div>
 </main>
 
 <script>

@@ -7,9 +7,13 @@ const Notification = require('../../models/Notification');
 function parseDuration(duration) {
   const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
   const [, hours, minutes, seconds] = duration.match(regex) || [];
-  return `${hours ? `${hours} giờ ` : ''}${minutes ? `${minutes} phút ` : ''}${seconds ? `${seconds} giây` : ''}`.trim();
-}
 
+  const h = hours ? `${hours} giờ` : '';
+  const m = minutes ? `${minutes} phút` : '';
+  const s = seconds ? `${seconds} giây` : '';
+
+  return [h, m, s].filter(Boolean).join(' ').trim() || '0 giây';
+}
 
 class VideoController {
   async getVideo(req, res) {
@@ -35,55 +39,86 @@ class VideoController {
     }
   }
 
-  async showDetail(req, res, next) {
+  async showDetail(req, res) {
     try {
-      const video = await Video.findById(req.params.id);
-      if (!video) {
-        return res.status(404).send('Không tìm thấy video!');
-      }
+      const userId = req.session.user?._id;
+      if (!userId) return res.redirect('/login-user');
 
-      const user = req.session.user;
-      let enrolled = false;
-      
-      if (user && user.role === 'user') {
-        try {
-          const foundUser = await User.findById(user._id);
-          enrolled = foundUser?.enrolledVideos?.includes(video._id) || false;
-        } catch (err) {
-          console.error('Lỗi khi kiểm tra enrollment:', err);
-          enrolled = false;
-        }
-      }
+      const user = await User.findById(userId).lean();
 
-      res.render('user/detailVideo', {
-        user: req.session.user,
-        video: video.toObject(), 
-        enrolled,
-      });
-    } catch (error) {
-      console.error('Lỗi khi hiển thị chi tiết video:', error);
-      res.status(500).send('Lỗi server!');
-    }
-  }
-
-  async joinVideo(req, res) {
-    try {
-      const userId = req.session.user._id;
       const videoId = req.params.id;
+      const video = await Video.findById(videoId).lean();
 
-      const user = await User.findById(userId);
+      if (!video) return res.status(404).send("Không tìm thấy video");
 
-      if (!user.enrolledVideos.includes(videoId)) {
-        user.enrolledVideos.push(videoId);
-        await user.save();
+    let enrolled = false;
+    if (req.session?.user?._id) {
+      const user = await User.findById(req.session.user._id);
+      if (user && Array.isArray(user.enrolledVideos)) {
+        enrolled = user.enrolledVideos.some(v => v && v.toString() === videoId);
+      }
+    }
+
+      // Tính số học viên
+      const studentsCount = await User.countDocuments({ enrolledVideos: videoId });
+
+      // Tính rating trung bình
+      let avgRating = 0;
+      if (video.reviews && video.reviews.length > 0) {
+        avgRating = (
+          video.reviews.reduce((sum, r) => sum + r.rating, 0) /
+          video.reviews.length
+        ).toFixed(1);
       }
 
-      res.redirect(`/video/showdetail/${videoId}`);
+      res.render("user/detailVideo", {
+        user,
+        enrolled,
+        video: {
+          ...video,
+          students: studentsCount,
+          rating: avgRating
+        }
+      });
     } catch (error) {
       console.error(error);
       res.status(500).send("Lỗi server!");
     }
   }
+
+async joinVideo(req, res) {
+  try {
+    // 1. Kiểm tra đăng nhập
+    if (!req.session?.user?._id) {
+      console.warn("joinVideo: user chưa đăng nhập");
+      return res.redirect("/login-user");
+    }
+
+    const userId = req.session.user._id;
+    const videoId = req.params.id;
+
+    // 2. Cập nhật trực tiếp bằng $addToSet
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { enrolledVideos: videoId } }, // tránh trùng lặp
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      console.warn("joinVideo: không tìm thấy user:", userId);
+      return res.redirect("/login-user");
+    }
+
+    console.log(`✅ User ${updatedUser.username} đã đăng ký video ${videoId}`);
+
+    res.redirect(`/video/showdetail/${videoId}`);
+  } catch (error) {
+    console.error("joinVideo error:", error);
+    res.status(500).send("Lỗi server!");
+  }
+}
+
+
 
   async postReview(req, res) {
     try {
@@ -94,16 +129,24 @@ class VideoController {
       const video = await Video.findById(videoId);
       if (!video) return res.status(404).send('Video không tồn tại');
 
-      // Thêm đánh giá
-      video.reviews.push({
-        user: user._id,
-        username: user.username,
-        rating: parseInt(rating),
-        comment,
-        createdAt: new Date()
-      });
-
+      const existingReview = video.reviews.find(r => r.user.toString() === user._id.toString());
+      if (existingReview) {
+        // cập nhật review cũ
+        existingReview.rating = parseInt(rating);
+        existingReview.comment = comment.trim();
+        existingReview.createdAt = new Date();
+      } else {
+        // thêm mới
+        video.reviews.push({
+          user: user._id,
+          username: user.username,
+          rating: Math.max(1, Math.min(5, parseInt(rating))),
+          comment: comment.trim(),
+          createdAt: new Date()
+        });
+      }
       await video.save();
+
 
       res.redirect(`/video/showdetail/${videoId}`);
     } catch (error) {

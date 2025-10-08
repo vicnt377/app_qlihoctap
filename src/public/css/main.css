@@ -57,6 +57,21 @@ body {
   box-shadow: 0 2px 8px rgba(224,133,82,0.15); */
 }
 
+.video-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.video-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+/* Giới hạn 2 dòng mô tả */
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Header background cho Notification */
 .notification-header {
   background: linear-gradient(135deg, #e08552, #f39c74);
