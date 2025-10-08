@@ -71,7 +71,9 @@ class HomeController {
         recentDocs,
         recentDocsCount,
         showCongrats: req.session.showCongrats,
-        congratsMessage: req.session.congratsMessage
+        congratsMessage: req.session.congratsMessage,
+        enrolledVideos: populatedUser.enrolledVideos || []
+
       });
       req.session.showCongrats = null;
       req.session.congratsMessage = null;

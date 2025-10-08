@@ -86,39 +86,37 @@ class VideoController {
     }
   }
 
-async joinVideo(req, res) {
-  try {
-    // 1. Kiểm tra đăng nhập
-    if (!req.session?.user?._id) {
-      console.warn("joinVideo: user chưa đăng nhập");
-      return res.redirect("/login-user");
+  async joinVideo(req, res) {
+    try {
+      // 1. Kiểm tra đăng nhập
+      if (!req.session?.user?._id) {
+        console.warn("joinVideo: user chưa đăng nhập");
+        return res.redirect("/login-user");
+      }
+
+      const userId = req.session.user._id;
+      const videoId = req.params.id;
+
+      // 2. Cập nhật trực tiếp bằng $addToSet
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { enrolledVideos: videoId } }, // tránh trùng lặp
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        console.warn("joinVideo: không tìm thấy user:", userId);
+        return res.redirect("/login-user");
+      }
+
+      console.log(`✅ User ${updatedUser.username} đã đăng ký video ${videoId}`);
+
+      res.redirect(`/video/showdetail/${videoId}`);
+    } catch (error) {
+      console.error("joinVideo error:", error);
+      res.status(500).send("Lỗi server!");
     }
-
-    const userId = req.session.user._id;
-    const videoId = req.params.id;
-
-    // 2. Cập nhật trực tiếp bằng $addToSet
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $addToSet: { enrolledVideos: videoId } }, // tránh trùng lặp
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      console.warn("joinVideo: không tìm thấy user:", userId);
-      return res.redirect("/login-user");
-    }
-
-    console.log(`✅ User ${updatedUser.username} đã đăng ký video ${videoId}`);
-
-    res.redirect(`/video/showdetail/${videoId}`);
-  } catch (error) {
-    console.error("joinVideo error:", error);
-    res.status(500).send("Lỗi server!");
   }
-}
-
-
 
   async postReview(req, res) {
     try {
@@ -157,6 +155,11 @@ async joinVideo(req, res) {
 
   async startVideo(req, res) {
     try {
+      const userId = req.session.user._id;
+      if (!userId) return res.redirect('/login-user');
+      const user = await User.findById(userId).lean();
+
+
       const video = await Video.findById(req.params.id);
       if (!video) return res.status(404).send('Không tìm thấy video');
 
@@ -171,6 +174,7 @@ async joinVideo(req, res) {
       const durationFormatted = parseDuration(durationISO);
 
       res.render('user/startVideo', {
+        user,
         video: video.toObject(),
         duration: durationFormatted
       });
