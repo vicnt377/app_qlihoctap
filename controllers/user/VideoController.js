@@ -111,6 +111,25 @@ class VideoController {
 
       console.log(`✅ User ${updatedUser.username} đã đăng ký video ${videoId}`);
 
+      // 3. Lấy thông tin video để hiển thị trong notification
+      const video = await Video.findById(videoId);
+
+      // 4. Tạo notification cho user
+      await Notification.create({
+        recipient: userId,
+        sender: userId, // hoặc để null nếu là hệ thống
+        type: "success",
+        title: "Bạn vừa quan tâm video",
+        message: `Bạn đã theo dõi video "${video?.title}" thành công.`,
+        relatedModel: "Video",
+        relatedId: videoId,
+        metadata: {
+          videoId,
+          videoTitle: video?.title
+        }
+      });
+
+      // 5. Redirect
       res.redirect(`/video/showdetail/${videoId}`);
     } catch (error) {
       console.error("joinVideo error:", error);
@@ -127,12 +146,17 @@ class VideoController {
       const video = await Video.findById(videoId);
       if (!video) return res.status(404).send('Video không tồn tại');
 
-      const existingReview = video.reviews.find(r => r.user.toString() === user._id.toString());
+      let isUpdate = false;
+      const existingReview = video.reviews.find(
+        r => r.user.toString() === user._id.toString()
+      );
+
       if (existingReview) {
         // cập nhật review cũ
-        existingReview.rating = parseInt(rating);
+        existingReview.rating = Math.max(1, Math.min(5, parseInt(rating)));
         existingReview.comment = comment.trim();
         existingReview.createdAt = new Date();
+        isUpdate = true;
       } else {
         // thêm mới
         video.reviews.push({
@@ -143,8 +167,29 @@ class VideoController {
           createdAt: new Date()
         });
       }
+
       await video.save();
 
+      // 🔔 Tạo notification
+      await Notification.create({
+        recipient: user._id,              // người nhận chính là user
+        sender: user._id,                 // có thể là hệ thống hoặc user
+        type: "info",
+        title: isUpdate 
+          ? "Bạn đã cập nhật đánh giá" 
+          : "Cảm ơn bạn đã đánh giá",
+        message: isUpdate 
+          ? `Bạn đã cập nhật đánh giá cho video "${video.title}".`
+          : `Bạn đã gửi đánh giá cho video "${video.title}".`,
+        relatedModel: "Video",
+        relatedId: video._id,
+        metadata: {
+          videoId: video._id,
+          videoTitle: video.title,
+          rating: parseInt(rating),
+          comment: comment.trim()
+        }
+      });
 
       res.redirect(`/video/showdetail/${videoId}`);
     } catch (error) {
