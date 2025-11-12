@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const Video = require('../models/Video'); // chỉnh lại path nếu cần
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ten_database';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/quanlitiendo';
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
 // Hàm parse ISO 8601 duration (VD: PT1H2M10S → "1 giờ 2 phút 10 giây")

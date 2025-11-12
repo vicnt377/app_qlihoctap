@@ -656,3 +656,13 @@ body {
     padding: 0.5rem 0.75rem;
   }
 } 
+
+.accordion-collapse.collapsing {
+  transition: none !important;
+}
+#videoContainer {
+  transition: opacity 0.2s ease;
+}
+#videoContainer.hidden {
+  opacity: 0;
+}

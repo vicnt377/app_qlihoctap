@@ -5,7 +5,6 @@
   <h3 class="dashboard-title text-2xl">
     <i class="fas fa-video me-2"></i>Quản Lý Khóa Học
   </h3>
-  {{!-- <p class="text-muted mb-0">Quản lý và tổ chức các khóa học theo danh mục và cấp độ</p> --}}
 </div>
 
 <main class="container-fluid px-4">
@@ -68,48 +67,86 @@
     </div>
   </div>
 
-  <!-- Bộ lọc -->
-  <div class="row g-3 mb-4">
-    <div class="col-12">
-      <div class="card shadow-sm border-0">
-        <div class="card-body p-3">
-          <form method="GET" action="/admin/videos" id="filterForm" class="row g-2 align-items-end">
-            <div class="col-md-4">
+  {{!-- Bộ lọc và form thêm video từ Youtube --}}
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-4 align-items-start">
+        <!-- 🔹 Cột trái: Bộ lọc -->
+        <div class="col-md-6 border-end">
+          <h6 class="fw-bold mb-3">Bộ lọc khóa học</h6>
+          <form method="GET" action="/admin/videos" id="filterForm-search" class="row g-2 align-items-end">
+            <div class="col-md-8">
               <input type="text" class="form-control form-control-sm" name="search" 
-                     placeholder="🔍 Tìm kiếm..." value="{{query.search}}">
+                    placeholder="🔍 Tìm kiếm..." value="{{query.search}}">
             </div>
-            <div class="col-md-3">
-              <select class="form-select form-select-sm" name="category">
-                <option value="all">📁 Tất cả danh mục</option>
-                {{#each categories}}
-                  <option value="{{this}}" {{#if (eq ../query.category this)}}selected{{/if}}>{{this}}</option>
+            <div class="col-md-4">
+              <select id="category" name="category" class="form-select">
+                <option value="all" {{#if (eq query.category 'all')}}selected{{/if}}>📁 Tất cả danh mục</option>
+                {{#each allMajors}}
+                  <option value="{{@key}}" {{#if (eq ../query.category @key)}}selected{{/if}}>
+                    {{this}}
+                  </option>
                 {{/each}}
               </select>
-            </div>
-            <div class="col-md-3">
-              <select class="form-select form-select-sm" name="level">
-                <option value="all">📊 Tất cả cấp độ</option>
-                {{#each levels}}
-                  <option value="{{this}}" {{#if (eq ../query.level this)}}selected{{/if}}>{{this}}</option>
-                {{/each}}
-              </select>
-            </div>
-            <div class="col-md-2">
-              <button type="submit" class="btn btn-primary btn-sm w-100">
-                <i class="fas fa-filter me-1"></i>Lọc
-              </button>
             </div>
           </form>
         </div>
+
+        <!-- 🔹 Cột phải: Form thêm video -->
+        <div class="col-md-6">
+          <h6 class="fw-bold mb-3">Thêm video từ YouTube</h6>
+          <form id="youtubeSearchForm" class="row g-2 align-items-end">
+            <div class="col-md-8">
+              <input type="text" class="form-control form-control-sm" id="youtubeQuery" 
+                    placeholder="Nhập từ khóa hoặc ID video YouTube">
+            </div>
+            <div class="col-md-4">
+              <button type="submit" class="btn btn-danger btn-sm w-100">
+                <i class="fab fa-youtube me-1"></i>Tìm kiếm
+              </button>
+            </div>
+          </form>
+
+          <!-- 🔸 Kết quả preview -->
+          <div id="youtubeResult" class="row g-2 mt-2 d-none">
+            <div class="col-md-3">
+              <img id="ytThumbnail" src="" class="img-fluid rounded" style="height: 80px; object-fit: cover;">
+            </div>
+            <div class="col-md-9">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <input type="text" id="ytTitleInput" class="form-control form-control-sm" placeholder="Tiêu đề">
+                </div>
+                <div class="col-md-3">
+                  <input type="text" id="ytCategory" class="form-control form-control-sm" placeholder="Danh mục">
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" id="ytLevel">
+                    <option value="Cơ bản">Cơ bản</option>
+                    <option value="Trung bình" selected>Trung bình</option>
+                    <option value="Nâng cao">Nâng cao</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mt-2">
+                <button class="btn btn-success btn-sm" id="ytAddBtn">
+                  <i class="fas fa-plus me-1"></i>Thêm vào hệ thống
+                </button>
+                <span id="ytMsg" class="ms-2"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-</div>
+  </div>
 
   <!-- Tabs gọn gàng -->
   <ul class="nav nav-pills mb-3" id="videoTabs">
     <li class="nav-item">
       <a class="nav-link active" href="#tabActive" data-bs-toggle="pill">
-        <i class="fas fa-play-circle me-1"></i>Khóa học hiện tại
+        <i class="fas fa-play-circle me-1"></i>Video hiện tại
       </a>
     </li>
     <li class="nav-item">
@@ -122,120 +159,49 @@
   <div class="tab-content">
     <!-- Tab: Video hiện tại -->
     <div class="tab-pane fade show active" id="tabActive">
-      <!-- Form thêm video YouTube -->
-      <div class="card shadow-sm border-0 mb-3">
-        <div class="card-header bg-light py-2">
-          <h6 class="mb-0"><i class="fab fa-youtube me-2 text-danger"></i>Thêm khóa học từ YouTube</h6>
-        </div>
-        <div class="card-body p-3">
-          <form id="youtubeSearchForm" class="row g-2 align-items-end">
-        <div class="col-md-8">
-              <input type="text" class="form-control form-control-sm" id="youtubeQuery" 
-                     placeholder="Nhập từ khóa hoặc ID video YouTube">
-        </div>
-        <div class="col-md-4">
-              <button type="submit" class="btn btn-danger btn-sm w-100">
-                <i class="fab fa-youtube me-1"></i>Tìm kiếm
-              </button>
-        </div>
-      </form>
-
-      <!-- Kết quả preview -->
-          <div id="youtubeResult" class="row g-2 mt-2 d-none">
-            <div class="col-md-3">
-              <img id="ytThumbnail" src="" class="img-fluid rounded" style="height: 80px; object-fit: cover;" />
-        </div>
-            <div class="col-md-9">
-              <div class="row g-2">
-                <div class="col-md-6">
-                  <input type="text" id="ytTitleInput" class="form-control form-control-sm" placeholder="Tiêu đề">
-          </div>
-                <div class="col-md-3">
-                  <input type="text" id="ytCategory" class="form-control form-control-sm" placeholder="Danh mục">
-            </div>
-                <div class="col-md-3">
-                  <select class="form-select form-select-sm" id="ytLevel">
-                <option value="Cơ bản">Cơ bản</option>
-                <option value="Trung bình" selected>Trung bình</option>
-                <option value="Nâng cao">Nâng cao</option>
-              </select>
-            </div>
-          </div>
-              <div class="mt-2">
-                <button class="btn btn-success btn-sm" id="ytAddBtn">
-                  <i class="fas fa-plus me-1"></i>Thêm vào hệ thống
-                </button>
-                <span id="ytMsg" class="ms-2"></span>
-        </div>
-      </div>
-        </div>
-        </div>
-      </div>
-
-             <!-- Danh sách video theo danh mục  -->
-       {{#if videos.length}}
-         <div class="accordion show" id="videoAccordion">
-           {{!-- Nhóm theo danh mục --}}
-           {{#each (groupBy videos 'category')}}
-             {{#if @key}}
-               <div class="accordion-item border rounded-3 shadow-sm mb-3">
-                 <h2 class="accordion-header" id="heading-{{@index}}">
-                   <button 
-                     class="accordion-button {{#unless @first}}collapsed{{/unless}} fw-bold text-primary" 
-                     type="button" 
-                     data-target="#collapse-{{@index}}" 
-                     data-expanded="{{#if @first}}true{{else}}false{{/if}}"
-                     data-category="{{@key}}">
-                     <i class="fas fa-folder{{#if @first}} fa-folder-open text-warning{{/if}} me-2"></i>
-                     {{@key}}
-                     <span class="badge bg-light text-dark ms-2">{{countVideosInCategory ../videos @key}} khóa học</span>
-                   </button>
-                 </h2>
-
-                <div 
-                 id="collapse-{{@index}}" 
-                 class="accordion-collapse {{#if @first}}show{{/if}}" 
-                 data-expanded="{{#if @first}}true{{else}}false{{/if}}">
-                 <div class="accordion-body p-2">
-
+      <div id="videoContainer">
+        {{#if videos.length}}
+          {{#each grouped}}
+            {{#if @key}}
+              <div class="category-section mb-4">
+                <!-- Tiêu đề danh mục -->
+                <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                  <i class="fas fa-folder-open me-2 text-warning"></i>
+                  {{majorName @key}}
+                  <span class="badge bg-light text-dark ms-2">
+                    {{countVideosInCategory ../videos @key}} Video
+                  </span>
+                </h5>
+                <!-- Danh sách video -->
+                {{#if this.length}}
                   <div class="row g-3">
                     {{#each this}}
                       <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="card video-card h-100 border-0 shadow-sm hover-shadow">
                           <div class="position-relative">
-                            <img 
-                              src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}
-                                  {{else if (eq this.thumbnail 'default.jpg')}}/img/thumbnails/default.jpg
-                                  {{else if this.thumbnail}}/img/thumbnails/{{this.thumbnail}}
-                                  {{else}}/img/thumbnails/default.jpg{{/if}}" 
-                              class="card-img-top rounded-top" 
-                              alt="{{this.title}}" 
-                              style="height: 140px; object-fit: cover;"
-                              onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;">
-
-                            <span class="badge position-absolute top-0 start-0 m-2 
-                              {{#if (eq this.level 'Cơ bản')}}bg-success
-                              {{else if (eq this.level 'Trung bình')}}bg-warning
-                              {{else}}bg-danger{{/if}}">
-                              {{this.level}}
-                            </span>
-
-                            <span class="badge bg-dark position-absolute top-0 end-0 m-2">
-                              <i class="fas fa-clock me-1"></i>{{this.duration}}h
-                            </span>
+                            <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg"
+                                alt="{{title}}"
+                                class="card-img-top rounded-top"
+                                style="height: 140px; object-fit: cover;"
+                                onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;">
+                            {{#if duration}}
+                              <span class="badge bg-dark position-absolute top-0 end-0 m-2">
+                                <i class="fas fa-clock me-1"></i>{{duration}}
+                              </span>
+                            {{/if}}
                           </div>
 
                           <div class="card-body d-flex flex-column p-2">
-                            <h6 class="card-title fw-bold mb-1 text-truncate" title="{{this.title}}">
-                              {{this.title}}
+                            <h6 class="card-title fw-bold mb-1 text-truncate" title="{{title}}">
+                              {{title}}
                             </h6>
 
                             <div class="d-flex justify-content-between text-muted small mb-2">
-                              <span><i class="fas fa-users me-1"></i>{{this.students}}</span>
-                              <span><i class="fas fa-star text-warning me-1"></i>{{this.rating}}</span>
+                              <span><i class="fas fa-users me-1"></i>{{students}}</span>
+                              <span><i class="fas fa-star text-warning me-1"></i>{{rating}}</span>
                             </div>
 
-                            <a href="https://youtube.com/watch?v={{this.youtubeId}}" 
+                            <a href="https://youtube.com/watch?v={{youtubeId}}" 
                               target="_blank" 
                               class="btn btn-outline-primary btn-sm mb-2">
                               <i class="fab fa-youtube me-1"></i>Xem
@@ -244,91 +210,100 @@
                             <div class="d-flex gap-1 mt-auto">
                               <button class="btn btn-warning btn-sm flex-fill btn-edit" data-id="{{_id}}">
                                 <i class="fas fa-edit"></i>
-                  </button>
+                              </button>
                               <button class="btn btn-danger btn-sm flex-fill" onclick="confirmDelete('{{_id}}')">
                                 <i class="fas fa-trash"></i>
-                  </button>
-                </div>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
                     {{/each}}
                   </div>
-
-                </div>
+                {{else}}
+                  <div class="text-center text-muted small">Chưa có video trong danh mục này</div>
+                {{/if}}
               </div>
-            </div>
             {{/if}}
-            {{/each}}
-        </div>
-      {{else}}
-        <div class="text-center py-5">
-          <i class="fas fa-video fa-3x text-muted mb-3"></i>
-          <h5 class="text-muted">Không có khóa học nào</h5>
-          <p class="text-muted">Hãy thêm khóa học mới hoặc thay đổi bộ lọc</p>
+          {{/each}}
+          {{else}}
+            <div class="text-center py-5">
+              <i class="fas fa-video fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">Không có video nào</h5>
+              <p class="text-muted">Hãy thêm video mới hoặc thay đổi bộ lọc</p>
+            </div>
+        {{/if}}
       </div>
-      {{/if}}
-
-
     </div>
 
     <!-- Tab: Video đã xóa -->
     <div class="tab-pane fade" id="tabDeleted">
       {{#if deletedVideos.length}}
-        <div class="row g-3">
-            {{#each deletedVideos}}
-          <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="card h-100 shadow-sm border-0 bg-light video-card">
-              <div class="position-relative">
-                <img src="{{#if (thumbnailIsUrl this.thumbnail)}}{{this.thumbnail}}{{else if (eq this.thumbnail 'default.jpg')}}/img/thumbnails/default.jpg{{else if this.thumbnail}}/img/thumbnails/{{this.thumbnail}}{{else}}/img/thumbnails/default.jpg{{/if}}" 
-                     class="card-img-top" alt="{{this.title}}" 
-                     style="height: 120px; object-fit: cover; opacity: 0.7;"
-                     onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;">
-                
-                <!-- Badge đã xóa -->
-                <span class="badge position-absolute top-0 start-0 m-1 bg-danger">
-                  <i class="fas fa-trash me-1"></i>Đã xóa
+        {{#each (groupBy deletedVideos 'category')}}
+          {{#if @key}}
+            <div class="category-section mb-4">
+              <h5 class="fw-bold text-danger mb-3 border-bottom pb-2">
+                <i class="fas fa-folder-open me-2 text-warning"></i>
+                {{majorName @key}}
+                <span class="badge bg-light text-dark ms-2">
+                  {{countVideosInCategory ../deletedVideos @key}} Video
                 </span>
-                
-                <!-- Badge danh mục -->
-                <span class="badge position-absolute top-0 end-0 m-1 bg-secondary">
-                  {{this.category}}
-                </span>
-              </div>
-              
-              <div class="card-body d-flex flex-column p-2">
-                <h6 class="card-title fw-bold mb-1 text-truncate text-muted small" title="{{this.title}}">
-                  {{this.title}}
-                </h6>
-                
-                <div class="row text-muted small mb-2">
-                  <div class="col-6 text-center">
-                    <i class="fas fa-tags mb-1 d-block"></i>
-                    <span>{{this.category}}</span>
-      </div>
-                  <div class="col-6 text-center">
-                    <i class="fas fa-signal mb-1 d-block"></i>
-                    <span>{{this.level}}</span>
-    </div>
-  </div>
+              </h5>
 
-                <div class="mb-2">
-                  <a href="https://youtube.com/watch?v={{this.youtubeId}}" target="_blank" 
-                     class="btn btn-outline-secondary btn-sm w-100">
-                    <i class="fab fa-youtube me-1"></i>Xem trên YouTube
-                  </a>
-                </div>
-                
-                <div class="mt-auto">
-                  <button class="btn btn-success btn-sm w-100 btn-restore" data-id="{{_id}}">
-                    <i class="fas fa-undo me-1"></i>Khôi phục
-                  </button>
-                </div>
+              <div class="row g-3">
+                {{#each this}}
+                  <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 bg-light video-card">
+                      <div class="position-relative">
+                        <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg"
+                            class="card-img-top rounded-top"
+                            alt="{{title}}"
+                            style="height: 140px; object-fit: cover;"
+                            onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;">
+                        <span class="badge position-absolute top-0 start-0 m-1 bg-danger">
+                          <i class="fas fa-trash me-1"></i>Đã xóa
+                        </span>
+                        <span class="badge position-absolute top-0 end-0 m-1 bg-secondary">
+                          {{majorName category}}
+                        </span>
+                      </div>
+
+                      <div class="card-body d-flex flex-column p-2">
+                        <h6 class="card-title fw-bold mb-1 text-truncate text-muted small" title="{{title}}">
+                          {{title}}
+                        </h6>
+
+                        <div class="row text-muted small mb-2">
+                          <div class="col-6 text-center">
+                            <i class="fas fa-tags mb-1 d-block"></i>
+                            <span>{{majorName category}}</span>
+                          </div>
+                          <div class="col-6 text-center">
+                            <i class="fas fa-signal mb-1 d-block"></i>
+                            <span>{{level}}</span>
+                          </div>
+                        </div>
+
+                        <div class="mb-2">
+                          <a href="https://youtube.com/watch?v={{youtubeId}}" target="_blank"
+                            class="btn btn-outline-secondary btn-sm w-100">
+                            <i class="fab fa-youtube me-1"></i>Xem trên YouTube
+                          </a>
+                        </div>
+
+                        <div class="mt-auto">
+                          <button class="btn btn-success btn-sm w-100 btn-restore" data-id="{{_id}}">
+                            <i class="fas fa-undo me-1"></i>Khôi phục
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {{/each}}
               </div>
             </div>
-          </div>
-          {{/each}}
-        </div>
+          {{/if}}
+        {{/each}}
       {{else}}
         <div class="text-center py-5">
           <i class="fas fa-trash fa-3x text-muted mb-3"></i>
@@ -340,378 +315,238 @@
   </div>
 </main>
 
-<!-- Modal chỉnh sửa -->
+<!-- Modal chỉnh sửa video -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content border-0 shadow-lg">
       <form id="editVideoForm">
-        <div class="modal-header">
-          <h5 class="modal-title"><strong>Sửa Video</strong></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Header -->
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-edit me-2"></i>Chỉnh sửa video
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body">
+
+        <div class="modal-body bg-light">
           <input type="hidden" id="editVideoId">
+
           <div class="row g-3">
+            <!-- YouTube ID -->
             <div class="col-md-6">
-            <label class="form-label">YouTube ID</label>
-            <input type="text" name="youtubeId" class="form-control" id="editYoutubeId" required>
-          </div>
+              <label class="form-label fw-semibold">YouTube ID <span class="text-danger">*</span></label>
+              <input type="text" id="editYoutubeId" name="youtubeId" class="form-control" required>
+              <div class="form-text">Ví dụ: <code>dQw4w9WgXcQ</code></div>
+            </div>
+
+            <!-- Tiêu đề -->
             <div class="col-md-6">
-            <label class="form-label">Tiêu đề</label>
-            <input type="text" name="title" class="form-control" id="editTitle">
-          </div>
+              <label class="form-label fw-semibold">Tiêu đề <span class="text-danger">*</span></label>
+              <input type="text" id="editTitle" name="title" class="form-control" required>
+            </div>
+
+            <!-- Danh mục -->
             <div class="col-md-6">
-            <label class="form-label">Danh mục</label>
-            <input type="text" name="category" class="form-control" id="editCategory">
-          </div>
-            <div class="col-md-6">
-            <label class="form-label">Trình độ</label>
-            <select name="level" class="form-select" id="editLevel">
-              <option value="Cơ bản">Cơ bản</option>
-              <option value="Trung bình">Trung bình</option>
-              <option value="Nâng cao">Nâng cao</option>
-            </select>
-          </div>
+              <label class="form-label fw-semibold">Danh mục</label>
+              <select id="editCategory" name="category" class="form-select">
+                <option value="CNTT">Công nghệ thông tin</option>
+                <option value="YT">Y tế</option>
+                <option value="GD">Giáo dục</option>
+                <option value="NN">Ngôn ngữ</option>
+                <option value="KT-TC">Kinh tế - Tài chính</option>
+                <option value="TN-MT">Tài nguyên - Môi trường</option>
+                <option value="KD-QL">Kinh doanh - Quản lý</option>
+                <option value="KT-XD">Kỹ thuật - Xây dựng</option>
+                <option value="L-NV">Luật - Nhân văn</option>
+                <option value="ST-NT">Sáng tạo - Nghệ thuật</option>
+                <option value="DV-DL">Dịch vụ - Du lịch</option>
+              </select>
+            </div>
+
+            <!-- Mô tả -->
             <div class="col-12">
-            <label class="form-label">Mô tả</label>
-              <textarea name="description" class="form-control" rows="3" id="editDescription"></textarea>
+              <label class="form-label fw-semibold">Mô tả</label>
+              <textarea id="editDescription" name="description" class="form-control" rows="4"></textarea>
             </div>
           </div>
         </div>
+
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Lưu</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i>Hủy
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>Lưu thay đổi
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const searchForm = document.getElementById('youtubeSearchForm');
-  const ytResult = document.getElementById('youtubeResult');
-  const ytAddBtn = document.getElementById('ytAddBtn');
+  const form = document.getElementById('filterForm-search');
+  const searchInput = form.querySelector('input[name="search"]');
+  const categorySelect = form.querySelector('select[name="category"]');
+  const videoContainer = document.getElementById('videoContainer');
+  let typingTimer;
 
-  let videoData = null;
+  function fetchVideos() {
+    const params = new URLSearchParams(new FormData(form));
+    const openItems = [...document.querySelectorAll('.accordion-collapse.show')].map(el => el.id);
 
-  searchForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const query = document.getElementById('youtubeQuery').value.trim();
-    if (!query) return;
+    fetch(`/admin/videos?${params.toString()}&ajax=1`)
+      .then(res => res.text())
+      .then(html => {
+        // Tạm ẩn container để tránh nhấp nháy
+        videoContainer.style.visibility = 'hidden';
 
-    const res = await fetch(`/admin/videos/youtube-search?query=${encodeURIComponent(query)}`);
-    const data = await res.json();
+        videoContainer.innerHTML = html;
 
-    if (data.video) {
-      videoData = data.video;
-      document.getElementById('ytThumbnail').src = videoData.thumbnail;
-      document.getElementById('ytTitleInput').value = videoData.title;
-      ytResult.classList.remove('d-none');
-    } else {
-      alert(data.message || 'Không tìm thấy video');
-      ytResult.classList.add('d-none');
-    }
+        // Mở lại các danh mục đang mở
+        openItems.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && !el.classList.contains('show')) {
+            const collapse = new bootstrap.Collapse(el, { toggle: false });
+            collapse.show();
+          }
+        });
+
+        // Hiện lại container sau 100ms
+        setTimeout(() => (videoContainer.style.visibility = 'visible'), 100);
+      })
+      .catch(err => console.error('❌ Lỗi fetch videos:', err));
+  }
+
+  // Gõ tìm kiếm tự động lọc (debounce)
+  searchInput.addEventListener('input', () => {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(fetchVideos, 400);
   });
 
-  ytAddBtn.addEventListener('click', async () => {
-    const titleInput = document.getElementById('ytTitleInput');
-    const title = titleInput.value.trim() || videoData.title;
-    const category = document.getElementById('ytCategory').value.trim();
-    const level = document.getElementById('ytLevel').value;
-
-    const msgDiv = document.getElementById('ytMsg');
-
-    if (!title) {
-      msgDiv.textContent = '❌ Không thể lấy tiêu đề video';
-      msgDiv.className = 'text-danger';
-      return;
-    }
-
-    const payload = {
-      ...videoData,
-      title,
-      category,
-      level
-    };
-
-    const res = await fetch('/admin/videos/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await res.json();
-    if (res.ok) {
-      msgDiv.textContent = '✅ Video đã được thêm!';
-      msgDiv.className = 'text-success';
-      location.reload();
-    } else {
-      msgDiv.textContent = '❌ ' + (result.message || 'Thêm thất bại');
-      msgDiv.className = 'text-danger';
-    }
-  });
+  // Đổi danh mục lọc ngay
+  categorySelect.addEventListener('change', fetchVideos);
 });
 
-function confirmDelete(id) {
-  if (confirm('Bạn có chắc chắn muốn xóa video này?')) {
-    fetch(`/admin/videos/${id}/delete`, {
-      method: 'DELETE'
-    }).then(res => {
-      if (res.ok) location.reload();
-      else alert('Lỗi khi xóa!');
-    });
-  }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  const editButtons = document.querySelectorAll('.btn-edit');
+</script>
 
-  editButtons.forEach(button => {
-    button.addEventListener('click', async (e) => {
-      const card = button.closest('.video-card') || button.closest('.card');
-      if (!card) return; // 🔒 tránh lỗi null
-      const id = button.dataset.id;
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // ========== FORM EDIT ==========
+  const editForm = document.getElementById('editVideoForm');
 
-      // Lấy thông tin từ card với kiểm tra null
-      const titleElement = card.querySelector('.card-title');
-      const accordionButton = card.closest('.accordion-item')?.querySelector('.accordion-button');
-      const levelBadge = card.querySelector('.badge.bg-success, .badge.bg-warning, .badge.bg-danger');
-      const youtubeLink = card.querySelector('a[href*="youtube.com"]');
-      
-      if (!titleElement || !accordionButton || !levelBadge || !youtubeLink) {
-        console.warn('Không thể tìm thấy đầy đủ thông tin từ card:', { titleElement, accordionButton, levelBadge, youtubeLink });
-        return;
-      }
-      
-      const title = titleElement.textContent.trim();
-      
-      // Lấy category từ accordion button, loại bỏ icon và badge
-      let category = accordionButton.textContent.trim();
-      // Loại bỏ icon folder, emoji và badge số lượng
-      category = category.replace(/📁|📊|fas fa-folder.*?me-2|badge.*?khóa học|folder|folder-open|text-warning|me-2/g, '').trim();
-      // Loại bỏ các class CSS còn sót lại
-      category = category.replace(/\s+/g, ' ').trim();
-      
-      // Nếu category vẫn chứa nhiều text không mong muốn, thử lấy từ data attribute
-      if (category.length > 50 || category.includes('badge') || category.includes('fas')) {
-        // Lấy category từ data attribute nếu có
-        const categoryData = accordionButton.getAttribute('data-category');
-        if (categoryData) {
-          category = categoryData;
-        } else {
-          // Fallback: lấy text đầu tiên trước khi có icon
-          const textNodes = Array.from(accordionButton.childNodes)
-            .filter(node => node.nodeType === Node.TEXT_NODE)
-            .map(node => node.textContent.trim())
-            .filter(text => text.length > 0);
-          
-          if (textNodes.length > 0) {
-            category = textNodes[0];
-          }
-        }
-      }
-      
-      const level = levelBadge.textContent.trim();
-      const youtubeId = youtubeLink.href.split('v=')[1];
-      
-      // Đổ dữ liệu vào form
-      document.getElementById('editVideoId').value = id;
-      document.getElementById('editYoutubeId').value = youtubeId;
-      document.getElementById('editTitle').value = title;
-      document.getElementById('editCategory').value = category;
-      document.getElementById('editLevel').value = level;
+  if (editForm) {
+    editForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-      console.log('Thông tin video để edit:', { id, title, category, level, youtubeId });
-      console.log('Raw accordion button text:', accordionButton.textContent);
-      console.log('Processed category:', category);
+      const id = document.getElementById('editVideoId').value;
+      const youtubeId = document.getElementById('editYoutubeId').value.trim();
+      const title = document.getElementById('editTitle').value.trim();
+      const description = document.getElementById('editDescription').value.trim();
+      const category = document.getElementById('editCategory').value.trim();
 
-      // Gọi API để lấy mô tả
       try {
-        const apiKey = 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';
-        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=snippet,contentDetails&key=${apiKey}`;
-        const res = await fetch(apiUrl);
-        
-        if (!res.ok) {
-          throw new Error(`API response: ${res.status}`);
-        }
-        
-        const data = await res.json();
-        const video = data.items?.[0];
-        if (video) {
-          document.getElementById('editDescription').value = video.snippet.description || '';
+        const res = await fetch(`/admin/videos/${id}/edit`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ youtubeId, title, description, category }),
+        });
+
+        if (res.ok) {
+          alert('✅ Cập nhật video thành công!');
+          location.reload();
         } else {
-          document.getElementById('editDescription').value = '';
+          alert('❌ Có lỗi khi cập nhật video');
         }
       } catch (err) {
-        console.warn('Không thể lấy mô tả từ API:', err);
-        document.getElementById('editDescription').value = '';
+        console.error('Lỗi khi gửi form:', err);
+        alert('❌ Lỗi kết nối tới máy chủ');
       }
+    });
+  }
 
-      const modal = new bootstrap.Modal(document.getElementById('editModal'));
-      modal.show();
+  // ========== NÚT CHỈNH SỬA ==========
+  document.querySelectorAll('.btn-edit').forEach(button => {
+    button.addEventListener('click', async () => {
+      const id = button.dataset.id;
+      if (!id) return;
+
+      try {
+        // Lấy dữ liệu video từ backend
+        const res = await fetch(`/admin/videos/${id}`);
+        if (!res.ok) throw new Error('Không lấy được dữ liệu video');
+
+        const video = await res.json();
+
+        // Đổ dữ liệu vào modal
+        document.getElementById('editVideoId').value = video._id;
+        document.getElementById('editYoutubeId').value = video.youtubeId || '';
+        document.getElementById('editTitle').value = video.title || '';
+        document.getElementById('editCategory').value = video.category || 'CNTT';
+        document.getElementById('editDescription').value = video.description || '';
+
+        // Nếu chưa có mô tả thì tự động lấy từ YouTube API
+        if (!video.description && video.youtubeId) {
+          try {
+            const apiKey = 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';
+            const ytRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${video.youtubeId}&part=snippet&key=${apiKey}`);
+            const ytData = await ytRes.json();
+            const ytDescription = ytData.items?.[0]?.snippet?.description || '';
+            if (ytDescription) {
+              document.getElementById('editDescription').value = ytDescription;
+            }
+          } catch (err) {
+            console.warn('Không thể lấy mô tả từ YouTube:', err);
+          }
+        }
+
+        // Mở modal
+        const modal = new bootstrap.Modal(document.getElementById('editModal'));
+        modal.show();
+
+      } catch (err) {
+        console.error('❌ Lỗi khi mở modal chỉnh sửa:', err);
+        alert('Không thể tải dữ liệu video!');
+      }
     });
   });
 
-  // Gửi form cập nhật
-  document.getElementById('editVideoForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('editVideoId').value;
-    const payload = {
-      title: document.getElementById('editTitle').value,
-      description: document.getElementById('editDescription').value,
-      youtubeId: document.getElementById('editYoutubeId').value,
-      category: document.getElementById('editCategory').value,
-      level: document.getElementById('editLevel').value,
-    };
+  // ========== NÚT XÓA ==========
+  window.confirmDelete = function (id) {
+    if (confirm('Bạn có chắc chắn muốn xóa video này?')) {
+      fetch(`/admin/videos/${id}/delete`, { method: 'DELETE' })
+        .then(res => {
+          if (res.ok) location.reload();
+          else alert('❌ Lỗi khi xóa video!');
+        })
+        .catch(err => {
+          console.error('Lỗi xóa video:', err);
+          alert('❌ Không thể kết nối máy chủ!');
+        });
+    }
+  };
 
-    const res = await fetch(`/admin/videos/${id}/edit`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) location.reload();
-    else alert('Lỗi khi cập nhật video!');
-  });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
+  // ========== KHÔI PHỤC VIDEO ==========
   document.querySelectorAll('.btn-restore').forEach(button => {
     button.addEventListener('click', async () => {
-      const id = button.getAttribute('data-id');
+      const id = button.dataset.id;
       if (confirm('Bạn có chắc muốn khôi phục video này không?')) {
         try {
-          const res = await fetch(`/admin/videos/${id}/restore`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' }
-          });
-
-          if (res.ok) {
-            location.reload();
-          } else {
-            alert('Khôi phục thất bại!');
-          }
+          const res = await fetch(`/admin/videos/${id}/restore`, { method: 'PATCH' });
+          if (res.ok) location.reload();
+          else alert('❌ Khôi phục thất bại!');
         } catch (err) {
           console.error('Lỗi khôi phục:', err);
-          alert('Có lỗi xảy ra!');
+          alert('❌ Có lỗi xảy ra khi khôi phục!');
         }
       }
     });
   });
 });
-
-// Bộ lọc nâng cao
-  document.addEventListener('DOMContentLoaded', function () {
-  const filterForm = document.getElementById('filterForm');
-  const searchInput = filterForm.querySelector('input[name="search"]');
-  const categorySelect = filterForm.querySelector('select[name="category"]');
-  const levelSelect = filterForm.querySelector('select[name="level"]');
-  
-  // Tự động submit form khi thay đổi select
-  categorySelect.addEventListener('change', function() {
-    filterForm.submit();
-  });
-  
-  levelSelect.addEventListener('change', function() {
-    filterForm.submit();
-  });
-  
-  // Debounce search input
-  let searchTimeout;
-  searchInput.addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      filterForm.submit();
-    }, 500);
-  });
-  
-  // Loading state
-  filterForm.addEventListener('submit', function() {
-    const submitBtn = filterForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang lọc...';
-    submitBtn.disabled = true;
-    
-    setTimeout(() => {
-      submitBtn.innerHTML = originalText;
-      submitBtn.disabled = false;
-    }, 3000);
-  });
-
-  // Xử lý toggle accordion
-  const accordionButtons = document.querySelectorAll('.accordion-button');
-  
-  accordionButtons.forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const targetId = this.getAttribute('data-target');
-      const targetCollapse = document.querySelector(targetId);
-      
-      // Kiểm tra element tồn tại trước khi sử dụng
-      if (!targetCollapse) {
-        console.warn('Không tìm thấy target collapse:', targetId);
-        return;
-      }
-      
-      const isExpanded = this.getAttribute('data-expanded') === 'true';
-      
-      if (isExpanded) {
-        // Đóng accordion
-        this.setAttribute('data-expanded', 'false');
-        this.classList.add('collapsed');
-        targetCollapse.classList.remove('show');
-        targetCollapse.setAttribute('data-expanded', 'false');
-        
-        // Ẩn nội dung
-        setTimeout(() => {
-          if (targetCollapse.getAttribute('data-expanded') === 'false') {
-            targetCollapse.style.display = 'none';
-          }
-        }, 300);
-        
-        const icon = this.querySelector('i');
-        if (icon) {
-          icon.className = icon.className.replace('fa-folder-open', 'fa-folder');
-          icon.classList.remove('text-warning');
-        }
-      } else {
-        // Mở accordion
-        this.setAttribute('data-expanded', 'true');
-        this.classList.remove('collapsed');
-        targetCollapse.classList.add('show');
-        targetCollapse.setAttribute('data-expanded', 'true');
-        targetCollapse.style.display = 'block';
-        
-        const icon = this.querySelector('i');
-        if (icon) {
-          icon.className = icon.className.replace('fa-folder', 'fa-folder-open');
-          icon.classList.add('text-warning');
-        }
-      }
-    });
-  });
-  
-  // Khởi tạo trạng thái ban đầu cho accordion
-  accordionButtons.forEach(button => {
-    const isExpanded = button.getAttribute('data-expanded') === 'true';
-    const icon = button.querySelector('i');
-    const targetId = button.getAttribute('data-target');
-    const targetCollapse = document.querySelector(targetId);
-    
-    if (icon && isExpanded) {
-      icon.className = icon.className.replace('fa-folder', 'fa-folder-open');
-      icon.classList.add('text-warning');
-    }
-    
-    // Đảm bảo trạng thái hiển thị ban đầu
-    if (targetCollapse) {
-      if (isExpanded) {
-        targetCollapse.style.display = 'block';
-      } else {
-        targetCollapse.style.display = 'none';
-      }
-    }
-  });
-  });
 </script>
+
+
+

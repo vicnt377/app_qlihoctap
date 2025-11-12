@@ -117,25 +117,44 @@ module.exports = {
   includes: (array, value) => array && array.includes(value.toString()),
 
   groupBy: (array, key) => {
-    if (!array || !Array.isArray(array)) return {};
-    const validArray = array.filter(item => item && item[key] && item[key].toString().trim() !== '');
-    const normalizedGroups = {};
-    validArray.forEach(item => {
-      let groupKey = item[key].toString().trim();
-      if (groupKey.toLowerCase().includes('backend')) groupKey = 'Backend';
-      else if (groupKey.toLowerCase().includes('frontend')) groupKey = 'Frontend';
-      else if (groupKey.toLowerCase().includes('lập trình') || groupKey.toLowerCase().includes('lap trinh')) groupKey = 'Lập trình';
-      groupKey = groupKey.replace(/\s*\d+\s*khóa học\s*/gi, '').replace(/\s*khóa học\s*/gi, '').trim();
-      if (!normalizedGroups[groupKey]) normalizedGroups[groupKey] = [];
-      normalizedGroups[groupKey].push(item);
+    if (!Array.isArray(array)) return {};
+
+    const groups = {};
+
+    array.forEach(item => {
+      // Nếu không có category, gán tạm là "Khác"
+      const category = (item[key] || 'Khác').toString().trim();
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(item);
     });
-    return normalizedGroups;
+
+    return groups;
   },
 
-  lookup: (array, index) => (Array.isArray(array) && index >= 0 && index < array.length) ? array[index] : null,
+  countVideosInCategory: (videos, category) => {
+    if (!Array.isArray(videos)) return 0;
+    return videos.filter(v => (v.category || '').toLowerCase() === category.toLowerCase()).length;
+  },
 
-  countVideosInCategory: (videos, category) =>
-    (videos || []).filter(v => (v.category?.toString().toLowerCase() || '').includes(category.toLowerCase())).length,
+  majorName: (code) => {
+    const majors = {
+      'CNTT': 'Công nghệ thông tin',
+      'YT': 'Y tế',
+      'GD': 'Giáo dục',
+      'NN': 'Ngoại ngữ',
+      'TN-MT': 'Tự nhiên - Môi trường',
+      'KT-TC': 'Kinh tế - Tài chính',
+      'KD-QL': 'Kinh doanh - Quản lý',
+      'KT-XD': 'Kỹ thuật - Xây dựng',
+      'L-NV': 'Luật - Nhân văn',
+      'ST-NT': 'Sáng tạo - Nghệ thuật',
+      'DV-DL': 'Dịch vụ - Du lịch',
+      'Khác': 'Danh mục khác',
+    };
+    return majors[code] || code;
+  },
+  
+  lookup: (array, index) => (Array.isArray(array) && index >= 0 && index < array.length) ? array[index] : null,
 
   formatFileSize: (bytes) => {
     if (bytes === 0) return '0 Bytes';
@@ -176,22 +195,6 @@ module.exports = {
     }
   },
 
-  majorName: (code) => {
-    const majors = {
-      'CNTT': 'Công nghệ thông tin',
-      'YT': 'Y tế',
-      'GD': 'Giáo dục',
-      'NN': 'Ngoại ngữ',
-      'TN-MT': 'Tự nhiên - Môi trường',
-      'KT-TC': 'Kinh tế - Tài chính',
-      'KD-QL': 'Kinh doanh - Quản lý',
-      'KT-XD': 'Kỹ thuật - Xây dựng',
-      'L-NV': 'Luật - Nhân văn',
-      'ST-NT': 'Sáng tạo - Nghệ thuật',
-      'DV-DL': 'Dịch vụ - Du lịch',
-    };
-    return majors[code] || code;
-  },
 
   paginate: (pagination, options) => {
     let out = '';

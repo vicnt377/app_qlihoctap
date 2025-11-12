@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
     totalCredits: { type: Number, required: true},
     isActive: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now },
-
     enrolledVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }]
 
 });
