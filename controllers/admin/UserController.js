@@ -1,39 +1,37 @@
-const User = require('../../models/User');
-const Course = require('../../models/Course');
-const Video = require('../../models/Video')
-require('dotenv').config();
-const axios = require('axios');
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const User = require('../../models/User');      // Model học viên
+const Admin = require('../../models/Admin');    // Model admin (chung collection users)
 
 class UserController {
+
+    // 📌 Danh sách học viên
     async getUsers(req, res) {
         try {
             const { search, status } = req.query;
 
-            let filter = { role: 'user' };
+            let filter = { role: 'user' };   // ❗ Chỉ lấy học viên
 
+            // Tìm kiếm
             if (search) {
-            const regex = new RegExp(search, 'i');
-            filter.$or = [{ username: regex }, { email: regex }];
+                const regex = new RegExp(search, 'i');
+                filter.$or = [{ username: regex }, { email: regex }];
             }
 
+            // Lọc hoạt động / không hoạt động
             if (status === 'active') filter.isActive = true;
             else if (status === 'inactive') filter.isActive = false;
 
-            // Truy vấn danh sách học viên
-            const allUsers = await User.find(filter);
+            const allUsers = await User.find(filter).lean();
 
-            // Xây dựng mảng học viên (đúng field với modal)
-            const students = allUsers.map(user => ({
-                _id: user._id,
-                name: user.username,
-                email: user.email,
-                phone: user.phone,
-                avatar: user.avatar,
-                createdAt: user.createdAt,
-                isActive: user.isActive ?? true,
-                major: user.major,       // ✅ thêm ngành học
-                totalCredits: user.totalCredits,   // ✅ thêm tín chỉ
+            const students = allUsers.map(u => ({
+                _id: u._id,
+                name: u.username,
+                email: u.email,
+                phone: u.phone,
+                avatar: u.avatar,
+                createdAt: u.createdAt,
+                isActive: u.isActive ?? true,
+                major: u.major,
+                totalCredits: u.totalCredits
             }));
 
             const now = new Date();
@@ -43,16 +41,17 @@ class UserController {
                 newThisMonth: students.filter(s => {
                     const d = new Date(s.createdAt);
                     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                }).length,
+                }).length
             };
 
             res.render('admin/users', {
                 user: req.session.user,
                 students,
                 studentStats,
-                success: req.flash('success'),
+                query: { search, status },
                 layout: 'admin',
-                query: { search, status }
+                success: req.flash('success'),
+                error: req.flash('error')
             });
 
         } catch (err) {
@@ -61,113 +60,104 @@ class UserController {
         }
     }
 
+
+    // 📌 Khóa/Mở khóa học viên
     async clockUser(req, res) {
         try {
             const user = await User.findById(req.params.id);
-            if (!user) {
-            return res.status(404).send("Không tìm thấy người dùng");
+
+            if (!user) return res.status(404).send("Không tìm thấy người dùng");
+
+            if (user.role === 'admin') {
+                console.log("❌ Không được khóa admin");
+                return res.status(403).send("Không thể khóa tài khoản admin");
             }
 
-            // Toggle trạng thái bằng cách gán ngược lại
-            const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
-            { isActive: !user.isActive },
-            { new: true } // Trả về bản ghi đã cập nhật
+            const updated = await User.findByIdAndUpdate(
+                req.params.id,
+                { isActive: !user.isActive },
+                { new: true }
             );
 
-            console.log(`🛠️ Toggle trạng thái user: ${updatedUser._id} => ${updatedUser.isActive ? 'Hoạt động' : 'Đã khóa'}`);
-            res.redirect('/admin/users'); // hoặc route phù hợp
+            console.log(`🛠️ Đổi trạng thái user ${updated._id} → ${updated.isActive}`);
+
+            res.redirect('/admin/users');
+
         } catch (error) {
-            console.error("❌ Lỗi server khi toggle trạng thái:", error);
+            console.error("❌ Lỗi toggle:", error);
             res.status(500).send("Lỗi máy chủ");
         }
     }
 
+
+    // 📌 Thêm học viên mới
     async addUser(req, res) {
         try {
             const { name, email, phone, password, confirmPassword, avatar, major, totalCredits } = req.body;
-            
-            // Validation cơ bản
+
+            // Validate
             if (!name || !email || !password || !major) {
-                req.flash('error', 'Vui lòng điền đầy đủ thông tin bắt buộc');
-                return res.redirect('/admin/users');
-            }
-            if (password !== confirmPassword) {
-                req.flash('error', 'Mật khẩu và xác nhận mật khẩu không khớp');
+                req.flash('error', 'Vui lòng điền đầy đủ thông tin');
                 return res.redirect('/admin/users');
             }
 
-            const existingUser = await User.findOne({ email });
-            if (existingUser) {
+            if (password !== confirmPassword) {
+                req.flash('error', 'Mật khẩu không khớp');
+                return res.redirect('/admin/users');
+            }
+
+            const existing = await User.findOne({ email });
+            if (existing) {
                 req.flash('error', 'Email đã tồn tại');
                 return res.redirect('/admin/users');
             }
 
-            // Tạo user mới
-            const user = await User.create({
+            await User.create({
                 username: name,
                 email,
                 phone: phone || '',
-                password, 
-                avatar: avatar && avatar.trim() ? avatar.trim() : '/img/avatar.png',
+                password,
+                avatar: avatar?.trim() || '/img/avatar.png',
                 role: 'user',
                 major,
                 totalCredits: totalCredits ? Number(totalCredits) : 0,
                 isActive: true
             });
 
-            console.log(`✅ Thêm học viên mới: ${user.username} (${user.email})`);
-            req.flash('success', 'Thêm học viên mới thành công!');
+            req.flash('success', 'Thêm học viên thành công!');
             res.redirect('/admin/users');
+
         } catch (error) {
-            console.error("❌ Lỗi server khi thêm học viên:", error);
-            req.flash('error', 'Lỗi máy chủ khi thêm học viên');
+            console.error("❌ Lỗi thêm user:", error);
+            req.flash('error', 'Lỗi máy chủ');
             res.redirect('/admin/users');
         }
     }
 
 
+    // 📌 Xóa học viên
     async deleteUser(req, res) {
         try {
-            const { id } = req.params;
-            console.log('🗑️ Yêu cầu xóa user:', id);
+            const user = await User.findById(req.params.id);
 
-            // Kiểm tra user có tồn tại không
-            const user = await User.findById(id);
             if (!user) {
-                console.log('❌ User không tồn tại:', id);
-                return res.status(404).json({
-                    success: false,
-                    message: 'Không tìm thấy học viên'
-                });
+                return res.status(404).json({ success: false, message: "Không tìm thấy user" });
             }
 
-            // Kiểm tra user có phải admin không (không cho phép xóa admin)
             if (user.role === 'admin') {
-                console.log('❌ Không thể xóa admin:', id);
-                return res.status(403).json({
-                    success: false,
-                    message: 'Không thể xóa tài khoản admin'
-                });
+                return res.status(403).json({ success: false, message: "Không thể xóa tài khoản admin" });
             }
 
-            // Xóa user
-            await User.findByIdAndDelete(id);
-            
-            console.log(`✅ Xóa user thành công: ${user.email}`);
-            
-            res.json({
-                success: true,
-                message: 'Xóa học viên thành công'
-            });
-            
+            await User.findByIdAndDelete(req.params.id);
+
+            return res.json({ success: true, message: "Xóa học viên thành công" });
+
         } catch (error) {
-            console.error("❌ Lỗi server khi xóa học viên:", error);
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi máy chủ khi xóa học viên'
-            });
+            console.error("❌ Lỗi xóa user:", error);
+            res.status(500).json({ success: false, message: "Lỗi máy chủ" });
         }
     }
+
 }
+
 module.exports = new UserController();

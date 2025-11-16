@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const axios = require('axios');
 const User = require('../../models/User');
-const Course = require('../../models/Course');
 const Video = require('../../models/Video');
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';

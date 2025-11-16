@@ -1,24 +1,172 @@
 {{!< admin}}
-<title>Admin-Massage</title>
+<title>Admin - Chat Box</title>
 
 <div class="dashboard-header mb-4">
-  <h3 class="dashboard-title text-2xl">Hộp thư đến</h3>
+  <h3 class="dashboard-title text-2xl">Hộp thư & Trò chuyện</h3>
 </div>
 
-<main class="container">
-    {{#if chats.length}}
-    <ul class="list-group">
-        {{#each chats}}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
+<main class="container-fluid">
+  <div class="row">
+    <!-- 🟦 CỘT TRÁI: Danh sách người dùng -->
+    <div class="col-md-4 border-end" style="max-height: 80vh; overflow-y: auto;">
+      <h5 class="mb-3"><strong>Danh sách người dùng</strong></strong></h5>
+      {{#if chats.length}}
+        <ul class="list-group" id="userList">
+          {{#each chats}}
+            <li 
+            class="list-group-item d-flex justify-content-between align-items-center user-item"
+            data-user-id="{{this.user._id}}" 
+            data-username="{{this.user.username}}">
             <div>
-            <strong>{{this.user.username}}</strong><br>
-            <small>{{this.lastMessage}}</small>
+                <strong>{{this.user.username}}</strong><br>
+                <small>{{this.lastMessage}}</small>
             </div>
-            <a href="/admin/chat/{{this.user._id}}" class="btn btn-sm btn-primary">Xem</a>
-        </li>
-        {{/each}}
-    </ul>
-    {{else}}
-    <p>Không có tin nhắn nào.</p>
-    {{/if}}
+
+            <!-- 🔥 Badge thông báo -->
+            <span
+                class="badge bg-danger {{#unless this.unreadCount}}d-none{{/unless}}"
+                id="badge-{{this.user._id}}">
+                {{this.unreadCount}}
+            </span>
+
+            </li>
+
+          {{/each}}
+        </ul>
+      {{else}}
+        <p>Không có tin nhắn nào.</p>
+      {{/if}}
+    </div>
+
+    <!-- 🟩 CỘT PHẢI: Khung chat -->
+    <div class="col-md-8">
+      <div id="chatSection" class="d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5><strong>Trò chuyện với <span id="chatUsername"></span></strong></h5>
+        </div>
+
+        <div class="border rounded p-3 mb-3" id="chatBox" style="max-height: 60vh; overflow-y: auto;">
+          <!-- Tin nhắn sẽ hiển thị ở đây -->
+        </div>
+
+        <div class="d-flex mt-3">
+          <input type="text" id="adminMessageInput" class="form-control me-2" placeholder="Nhập tin nhắn...">
+          <button id="sendBtn" class="btn btn-primary">Gửi</button>
+        </div>
+      </div>
+
+      <div id="noChatSelected" class="text-muted text-center mt-5">
+        <i class="far fa-comments fa-2x mb-2"></i>
+        <p>Chọn một người dùng từ danh sách để bắt đầu trò chuyện </p>
+      </div>
+    </div>
+  </div>
 </main>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+  // ⭐ Socket riêng cho Admin Chat
+  const adminSocket = io();
+
+  const adminId = '{{adminId}}';
+  let currentUserId = null;
+
+  // ⭐ Đăng ký admin
+  adminSocket.emit('register', { userId: adminId });
+
+  // ⭐ Khi chọn 1 user từ danh sách
+  document.querySelectorAll('.user-item').forEach(item => {
+    item.addEventListener('click', async () => {
+
+      currentUserId = item.dataset.userId;
+      const username = item.dataset.username;
+
+      // ⭐ Ẩn badge khi admin mở đoạn chat
+      const badge = document.getElementById(`badge-${currentUserId}`);
+      if (badge) {
+        badge.classList.add('d-none');
+        badge.innerText = "";
+      }
+
+      // 🔥 Gửi API đánh dấu đã đọc
+      fetch(`/admin/chat/mark-read/${currentUserId}`, { method: 'POST' });
+
+
+      document.getElementById('chatUsername').innerText = username;
+      document.getElementById('noChatSelected').classList.add('d-none');
+      document.getElementById('chatSection').classList.remove('d-none');
+
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = '<p class="text-muted">Đang tải tin nhắn...</p>';
+
+      // 🔥 Lấy lịch sử tin nhắn
+      const res = await fetch(`/admin/chat/messages/${currentUserId}`);
+      const data = await res.json();
+
+      chatBox.innerHTML = '';
+
+      data.messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className =
+          `alert ${msg.sender._id === adminId ? 'alert-primary' : 'alert-secondary'}`;
+        div.innerText = `${msg.sender.username}: ${msg.content}`;
+        chatBox.appendChild(div);
+      });
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  });
+
+  // ⭐ Nhận tin nhắn realtime từ User
+  adminSocket.on('newMessage', ({ senderId, message }) => {
+  const badge = document.getElementById(`badge-${senderId}`);
+
+  if (senderId !== currentUserId) {
+    // ⭐ Nếu badge ẩn thì set = 1
+    if (badge.classList.contains('d-none')) {
+      badge.innerText = 1;
+      badge.classList.remove('d-none');
+    } else {
+      // ⭐ Nếu đã có số → tăng
+      badge.innerText = parseInt(badge.innerText) + 1;
+    }
+
+    playNotificationSound();
+    showToast("Có tin nhắn mới từ người dùng");
+    return;
+  }
+
+  // Nếu đang mở đúng đoạn chat → hiển thị như bình thường
+  const chatBox = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'alert alert-secondary';
+  div.innerText = message;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+  // ⭐ Gửi tin nhắn Admin → User
+  document.getElementById('sendBtn').addEventListener('click', () => {
+    const input = document.getElementById('adminMessageInput');
+    const message = input.value.trim();
+    if (!message || !currentUserId) return;
+
+    adminSocket.emit('chatMessage', {
+      senderId: adminId,
+      receiverId: currentUserId,
+      message
+    });
+
+    const chatBox = document.getElementById('chatBox');
+    const div = document.createElement('div');
+    div.className = 'alert alert-primary';
+    div.innerText = message;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    input.value = '';
+  });
+
+</script>

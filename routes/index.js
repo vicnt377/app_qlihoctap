@@ -1,4 +1,4 @@
-//user
+
 const scoreRouter = require('./user/score_route')
 const loginRouter = require('./user/login_route')
 const progressRouter = require('./user/progress_route')
@@ -12,19 +12,25 @@ const videoRouter = require ('./user/video_route')
 const chatRouter = require('./user/chat_route')
 const notificationRouter = require('./user/notification_route')
 
-
-//admin
-const adminRouter = require('./admin/admin_route')
-
+const authAdminRouter = require('./admin/auth_route')
+const dashboardAdminRouter = require('./admin/dashboard_route')
+const videoAdminRouter = require ('./admin/video_route')
+const chatAdminRouter = require('./admin/chat_route')
+const userAdminRouter = require('./admin/user_route')
+const statisticAdminRouter = require('./admin/statistic_route')
 
 function route(app) {
 
-    app.use('/', loginRouter);
-    
-    //Admin
-    app.use('/admin', adminRouter);
+    app.use('/admin', 
+        authAdminRouter, 
+        dashboardAdminRouter, 
+        videoAdminRouter, 
+        chatAdminRouter, 
+        userAdminRouter,
+        statisticAdminRouter,
+    );
 
-    //User
+    app.use('/', loginRouter);
     app.use('/score', scoreRouter);
     app.use('/progress', progressRouter);
     app.use('/home', homeRouter);
@@ -35,7 +41,7 @@ function route(app) {
     app.use('/document', documentRouter);
     app.use('/video', videoRouter);
     app.use('/chat', chatRouter);
-    app.use('/notifications', notificationRouter); // ✅ Sửa từ /notification thành /notifications
+    app.use('/notifications', notificationRouter);
 }
 
 module.exports = route;

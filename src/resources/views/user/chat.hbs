@@ -83,9 +83,7 @@
   </div>
 </main>
 
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
+{{!-- <script>
 
   const userId = '{{user._id}}';
   const adminId = '{{adminId}}';
@@ -151,6 +149,80 @@
         const keyword = btn.dataset.keyword;
         input.value = keyword;
         form.dispatchEvent(new Event("submit")); // giả lập submit
+      });
+    });
+  });
+
+</script> --}}
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+  // ⭐ Socket riêng cho User Chat
+  const userSocket = io();
+
+  const userId = '{{user._id}}';
+  const adminId = '{{adminId}}';
+
+  // ⭐ Gửi userId cho server để đăng ký socket
+  userSocket.emit('register', { userId });
+
+  const messagesEl = document.getElementById('messages');
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('messageInput');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+
+    // ⭐ Gửi tin nhắn qua chat socket riêng
+    userSocket.emit('chatMessage', {
+      senderId: userId,
+      receiverId: adminId,
+      message
+    });
+
+    // ⭐ Hiển thị ngay tin nhắn của user
+    addMessage(message, 'user-message');
+    input.value = '';
+
+    // ⭐ Lưu tin nhắn vào MongoDB qua API
+    const res = await fetch('/chat/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    const data = await res.json();
+
+    if (data.autoReply) {
+      addMessage(data.autoReply, 'admin-message');
+    } else if (data.reply) {
+      addMessage(data.reply, 'admin-message');
+    }
+  });
+
+  // ⭐ Nhận tin nhắn realtime từ Admin
+  userSocket.on('newMessage', ({ senderId, message }) => {
+    console.log("📨 Nhận từ admin:", senderId, message);
+    addMessage(message, 'admin-message');
+  });
+
+  // ⭐ Hàm thêm tin nhắn vào giao diện
+  function addMessage(content, type) {
+    const div = document.createElement('div');
+    div.className = `message ${type}`;
+    div.innerText = content;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // ⭐ Click vào gợi ý → gửi luôn
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".suggestion-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const keyword = btn.dataset.keyword;
+        input.value = keyword;
+        form.dispatchEvent(new Event("submit"));
       });
     });
   });

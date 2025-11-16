@@ -146,6 +146,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const categorySelect = form?.querySelector('select[name="category"]');
   const videoContainer = document.getElementById('videoContainer');
   let typingTimer;
+  
+  function attachEditButtonEvents() {
+    document.querySelectorAll('.btn-edit').forEach(button => {
+      button.addEventListener('click', async () => {
+        const id = button.dataset.id;
+        if (!id) return;
+        try {
+          const res = await fetch(`/admin/videos/${id}`);
+          if (!res.ok) throw new Error('Không lấy được dữ liệu video');
+          const video = await res.json();
+
+          document.getElementById('editVideoId').value = video._id;
+          document.getElementById('editYoutubeId').value = video.youtubeId || '';
+          document.getElementById('editTitle').value = video.title || '';
+          document.getElementById('editCategory').value = video.category || 'CNTT';
+          document.getElementById('editDescription').value = video.description || '';
+
+          const modal = new bootstrap.Modal(document.getElementById('editModal'));
+          modal.show();
+        } catch (err) {
+          console.error('❌ Lỗi khi mở modal chỉnh sửa:', err);
+        }
+      });
+    });
+  }
+
 
   // 🔹 Hàm tải lại danh sách video bằng AJAX
   function fetchVideos() {
@@ -154,6 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => res.text())
       .then(html => {
         videoContainer.innerHTML = html;
+        attachEditButtonEvents();
+
       })
       .catch(err => console.error('❌ Lỗi fetch videos:', err));
   }

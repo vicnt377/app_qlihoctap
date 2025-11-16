@@ -16,7 +16,6 @@ const flash = require("connect-flash");       // ✅ thông báo flash
 
 const app = express();
 const port = process.env.PORT || 3000;
-
 /* ============================================================
    1. 🔌 Kết nối MongoDB
 ============================================================ */
@@ -32,40 +31,14 @@ require("../middlewares/notificationCleanup");
 ============================================================ */
 const http = require('http');
 const socketIo = require('socket.io');
+
 const server = http.createServer(app);
 const io = socketIo(server);
+
+// ⚡️ Gọi file socket đã tách riêng
+require('../config/js/socket')(io);
+
 app.set('io', io);
-
-// Lưu map userId -> socketId
-const userSockets = new Map();
-io.on('connection', (socket) => {
-  console.log('🟢 New socket connected:', socket.id);
-
-  socket.on('register', ({ userId }) => {
-    userSockets.set(userId, socket.id);
-    console.log(`📌 Registered: ${userId} -> ${socket.id}`);
-  });
-
-  socket.on('chatMessage', async ({ senderId, receiverId, message }) => {
-    if (!message?.trim()) return;
-    await Message.create({ sender: senderId, receiver: receiverId, content: message });
-
-    const receiverSocketId = userSockets.get(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('newMessage', { senderId, message });
-    }
-  });
-
-  socket.on('disconnect', () => {
-    for (const [userId, socketId] of userSockets.entries()) {
-      if (socketId === socket.id) {
-        userSockets.delete(userId);
-        console.log(`🔌 Disconnected: ${userId}`);
-        break;
-      }
-    }
-  });
-});
 
 /* ============================================================
    3. ⚙️ Middleware chung
