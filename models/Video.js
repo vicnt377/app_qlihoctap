@@ -11,14 +11,11 @@ const videoSchema = new mongoose.Schema({
     },
     duration: { type: String, },
     students: { type: Number, default: 0 },
-    rating: { type: Number, default: 0 },
-    
     daXoa: { type: Boolean, default: false },
-    
     reviews: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         username: String,
-        rating: { type: Number, min: 1, max: 5 },
+        rating: { type: Number, default: 0, min: 1, max: 5 },
         comment: String,
         createdAt: { type: Date, default: Date.now }
     }],

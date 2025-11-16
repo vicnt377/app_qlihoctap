@@ -5,7 +5,14 @@ module.exports = {
   inc: (value) => parseInt(value) + 1,
   shortId: (id) => id ? id.toString().slice(-4) : '',
   eq: (a, b) => a === b,
+  ne: (a, b) => a !== b,
   gt: (a, b) => a > b,
+  lt: (a, b) => a < b,
+  lte: (a, b) => a <= b,
+  gte: (a, b) => a >= b,
+  add: (a, b) => a + b,
+  subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b,
   ifEquals: (a, b, options) => (a === b ? options.fn(this) : options.inverse(this)),
   not: (value) => !value,
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
@@ -71,12 +78,6 @@ module.exports = {
     }
   },
 
-
-  add: (a, b) => a + b,
-  subtract: (a, b) => a - b,
-  multiply: (a, b) => a * b,
-
-
   times: (n, block) => {
     let accum = '';
     for (let i = 0; i < n; ++i) accum += block.fn(i);
@@ -93,6 +94,17 @@ module.exports = {
     const num = parseInt(n);
     if (isNaN(num) || num < 0 || num > 100) return [];
     return Array.from({ length: num }, (_, i) => i);
+  },
+
+  rangeCategory: (start, end) => {
+    start = Number(start);
+    end = Number(end);
+    let arr = [];
+
+    for (let i = start; i <= end; i++) {
+      arr.push(i);
+    }
+    return arr;
   },
 
   sanitize: (text) => typeof text === 'string' ? text.replace(/["']/g, '') : '',

@@ -158,88 +158,112 @@
 
   <div class="tab-content">
     <!-- Tab: Video hiện tại -->
-<div class="tab-pane fade show active" id="tabActive">
-  <div id="videoContainer">
-    {{#if videos.length}}
-      {{#each grouped}}
-        {{#if @key}}
-          <div class="category-section mb-4" data-category-section="{{@key}}">
-            <!-- Tiêu đề danh mục -->
-            <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
-              <i class="fas fa-folder-open me-2 text-warning"></i>
-              {{majorName @key}}
-              <span class="badge bg-light text-dark ms-2">
-                {{countVideosInCategory ../videos @key}} Video
-              </span>
-            </h5>
+    <div class="tab-pane fade show active" id="tabActive">
+      <div id="videoContainer">
+        {{#if videos.length}}
+          {{#each grouped}}
+            {{#if @key}}
+              <div class="category-section mb-4" data-category-section="{{@key}}">
+                <!-- Tiêu đề danh mục -->
+                <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                  <i class="fas fa-folder-open me-2 text-warning"></i>
+                  {{majorName @key}}
+                  <span class="badge bg-light text-dark ms-2">
+                    {{countVideosInCategory ../videos @key}} Video
+                  </span>
+                </h5>
 
-            {{#if this.length}}
-              <div class="row g-3 video-list">
-                {{#each this}}
-                  <div class="col-xl-3 col-lg-4 col-md-6 video-item" data-category="{{@../key}}">
-                    <div class="card video-card h-100 border-0 shadow-sm hover-shadow">
-                      <div class="position-relative">
-                        <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg"
-                             alt="{{title}}"
-                             class="card-img-top rounded-top"
-                             style="height: 140px; object-fit: cover;"
-                             onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;">
-                        {{#if duration}}
-                          <span class="badge bg-dark position-absolute top-0 end-0 m-2">
-                            <i class="fas fa-clock me-1"></i>{{duration}}
-                          </span>
-                        {{/if}}
-                      </div>
+                {{#if this.length}}
+                  <div class="row g-3 video-list">
+                    {{#each this}}
+                      <div class="col-xl-3 col-lg-4 col-md-6 video-item" data-category="{{@../key}}">
+                        <div class="card video-card h-100 border-0 shadow-sm hover-shadow">
+                          <div class="position-relative">
+                            <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg"
+                                alt="{{title}}"
+                                class="card-img-top rounded-top"
+                                style="height: 140px; object-fit: cover;"
+                                onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;">
+                            {{#if duration}}
+                              <span class="badge bg-dark position-absolute top-0 end-0 m-2">
+                                <i class="fas fa-clock me-1"></i>{{duration}}
+                              </span>
+                            {{/if}}
+                          </div>
 
-                      <div class="card-body d-flex flex-column p-2">
-                        <h6 class="card-title fw-bold mb-1 text-truncate" title="{{title}}">
-                          {{title}}
-                        </h6>
+                          <div class="card-body d-flex flex-column p-2">
+                            <h6 class="card-title fw-bold mb-1 text-truncate" title="{{title}}">
+                              {{title}}
+                            </h6>
 
-                        <div class="d-flex justify-content-between text-muted small mb-2">
-                          <span><i class="fas fa-users me-1"></i>{{students}}</span>
-                          <span><i class="fas fa-star text-warning me-1"></i>{{rating}}</span>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                              <span><i class="fas fa-users me-1"></i>{{video.students}}</span>
+                              <span><i class="fas fa-star text-warning me-1"></i>{{video.rating}}</span>
+                            </div>
+
+                            <a href="https://youtube.com/watch?v={{youtubeId}}" 
+                              target="_blank" 
+                              class="btn btn-outline-primary btn-sm mb-2">
+                              <i class="fab fa-youtube me-1"></i>Xem
+                            </a>
+
+                            <div class="d-flex gap-1 mt-auto">
+                              <button class="btn btn-warning btn-sm flex-fill btn-edit" data-id="{{_id}}">
+                                <i class="fas fa-edit"></i>
+                              </button>
+                              <button class="btn btn-danger btn-sm flex-fill" onclick="confirmDelete('{{_id}}')">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </div>
                         </div>
-
-                        <a href="https://youtube.com/watch?v={{youtubeId}}" 
-                           target="_blank" 
-                           class="btn btn-outline-primary btn-sm mb-2">
-                          <i class="fab fa-youtube me-1"></i>Xem
-                        </a>
-
-                        <div class="d-flex gap-1 mt-auto">
-                          <button class="btn btn-warning btn-sm flex-fill btn-edit" data-id="{{_id}}">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button class="btn btn-danger btn-sm flex-fill" onclick="confirmDelete('{{_id}}')">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
                       </div>
-                    </div>
+                    {{/each}}
                   </div>
-                {{/each}}
+                {{else}}
+                  <div class="text-center text-muted small">Chưa có video trong danh mục này</div>
+                {{/if}}
               </div>
-
-              <!-- Nơi hiển thị nút phân trang -->
-              <div class="pagination-container text-center mt-3" data-category="{{@key}}"></div>
-            {{else}}
-              <div class="text-center text-muted small">Chưa có video trong danh mục này</div>
             {{/if}}
+          {{/each}}
+
+          <!-- PHÂN TRANG NẰM Ở ĐÂY — NGOÀI VÒNG LẶP -->
+          <div class="d-flex justify-content-center mt-4">
+            <nav>
+              <ul class="pagination">
+
+                {{#if (gt currentPage 1)}}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{subtract currentPage 1}}">&laquo;</a>
+                </li>
+                {{/if}}
+
+                {{#each (rangeCategory 1 totalPages)}}
+                <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                  <a class="page-link" href="?page={{this}}">{{this}}</a>
+                </li>
+                {{/each}}
+
+                {{#if (lt currentPage totalPages)}}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{add currentPage 1}}">&raquo;</a>
+                </li>
+                {{/if}}
+
+              </ul>
+            </nav>
+          </div>
+          <!-- END PHÂN TRANG -->
+
+        {{else}}
+          <div class="text-center py-5">
+            <i class="fas fa-video fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Không có video nào</h5>
+            <p class="text-muted">Hãy thêm video mới hoặc thay đổi bộ lọc</p>
           </div>
         {{/if}}
-      {{/each}}
-    {{else}}
-      <div class="text-center py-5">
-        <i class="fas fa-video fa-3x text-muted mb-3"></i>
-        <h5 class="text-muted">Không có video nào</h5>
-        <p class="text-muted">Hãy thêm video mới hoặc thay đổi bộ lọc</p>
       </div>
-    {{/if}}
-  </div>
-</div>
-
-
+    </div>
 
     <!-- Tab: Video đã xóa -->
     <div class="tab-pane fade" id="tabDeleted">
@@ -278,16 +302,16 @@
                           {{title}}
                         </h6>
 
-                        <div class="row text-muted small mb-2">
+                        {{!-- <div class="row text-muted small mb-2">
                           <div class="col-6 text-center">
                             <i class="fas fa-tags mb-1 d-block"></i>
                             <span>{{majorName category}}</span>
                           </div>
                           <div class="col-6 text-center">
-                            <i class="fas fa-signal mb-1 d-block"></i>
-                            <span>{{level}}</span>
+                            <i class="fas fa-star text-warning mb-1 d-block"></i>
+                            <span>{{rating}}</span>
                           </div>
-                        </div>
+                        </div> --}}
 
                         <div class="mb-2">
                           <a href="https://youtube.com/watch?v={{youtubeId}}" target="_blank"
@@ -388,67 +412,6 @@
     </div>
   </div>
 </div>
-
-
-{{!-- phân trang --}}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const itemsPerPage = 4; // Số video mỗi trang
-
-  // Xử lý cho từng danh mục
-  document.querySelectorAll('.video-list').forEach(videoList => {
-    const category = videoList.querySelector('.video-item')?.dataset.category;
-    if (!category) return;
-
-    const paginationContainer = document.querySelector(`.pagination-container[data-category="${category}"]`);
-    const videos = videoList.querySelectorAll('.video-item');
-    const totalVideos = videos.length;
-    const totalPages = Math.ceil(totalVideos / itemsPerPage);
-    let currentPage = 1;
-
-    function showPage(page) {
-      currentPage = page;
-      const start = (page - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-
-      videos.forEach((video, index) => {
-        video.style.display = (index >= start && index < end) ? 'block' : 'none';
-      });
-
-      renderPagination();
-    }
-
-    function renderPagination() {
-      paginationContainer.innerHTML = '';
-
-      if (totalPages <= 1) return;
-
-      const pagination = document.createElement('ul');
-      pagination.className = 'pagination justify-content-center';
-
-      for (let i = 1; i <= totalPages; i++) {
-        const li = document.createElement('li');
-        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-        const a = document.createElement('a');
-        a.className = 'page-link';
-        a.href = '#';
-        a.textContent = i;
-        a.addEventListener('click', (e) => {
-          e.preventDefault();
-          showPage(i);
-        });
-        li.appendChild(a);
-        pagination.appendChild(li);
-      }
-
-      paginationContainer.appendChild(pagination);
-    }
-
-    showPage(1);
-  });
-});
-</script>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -612,7 +575,3 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
-
-
-
-

@@ -17,36 +17,39 @@ function parseDuration(durationStr) {
 }
 
 class VideoController {
-  // 🟦 1. Lấy danh sách video (admin/videos) — hỗ trợ AJAX lọc / tìm kiếm
+  //  1. Lấy danh sách video (admin/videos) — hỗ trợ AJAX lọc / tìm kiếm
   async getVideos(req, res) {
     try {
       const { search = '', sort = 'newest', page = 1, category = '', ajax } = req.query;
-      const limit = 10;
-      const currentPage = parseInt(page);
 
-      // 🔹 Tạo bộ lọc
+      // --------------------------
+      // 1) BỘ LỌC
+      // --------------------------
       const filter = { daXoa: false };
       if (search.trim()) {
         filter.$or = [
           { title: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
         ];
       }
       if (category && category !== 'all') filter.category = category;
 
-      // 🔹 Thiết lập sắp xếp
+      // --------------------------
+      // 2) SẮP XẾP
+      // --------------------------
       let sortOption = { createdAt: -1 };
       if (sort === 'oldest') sortOption = { createdAt: 1 };
-      else if (sort === 'az') sortOption = { title: 1 };
-      else if (sort === 'za') sortOption = { title: -1 };
+      if (sort === 'az') sortOption = { title: 1 };
+      if (sort === 'za') sortOption = { title: -1 };
 
-      // 🔹 Truy vấn video
-      const totalVideos = await Video.countDocuments(filter);
-      const videos = await Video.find(filter)
-        .sort(sortOption)
-        .lean();
+      // --------------------------
+      // 3) LẤY DANH SÁCH VIDEO
+      // --------------------------
+      const videos = await Video.find(filter).sort(sortOption).lean();
 
-      // 🔹 Đếm số học viên
+      // --------------------------
+      // 4) TÍNH SỐ HỌC VIÊN
+      // --------------------------
       const videoIds = videos.map(v => v._id);
       const enrollCounts = await User.aggregate([
         { $match: { enrolledVideos: { $in: videoIds } } },
@@ -54,24 +57,26 @@ class VideoController {
         { $match: { enrolledVideos: { $in: videoIds } } },
         { $group: { _id: '$enrolledVideos', count: { $sum: 1 } } }
       ]);
-      const countMap = {};
-      enrollCounts.forEach(i => (countMap[i._id.toString()] = i.count));
 
-      // 🔹 Tính rating trung bình
+      const countMap = {};
+      enrollCounts.forEach(i => countMap[i._id.toString()] = i.count);
+
+      // --------------------------
+      // 5) TÍNH RATING TRUNG BÌNH
+      // --------------------------
       videos.forEach(video => {
         const reviews = video.reviews || [];
-        video.students = countMap[video._id.toString()] || 0;
-        video.rating = reviews.length
-          ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1)
+        const avg = reviews.length
+          ? reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length
           : 0;
+
+        video.rating = Number(avg.toFixed(1));
+        video.students = countMap[video._id.toString()] || 0;
       });
 
-      // 🔹 Nếu là request AJAX → render partial
-      if (ajax === '1') {
-        return res.render('partials/videoList', { videos, layout: false });
-      }
-
-      // 🔹 Danh mục chuẩn
+      // --------------------------
+      // 6) DANH MỤC
+      // --------------------------
       const allMajors = {
         'CNTT': 'Công nghệ thông tin',
         'YT': 'Y tế',
@@ -83,49 +88,83 @@ class VideoController {
         'KT-XD': 'Kỹ thuật - Xây dựng',
         'L-NV': 'Luật - Nhân văn',
         'ST-NT': 'Sáng tạo - Nghệ thuật',
-        'DV-DL': 'Dịch vụ - Du lịch',
+        'DV-DL': 'Dịch vụ - Du lịch'
       };
-
-      // 🔹 Lấy tất cả video (bỏ limit khi nhóm)
-      const allVideos = await Video.find({ daXoa: false }).sort(sortOption).lean();
-
-      // 🔹 Gom nhóm theo danh mục
-      const grouped = {};
-      allVideos.forEach(v => {
-        if (!grouped[v.category]) grouped[v.category] = [];
-        grouped[v.category].push(v);
-      });
-
-      // 🔹 Bổ sung danh mục trống nếu chưa có video
-      Object.keys(allMajors).forEach(code => {
-        if (!grouped[code]) grouped[code] = [];
-      });
-
-      const deletedVideos = await Video.find({ daXoa: true }).sort({ createdAt: -1 }).lean();
 
       const categories = Object.keys(allMajors);
 
+      // --------------------------
+      // 7) PHÂN TRANG DANH MỤC
+      // --------------------------
+      const categoryPerPage = 1;
+      let currentPage = parseInt(req.query.page) || 1;
+
+      const totalPages = Math.ceil(categories.length / categoryPerPage);
+
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIndex = (currentPage - 1) * categoryPerPage;
+      const paginatedCategories = categories.slice(startIndex, startIndex + categoryPerPage);
+
+      // --------------------------
+      // 8) LẤY VIDEO THEO DANH MỤC
+      // --------------------------
+      const grouped = {};
+      for (const cat of paginatedCategories) {
+        grouped[cat] = await Video.find({ category: cat, daXoa: false })
+          .sort(sortOption)
+          .lean();
+      }
+
+      // --------------------------
+      // 9) VIDEO ĐÃ XÓA
+      // --------------------------
+      const deletedVideos = await Video.find({ daXoa: true })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      // --------------------------
+      // 10) AJAX TRẢ PARTIAL
+      // --------------------------
+      if (ajax === '1') {
+        return res.render('partials/videoList', {
+          videos,
+          grouped,
+          allMajors,
+          layout: false
+        });
+      }
+
+      // --------------------------
+      // 11) RENDER TRANG CHÍNH
+      // --------------------------
       res.render('admin/videos', {
         layout: 'admin',
         user: req.session.user,
-        users: await User.find(),
         videos,
         grouped,
-        allMajors,
         deletedVideos,
-        currentPage,
-        totalPages: Math.ceil(totalVideos / limit),
-        totalVideos,
-        query: { search, sort, category },
+        allMajors,
         categories,
+        currentPage,
+        totalPages,
+        query: { search, sort, category }
       });
+
+      console.log("currentPage:", currentPage);
+console.log("totalPages:", totalPages);
+console.log("paginatedCategories:", paginatedCategories);
+
+
     } catch (err) {
-      console.error('❌ Lỗi khi lấy danh sách video:', err);
-      res.status(500).send('Lỗi server khi lấy danh sách video');
+      console.error("❌ Lỗi getVideos:", err);
+      res.status(500).send("Lỗi server khi lấy danh sách video");
     }
   }
 
-  // 🟦 2. Tìm kiếm video trên YouTube (preview)
+
+  //  2. Tìm kiếm video trên YouTube (preview)
   async searchAndPreview(req, res) {
     const { query } = req.query;
     if (!query) return res.status(400).json({ message: 'Thiếu từ khóa' });
@@ -170,7 +209,7 @@ class VideoController {
     }
   }
 
-  // 🟦 3. Tạo video mới
+  //  3. Tạo video mới
   async createVideo(req, res) {
     try {
       const { youtubeId, title, description, thumbnail, category, duration = '0m 0s' } = req.body;
@@ -196,7 +235,7 @@ class VideoController {
     }
   }
 
-  // 🟦 4. Chỉnh sửa video
+  //  4. Chỉnh sửa video
   async editVideo(req, res) {
     try {
       const { id } = req.params;
@@ -221,7 +260,7 @@ class VideoController {
     }
   }
 
-  // 🟦 5. Xóa mềm video
+  //  5. Xóa mềm video
   async deleteVideo(req, res) {
     try {
       await Video.findByIdAndUpdate(req.params.id, { daXoa: true });
@@ -232,7 +271,7 @@ class VideoController {
     }
   }
 
-  // 🟦 6. Khôi phục video
+  //  6. Khôi phục video
   async restoreVideo(req, res) {
     try {
       await Video.findByIdAndUpdate(req.params.id, { daXoa: false });
