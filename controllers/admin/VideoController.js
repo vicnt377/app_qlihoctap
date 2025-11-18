@@ -96,6 +96,8 @@ class VideoController {
       // --------------------------
       // 7) PHÂN TRANG DANH MỤC
       // --------------------------
+
+      // Phân trang hiện tại
       const categoryPerPage = 1;
       let currentPage = parseInt(req.query.page) || 1;
 
@@ -107,54 +109,82 @@ class VideoController {
       const startIndex = (currentPage - 1) * categoryPerPage;
       const paginatedCategories = categories.slice(startIndex, startIndex + categoryPerPage);
 
-      // --------------------------
-      // 8) LẤY VIDEO THEO DANH MỤC
-      // --------------------------
-      const grouped = {};
+      const groupedActive = {};
       for (const cat of paginatedCategories) {
-        grouped[cat] = await Video.find({ category: cat, daXoa: false })
+        groupedActive[cat] = await Video.find({ category: cat, daXoa: false })
           .sort(sortOption)
           .lean();
       }
 
-      // --------------------------
-      // 9) VIDEO ĐÃ XÓA
-      // --------------------------
-      const deletedVideos = await Video.find({ daXoa: true })
+      // Lấy toàn bộ video đã xóa
+      const allDeletedVideos = await Video.find({ daXoa: true })
         .sort({ createdAt: -1 })
         .lean();
 
-      // --------------------------
-      // 10) AJAX TRẢ PARTIAL
-      // --------------------------
-      if (ajax === '1') {
-        return res.render('partials/videoList', {
-          videos,
-          grouped,
-          allMajors,
-          layout: false
-        });
+      // Lấy danh mục duy nhất từ video đã xóa
+      const deletedCategories = [...new Set(allDeletedVideos.map(v => v.category))];
+
+      // Phân trang theo danh mục
+      const deletedCategoryPerPage = 1;
+      let deletedPage = parseInt(req.query.deletedPage) || 1;
+
+      const deletedTotalPages = Math.ceil(deletedCategories.length / deletedCategoryPerPage);
+
+      if (deletedPage < 1) deletedPage = 1;
+      if (deletedPage > deletedTotalPages) deletedPage = deletedTotalPages;
+
+      const startDeletedIndex = (deletedPage - 1) * deletedCategoryPerPage;
+
+      // Lấy danh mục thuộc trang hiện tại
+      const paginatedDeletedCategories = deletedCategories.slice(
+        startDeletedIndex,
+        startDeletedIndex + deletedCategoryPerPage
+      );
+
+      // Nhóm video đã xóa theo danh mục của trang
+      const groupedDelete = {};
+
+      for (const cat of paginatedDeletedCategories) {
+        groupedDelete[cat] = allDeletedVideos.filter(v => v.category === cat);
       }
+
+
+
+      console.log("Deleted categories:", deletedCategories);
+      console.log("Page:", deletedPage);
+      console.log("Categories in this page:", paginatedDeletedCategories);
+      console.log("Grouped delete:", groupedDelete);
+
 
       // --------------------------
       // 11) RENDER TRANG CHÍNH
       // --------------------------
+      if (req.query.ajaxDeleted === "1") {
+        return res.json({
+          groupedDelete,
+          deletedPage,
+          deletedTotalPages
+        });
+      }
       res.render('admin/videos', {
         layout: 'admin',
         user: req.session.user,
+        // Active
         videos,
-        grouped,
-        deletedVideos,
-        allMajors,
+        groupedActive,
         categories,
         currentPage,
         totalPages,
+
+        // Deleted
+        allDeletedVideos,
+        groupedDelete,
+        deletedCategories,
+        deletedPage,
+        deletedTotalPages,
+
         query: { search, sort, category }
       });
-
-      console.log("currentPage:", currentPage);
-console.log("totalPages:", totalPages);
-console.log("paginatedCategories:", paginatedCategories);
 
 
     } catch (err) {
@@ -271,7 +301,27 @@ console.log("paginatedCategories:", paginatedCategories);
     }
   }
 
-  //  6. Khôi phục video
+  // 6. XÓA VĨNH VIỄN VIDEO
+  async deletePermanentVideo(req, res) {
+    try {
+      const { id } = req.params;
+
+      const deleted = await Video.findByIdAndDelete(id);
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Không tìm thấy video để xóa." });
+      }
+
+      return res.status(200).json({ message: "Xóa vĩnh viễn thành công!" });
+
+    } catch (err) {
+      console.error("❌ Lỗi deletePermanentVideo:", err);
+      return res.status(500).json({ message: "Lỗi server khi xóa vĩnh viễn." });
+    }
+  }
+
+
+  //  7. Khôi phục video
   async restoreVideo(req, res) {
     try {
       await Video.findByIdAndUpdate(req.params.id, { daXoa: false });

@@ -14,8 +14,8 @@
       <div class="card shadow-sm border-0">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
-            <small class="text-muted">Tổng khóa học</small>
-            <div class="fs-4 fw-bold mt-1">{{add videos.length deletedVideos.length}}</div>
+            <small class="text-muted">Tổng video</small>
+            <div class="fs-4 fw-bold mt-1">{{add videos.length allDeletedVideos.length}}</div>
           </div>
           <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-flex align-items-center justify-content-center">
             <i class="fas fa-video text-primary fs-4"></i>
@@ -43,7 +43,7 @@
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
             <small class="text-muted">Không hoạt động</small>
-            <div class="fs-4 fw-bold mt-1">{{deletedVideos.length}}</div>
+            <div class="fs-4 fw-bold mt-1">{{allDeletedVideos.length}}</div>
           </div>
           <div class="rounded-circle bg-danger bg-opacity-10 p-3 d-flex align-items-center justify-content-center">
             <i class="fas fa-trash text-danger fs-4"></i>
@@ -77,7 +77,7 @@
           <form method="GET" action="/admin/videos" id="filterForm-search" class="row g-2 align-items-end">
             <div class="col-md-8">
               <input type="text" class="form-control form-control-sm" name="search" 
-                    placeholder="🔍 Tìm kiếm..." value="{{query.search}}">
+                    placeholder=" Tìm kiếm..." value="{{query.search}}">
             </div>
             <div class="col-md-4">
               <select id="category" name="category" class="form-select">
@@ -161,7 +161,7 @@
     <div class="tab-pane fade show active" id="tabActive">
       <div id="videoContainer">
         {{#if videos.length}}
-          {{#each grouped}}
+          {{#each groupedActive}}
             {{#if @key}}
               <div class="category-section mb-4" data-category-section="{{@key}}">
                 <!-- Tiêu đề danh mục -->
@@ -267,80 +267,98 @@
 
     <!-- Tab: Video đã xóa -->
     <div class="tab-pane fade" id="tabDeleted">
-      {{#if deletedVideos.length}}
-        {{#each (groupBy deletedVideos 'category')}}
-          {{#if @key}}
+      <div id="deletedContainer">
+
+        {{#if allDeletedVideos.length}}
+          {{#each groupedDelete}}
+            {{#if @key}}
             <div class="category-section mb-4">
               <h5 class="fw-bold text-danger mb-3 border-bottom pb-2">
                 <i class="fas fa-folder-open me-2 text-warning"></i>
                 {{majorName @key}}
                 <span class="badge bg-light text-dark ms-2">
-                  {{countVideosInCategory ../deletedVideos @key}} Video
+                  {{this.length}} Video
                 </span>
               </h5>
 
               <div class="row g-3">
                 {{#each this}}
+
                   <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="card h-100 shadow-sm border-0 bg-light video-card">
-                      <div class="position-relative">
-                        <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg"
-                            class="card-img-top rounded-top"
-                            alt="{{title}}"
-                            style="height: 140px; object-fit: cover;"
-                            onerror="this.src='/img/thumbnails/default.jpg'; this.onerror=null;">
-                        <span class="badge position-absolute top-0 start-0 m-1 bg-danger">
-                          <i class="fas fa-trash me-1"></i>Đã xóa
-                        </span>
-                        <span class="badge position-absolute top-0 end-0 m-1 bg-secondary">
-                          {{majorName category}}
-                        </span>
-                      </div>
+
+                      <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg"
+                          class="card-img-top"
+                          style="height:140px; object-fit:cover;">
 
                       <div class="card-body d-flex flex-column p-2">
-                        <h6 class="card-title fw-bold mb-1 text-truncate text-muted small" title="{{title}}">
+                        <h6 class="card-title fw-bold mb-1 text-truncate text-muted" title="{{title}}">
                           {{title}}
                         </h6>
 
-                        {{!-- <div class="row text-muted small mb-2">
-                          <div class="col-6 text-center">
-                            <i class="fas fa-tags mb-1 d-block"></i>
-                            <span>{{majorName category}}</span>
-                          </div>
-                          <div class="col-6 text-center">
-                            <i class="fas fa-star text-warning mb-1 d-block"></i>
-                            <span>{{rating}}</span>
-                          </div>
-                        </div> --}}
-
-                        <div class="mb-2">
-                          <a href="https://youtube.com/watch?v={{youtubeId}}" target="_blank"
-                            class="btn btn-outline-secondary btn-sm w-100">
-                            <i class="fab fa-youtube me-1"></i>Xem trên YouTube
-                          </a>
-                        </div>
-
                         <div class="mt-auto">
-                          <button class="btn btn-success btn-sm w-100 btn-restore" data-id="{{_id}}">
-                            <i class="fas fa-undo me-1"></i>Khôi phục
-                          </button>
+                          <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-sm flex-fill btn-restore" data-id="{{_id}}">
+                              <i class="fas fa-undo me-1"></i>Khôi phục
+                            </button>
+
+                            <button class="btn btn-danger btn-sm flex-fill btn-delete-permanent" data-id="{{_id}}">
+                              <i class="fas fa-trash-alt me-1"></i>Xóa vĩnh viễn
+                            </button>
+                          </div>
                         </div>
+
                       </div>
                     </div>
                   </div>
+
                 {{/each}}
               </div>
             </div>
-          {{/if}}
-        {{/each}}
-      {{else}}
-        <div class="text-center py-5">
-          <i class="fas fa-trash fa-3x text-muted mb-3"></i>
-          <h5 class="text-muted">Không có khóa học nào bị xóa</h5>
-          <p class="text-muted">Tất cả khóa học đang hoạt động bình thường</p>
-        </div>
-      {{/if}}
+            {{/if}}
+          {{/each}}
+
+          <!-- PHÂN TRANG VIDEO ĐÃ XÓA -->
+          <div class="d-flex justify-content-center mt-4">
+            <nav>
+              <ul class="pagination">
+
+                {{#if (gt deletedPage 1)}}
+                <li class="page-item">
+                  <a class="page-link deleted-active" data-deleted-page="{{subtract deletedPage 1}}">
+                    &laquo;
+                  </a>
+                </li>
+                {{/if}}
+
+                {{#each (rangeCategory 1 deletedTotalPages)}}
+                <li class="page-item {{#if (eq this ../deletedPage)}}active{{/if}}">
+                  <a class="page-link deleted-active" data-deleted-page="{{this}}">{{this}}</a>
+                </li>
+                {{/each}}
+
+                {{#if (lt deletedPage deletedTotalPages)}}
+                <li class="page-item">
+                  <a class="page-link deleted-active" data-deleted-page="{{add deletedPage 1}}">
+                    &raquo;
+                  </a>
+                </li>
+                {{/if}}
+
+              </ul>
+            </nav>
+          </div>
+
+        {{else}}
+          <div class="text-center py-5">
+            <i class="fas fa-trash fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Không có video nào bị xóa</h5>
+          </div>
+        {{/if}}
+
+      </div>
     </div>
+
   </div>
 </main>
 
@@ -413,6 +431,7 @@
   </div>
 </div>
 
+{{!-- Phân trang active --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('filterForm-search');
@@ -460,6 +479,110 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 </script>
+
+{{!-- Phân trang delete --}}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // CLICK VÀO PHÂN TRANG TAB DELETED
+  document.addEventListener("click", async (e) => {
+    const button = e.target.closest(".deleted-active");
+    if (!button) return;
+
+    const page = button.dataset.deletedPage;
+    const container = document.getElementById("deletedContainer");
+
+    // CALL AJAX
+    const res = await fetch(`/admin/videos?deletedPage=${page}&ajaxDeleted=1`);
+    const data = await res.json();
+
+    // RENDER HTML
+    container.innerHTML = renderDeletedHTML(data);
+  });
+
+  // BUILD HTML CHO TAB DELETED (TƯƠNG TỰ HANDLEBARS)
+  function renderDeletedHTML(data) {
+    let html = "";
+
+    for (let cat in data.groupedDelete) {
+      let videos = data.groupedDelete[cat];
+
+      html += `
+      <div class="category-section mb-4">
+        <h5 class="fw-bold text-danger mb-3 border-bottom pb-2">
+          <i class="fas fa-folder-open me-2 text-warning"></i>
+          ${majorName(cat)}
+          <span class="badge bg-light text-dark ms-2">${videos.length} Video</span>
+        </h5>
+        <div class="row g-3">
+      `;
+
+      videos.forEach(v => {
+        html += `
+          <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0 bg-light video-card">
+              <img src="https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg"
+                   class="card-img-top" style="height:140px; object-fit:cover;">
+
+              <div class="card-body d-flex flex-column p-2">
+                <h6 class="card-title text-muted text-truncate" title="${v.title}">
+                  ${v.title}
+                </h6>
+
+                <div class="mt-auto d-flex gap-2">
+                  <button class="btn btn-success btn-sm flex-fill btn-restore" data-id="${v._id}">
+                    <i class="fas fa-undo me-1"></i>Khôi phục
+                  </button>
+
+                  <button class="btn btn-danger btn-sm flex-fill btn-delete-permanent" data-id="${v._id}">
+                    <i class="fas fa-trash-alt me-1"></i>Xóa vĩnh viễn
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+    }
+
+
+    // PAGINATION
+    html += `<div class="d-flex justify-content-center mt-4"><ul class="pagination">`;
+
+    for (let i = 1; i <= data.deletedTotalPages; i++) {
+      html += `
+        <li class="page-item ${i == data.deletedPage ? "active" : ""}">
+          <a class="page-link deleted-active" data-deleted-page="${i}">${i}</a>
+        </li>
+      `;
+    }
+
+    html += `</ul></div>`;
+    return html;
+  }
+
+  // TÊN DANH MỤC
+  function majorName(code) {
+    const majors = {
+      "CNTT": "Công nghệ thông tin",
+      "DV-DL": "Dịch vụ - Du lịch",
+      "GD": "Giáo dục",
+      "YT": "Y tế",
+      "NN": "Ngoại ngữ",
+      "TN-MT": "Tự nhiên - Môi trường",
+      "KT-TC": "Kinh tế - Tài chính",
+      "KD-QL": "Kinh doanh - Quản lý",
+      "KT-XD": "Kỹ thuật - Xây dựng",
+      "L-NV": "Luật - Nhân văn",
+      "ST-NT": "Sáng tạo - Nghệ thuật",
+    };
+    return majors[code] || code;
+  }
+});
+</script>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -575,3 +698,37 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
+
+{{!-- xóa vĩnh viễn video --}}
+<script>
+document.addEventListener("click", async function (e) {
+  const btn = e.target.closest(".btn-delete-permanent");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+
+  if (!confirm("Bạn có chắc muốn xóa vĩnh viễn video này? Hành động không thể khôi phục!")) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/admin/videos/${id}/delete-permanent`, {
+      method: "DELETE"
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(data.message || "Đã xóa vĩnh viễn!");
+      location.reload();
+    } else {
+      alert(data.message || "Xóa thất bại!");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi kết nối server!");
+  }
+});
+
+</script>
+

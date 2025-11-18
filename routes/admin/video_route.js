@@ -10,6 +10,8 @@ router.get('/videos/youtube-search', isAdmin, videoController.searchAndPreview);
 router.post('/videos/create', isAdmin, videoController.createVideo);
 router.patch('/videos/:id/edit', isAdmin, videoController.editVideo);
 router.delete('/videos/:id/delete', isAdmin, videoController.deleteVideo);
+// Xóa vĩnh viễn
+router.delete("/videos/:id/delete-permanent", videoController.deletePermanentVideo);
 router.patch('/videos/:id/restore', isAdmin, videoController.restoreVideo);
 
 module.exports = router;
