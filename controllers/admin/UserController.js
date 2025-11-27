@@ -1,6 +1,6 @@
 const User = require('../../models/User');      // Model học viên
 const Admin = require('../../models/Admin');    // Model admin (chung collection users)
-
+const transporter = require("../../config/mail/mail");  // Cấu hình gửi mail
 class UserController {
 
     // 📌 Danh sách học viên
@@ -158,6 +158,24 @@ class UserController {
         }
     }
 
+    
+    // test gửi mail
+    async testSendMail (req, res) { 
+        try {
+            await transporter.sendMail({
+                from: process.env.EMAIL_ADMIN, 
+                to: "caovi070703@gmail.com", // email người nhận
+                subject: "Test Email từ EduSystem",
+                text: "Xin chào! Đây là email gửi thử từ Node.js",
+                html: "<h2>Xin chào!</h2><p>Email gửi thành công 🚀</p>"
+            });
+
+            res.send("Đã gửi email thành công!");
+        } catch (err) {
+            console.error("Lỗi gửi email:", err);
+            res.status(500).send("Không gửi được email!");
+        }
+    };
 }
 
 module.exports = new UserController();

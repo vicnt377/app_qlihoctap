@@ -1,5 +1,7 @@
 const User = require('../../models/User');
 const Notification = require('../../models/Notification');
+const sendMail = require('../../config/mail/mail');
+const MailTemplate = require('../../src/util/emailTemplates');
 
 class RegisterController {
   index(req, res, next) {
@@ -61,15 +63,17 @@ class RegisterController {
             }
           });
           await welcomeNotification.save();
-          console.log("🔔 Thông báo chào mừng:", {
-                    id: welcomeNotification._id,
-                    recipient: welcomeNotification.recipient,
-                    title: welcomeNotification.title,
-                    message: welcomeNotification.message
-                });
+
           if (req.io) {
             req.io.to(newUser._id.toString()).emit('new-notification', welcomeNotification);
           }
+
+          await sendMail({
+            to: newUser.email,
+            subject: "🎉 Chào mừng đến EduSystem!",
+            html: MailTemplate.registerSuccess(newUser.username)
+          });
+
         } catch (notifyErr) {
           console.error("❌ Lỗi tạo thông báo đăng ký:", notifyErr);
         }

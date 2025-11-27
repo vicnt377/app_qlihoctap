@@ -9,4 +9,7 @@ router.patch('/users/:id/clock', isAdmin, userController.clockUser);
 router.post('/users/add', isAdmin, userController.addUser);
 router.delete('/users/:id/delete', isAdmin, userController.deleteUser);
 
+router.get("/send-test-email",  userController.testSendMail);
+
+
 module.exports = router;

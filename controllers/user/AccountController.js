@@ -1,6 +1,8 @@
 const User = require('../../models/User');
 const Notification = require('../../models/Notification');
 const path = require('path');
+const sendMail = require('../../config/mail/mail');
+const MailTemplate = require('../../src/util/emailTemplates');
 
 
 class AccountController {
@@ -165,9 +167,19 @@ class AccountController {
             req.io.to(userId.toString()).emit('new-notification', passwordNotification);
             }
 
-            // Session thông báo thành công
-            // req.session.successMessage = 'Đổi mật khẩu thành công!';
+            // 📧 Gửi email cảnh báo bảo mật
+            try {
+                await sendMail({
+                to: user.email,
+                subject: "Thay đổi mật khẩu - EduSystem",
+                html: MailTemplate.passwordChanged(user.username)
+                });
+            } catch (mailErr) {
+                console.error("❌ Lỗi gửi email updatePassword:", mailErr);
+            }
+
             return res.redirect('/account');
+
         } catch (err) {
             console.error('❌ Lỗi đổi mật khẩu:', err);
 
@@ -181,7 +193,6 @@ class AccountController {
             return res.redirect('/account');
         }
     }
-
 
 }
 

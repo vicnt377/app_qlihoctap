@@ -9,6 +9,12 @@ const semesterSchema = new mongoose.Schema({
   endDate: { type: Date }, // Tự tính, không cần nhập từ form
   score: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Score' }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  warningLevel: {
+    type: Number,
+    enum: [0, 1, 2],   // 0 = Không cảnh báo, 1 = Mức 1, 2 = Mức 2
+    default: 0
+  }, // Mức cảnh báo học vụ
+
 }, { timestamps: true });
 
 // Hook để tính endDate tự động trước khi lưu

@@ -2,6 +2,9 @@
 const User = require('../../models/User');
 const Notification = require('../../models/Notification')
 const { mongooseToObject } = require('../../src/util/mongoose');
+const sendMail = require('../../config/mail/mail');
+const MailTemplate = require('../../src/util/emailTemplates');
+
 
 class LoginController {
     re_login(req, res){
@@ -122,7 +125,8 @@ class LoginController {
                 messages: { error: 'Có lỗi xảy ra khi cập nhật mật khẩu!' } });
         }
     }
-    
+
+
 }
 
 module.exports = new LoginController();
