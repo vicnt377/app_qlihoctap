@@ -67,7 +67,7 @@
     </div>
   </div>
 
-  {{!-- Bộ lọc và form thêm video từ Youtube --}}
+  {{!-- Bộ lọc và form thêm video từ Youtube
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
       <div class="row g-4 align-items-start">
@@ -140,7 +140,7 @@
 
       </div>
     </div>
-  </div>
+  </div> --}}
 
   <!-- Tabs gọn gàng -->
   <ul class="nav nav-pills mb-3" id="videoTabs">
@@ -201,10 +201,10 @@
                               <span><i class="fas fa-star text-warning me-1"></i>{{video.rating}}</span>
                             </div>
 
-                            <a href="https://youtube.com/watch?v={{youtubeId}}" 
-                              target="_blank" 
+                            {{!-- <a href="https://youtube.com/watch?v={{youtubeId}}" --}}
+                            <a href="/admin/videos/showdetail/{{_id}}" 
                               class="btn btn-outline-primary btn-sm mb-2">
-                              <i class="fab fa-youtube me-1"></i>Xem
+                              Xem chi tiết
                             </a>
 
                             <div class="d-flex gap-1 mt-auto">

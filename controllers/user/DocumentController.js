@@ -151,7 +151,7 @@ class DocumentController {
   async downloadDocument(req, res, next) {
     try {
       const doc = await Document.findById(req.params.id);
-      if (!doc) return res.status(404).send('Không tìm thấy tài liệu.');
+      if (!doc) return res.status(404).send('Không tìm thấy document.');
 
       const filePath = path.join(__dirname, '../../src/public/file', doc.file);
       if (!fs.existsSync(filePath)) {

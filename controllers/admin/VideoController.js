@@ -17,6 +17,21 @@ function parseDuration(durationStr) {
 }
 
 class VideoController {
+  async getVideoById(req, res) {
+    try {
+      const video = await Video.findById(req.params.id).lean();
+
+      if (!video) {
+        return res.status(404).json({ error: "Không tìm thấy video" });
+      }
+
+      return res.json(video); 
+    } catch (err) {
+      console.error("Lỗi getVideoById:", err);
+      return res.status(500).json({ error: "Lỗi server" });
+    }
+  }
+
   //  1. Lấy danh sách video (admin/videos) — hỗ trợ AJAX lọc / tìm kiếm
   async getVideos(req, res) {
     try {
@@ -331,6 +346,49 @@ class VideoController {
       res.sendStatus(500);
     }
   }
+
+  // 8. Hiển thị chi tiết video
+  async showDetail(req, res) {
+    try {
+      const videoId = req.params.id;
+
+      // Lấy video + populate user từ reviews
+      const video = await Video.findById(videoId)
+        .populate("reviews.user", "username avatar email")
+        .lean();
+
+      if (!video) {
+        return res.status(404).send("Không tìm thấy video");
+      }
+
+      // Tính rating trung bình
+      let avgRating = 0;
+      if (video.reviews?.length > 0) {
+        avgRating = (
+          video.reviews.reduce((s, r) => s + r.rating, 0) /
+          video.reviews.length
+        ).toFixed(1);
+      }
+
+      // Số học viên đã quan tâm
+      const studentCount = await User.countDocuments({ enrolledVideos: videoId });
+
+      res.render("admin/detailVideos", {
+        layout: "admin",
+        video: {
+          ...video,
+          students: studentCount,
+          rating: avgRating
+        }
+      });
+
+    } catch (err) {
+      console.error("❌ showDetail error:", err);
+      res.status(500).send("Lỗi server");
+    }
+  }
+
+
 }
 
 module.exports = new VideoController();

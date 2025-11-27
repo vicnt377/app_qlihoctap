@@ -107,7 +107,10 @@ class ScoreController {
       const semestersList = [...new Set(semestersWithYear.map(s => s.tenHocKy))];
 
       // Tính GPA tích lũy
-      const allScores = await Score.find({ user: userId }).populate('HocPhan').lean();
+      const allScores = await Score.find({ user: userId, tichLuy: true })
+        .populate('HocPhan')
+        .lean();
+
       let tongDiem = 0, tongTinChi = 0;
       for (const score of allScores) {
         const diemSo = parseFloat(score.diemSo);
@@ -161,33 +164,30 @@ class ScoreController {
   async updateScore(req, res) {
     try {
       const updates = req.body.scores;
-      const userId = req.session.userId; // ✅ giả sử bạn lưu userId trong session
+      const userId = req.session.user?._id;
 
       for (const scoreId in updates) {
-        let { diemSo, diemChu } = updates[scoreId];
+        let { diemSo, diemChu, tichLuy } = updates[scoreId];
 
-        if (Array.isArray(diemChu)) {
-          diemChu = diemChu[0];
-        }
+        // Checkbox chỉ tồn tại khi được tick
+        tichLuy = tichLuy ? true : false;
+
+        // Convert điểm số
+        diemSo = diemSo ? parseFloat(diemSo) : null;
 
         const updatedScore = await Score.findByIdAndUpdate(
           scoreId,
-          {
-            diemSo: parseFloat(diemSo),
-            diemChu
-          },
+          { diemSo, diemChu, tichLuy },
           { new: true }
-        ).populate('HocPhan'); // ✅ populate để lấy tên học phần
-        
+        ).populate('HocPhan');
 
-        // 🔔 Tạo thông báo sau khi cập nhật từng score
         if (updatedScore) {
           await Notification.create({
             recipient: userId,
             sender: userId,
             type: 'success',
             title: 'Cập nhật điểm thành công',
-            message: `Điểm học phần "${updatedScore.HocPhan.tenHocPhan}" đã được cập nhật thành công.`,
+            message: `Điểm học phần "${updatedScore.HocPhan.tenHocPhan}" đã được cập nhật.`,
             relatedModel: 'Score',
             relatedId: updatedScore._id
           });
@@ -195,18 +195,19 @@ class ScoreController {
       }
 
       res.redirect('/score');
+
     } catch (err) {
       console.error('❌ Lỗi khi cập nhật điểm:', err);
 
-      // 🔔 Thông báo lỗi
-      const userId = req.session.userId;
+      const userId = req.session.user?._id;
+
       if (userId) {
         await Notification.create({
           recipient: userId,
           sender: userId,
           type: 'error',
           title: 'Cập nhật điểm thất bại',
-          message: 'Có lỗi xảy ra khi cập nhật điểm. Vui lòng thử lại.',
+          message: 'Có lỗi xảy ra khi cập nhật điểm.',
           relatedModel: 'Score'
         });
       }
@@ -214,6 +215,7 @@ class ScoreController {
       res.status(500).send('Cập nhật điểm thất bại!');
     }
   }
+
 
 }
 

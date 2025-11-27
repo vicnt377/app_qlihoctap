@@ -156,6 +156,7 @@
                           <th class="text-center py-2">Tín chỉ</th>
                           <th class="text-center py-2">Điểm Số</th>
                           <th class="text-center py-2">Điểm Chữ</th>
+                          <th class="text-center py-2">Tích lũy</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -177,6 +178,14 @@
                                 name="scores[{{_id}}][diemChu]" 
                                 class="form-control form-control-sm text-center" 
                                 value="{{diemChu}}">
+                            </td>
+                            <td class="text-center">
+                              <input 
+                                type="checkbox" 
+                                class="form-check-input"
+                                name="scores[{{_id}}][tichLuy]"
+                                {{#if tichLuy}}checked{{/if}}
+                              >
                             </td>
                           </tr>
                         {{/each}}
