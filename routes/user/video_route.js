@@ -11,6 +11,7 @@ router.get('/showdetail/:id', videoController.showDetail) // Cho phép xem chi t
 router.post('/:id/review', isUser, videoController.postReview);
 
 router.get('/start/:id', isUser, videoController.startVideo)
+router.post('/save-progress/:id', videoController.saveProgress);
 
 
 module.exports = router

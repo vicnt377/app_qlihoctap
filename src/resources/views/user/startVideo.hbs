@@ -7,13 +7,14 @@
     <!-- Video học -->
     <div class="col-md-8">
       <div class="ratio ratio-16x9 rounded shadow-sm mb-3">
-        <iframe
+        {{!-- <iframe
           src="https://www.youtube.com/embed/{{video.youtubeId}}?autoplay=1&rel=0"
           title="{{video.title}}"
           frameborder="0"
           allow="autoplay; encrypted-media"
           allowfullscreen
-        ></iframe>
+        ></iframe> --}}
+        <div id="player"></div>
       </div>
 
 
@@ -38,3 +39,71 @@
     </div>
   </div>
 </div>
+
+<script>
+  let player;
+  const savedTime = Number("{{video.currentTime}}") || 0;
+  const videoDbId = "{{video._id}}";
+  let hasSeeked = false;
+
+  // Load YT API
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+
+  // Create player
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player("player", {
+      videoId: "{{video.youtubeId}}",
+      playerVars: {
+        autoplay: 1,
+        rel: 0,
+        controls: 1
+      },
+      events: {
+        onReady: onPlayerReady,
+        onStateChange: onPlayerStateChange
+      }
+    });
+  }
+
+  function onPlayerReady(event) {
+    event.target.playVideo();
+
+    // Phòng trường hợp seek quá sớm
+    setTimeout(() => {
+      if (savedTime > 1 && !hasSeeked) {
+        player.seekTo(savedTime, true);
+        hasSeeked = true;
+      }
+    }, 800);
+  }
+
+  // Khi trạng thái video thay đổi
+  function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING && !hasSeeked) {
+      if (savedTime > 1) {
+        player.seekTo(savedTime, true);
+      }
+      hasSeeked = true;
+    }
+  }
+
+  // SAVE PROGRESS mỗi 5s
+  setInterval(() => {
+    if (!player || typeof player.getCurrentTime !== "function") return;
+
+    const current = player.getCurrentTime();
+    const duration = player.getDuration();
+
+    fetch(`/video/save-progress/${videoDbId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentTime: current, duration })
+    });
+  }, 5000);
+</script>
+
+
+
+

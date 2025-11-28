@@ -9,7 +9,9 @@ const videoSchema = new mongoose.Schema({
         type: String,
         enum: ['CNTT', 'YT', 'GD', 'NN', 'KT-TC', 'TN-MT', 'KD-QL', 'KT-XD', 'L-NV', 'ST-NT', 'DV-DL' ],
     },
-    duration: { type: String, },
+    currentTime: { type: Number, default: 0 }, // thời gian đang xem
+    duration: { type: String, }, // độ dài video
+    isCompleted: { type: Boolean, default: false }, // đã xem xong hay chưa
     students: { type: Number, default: 0 },
     daXoa: { type: Boolean, default: false },
     reviews: [{

@@ -147,7 +147,7 @@ class ScoreController {
         }
 
         // ---- GỬI EMAIL CHỈ KHI warningLevel TĂNG ----
-        if (warningLevel > oldWarning) {
+        if (warningLevel > oldWarning ) {
 
           const msg = warningLevel === 1
             ? "Cảnh báo học vụ mức 1"
@@ -157,7 +157,7 @@ class ScoreController {
             to: user.email,
             subject: `⚠ ${msg} – EduSystem`,
             html: MailTemplate.academicWarning(
-              user.username,
+              user.username, `${msg} (CPA học kỳ: ${cpaHK})`
             )
           });
         }

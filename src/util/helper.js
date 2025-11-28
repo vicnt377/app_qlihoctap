@@ -18,7 +18,11 @@ module.exports = {
   default: (value, fallback) => (value != null && !isNaN(value)) ? value : fallback,
   array: (...args) => args.slice(0, -1),
   toString: (val) => val?.toString(),
+  calcPercent: (current, duration) => {
+    if (!duration || duration == 0) return 0;
 
+    return ((current / duration) * 100).toFixed(0);
+  },
   isActive: (currentPath, matchPath) =>
     currentPath.startsWith(matchPath) ? "active" : "",
 

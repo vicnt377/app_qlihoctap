@@ -24,13 +24,23 @@ class VideoController {
       const user = await User.findById(userId).lean();
       if (!user) return res.status(404).send('User not found');
 
-      // Dùng major code trong User để query Video
-      const videos = await Video.find({ category: user.major, daXoa: false }).lean();
+      const allVideos = await Video.find({ category: user.major, daXoa: false }).lean();
+
+      // Danh sách ID video đã tham gia
+      const enrolledIds = (user.enrolledVideos || []).map(v => v.toString());
+
+      // Video đã tham gia
+      const enrolledVideos = allVideos.filter(v => enrolledIds.includes(v._id.toString()));
+
+      // Video chưa tham gia
+      const notEnrolledVideos = allVideos.filter(v => !enrolledIds.includes(v._id.toString()));
 
       res.render('user/video', {
         user,
-        videos,
-        videoCount: videos.length,
+        enrolledVideos,
+        notEnrolledVideos,
+        enrolledCount: enrolledVideos.length,
+        otherCount: notEnrolledVideos.length
       });
 
     } catch (err) {
@@ -228,6 +238,24 @@ class VideoController {
       res.status(500).send('Lỗi server');
     }
   }
+  async saveProgress(req, res) {
+    try {
+      const videoId = req.params.id;
+      const { currentTime, duration } = req.body;
+
+      await Video.findByIdAndUpdate(videoId, {
+        currentTime,
+        duration,
+        isCompleted: currentTime >= duration - 2
+      });
+
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.json({ success: false });
+    }
+  }
+
 }
 
 module.exports = new VideoController();

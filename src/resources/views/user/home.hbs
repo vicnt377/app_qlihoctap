@@ -182,26 +182,60 @@
   <!-- Các video đã quan tâm -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-gradient-gray text-white py-2">
-      <h6 class="mb-0"><i class="fas fa-list me-2"></i>Các video đã quan tâm</h6>
+      <h6 class="mb-0">
+        <i class="fas fa-list me-2"></i>Các video đã quan tâm
+      </h6>
     </div>
+
     <div class="card-body p-3">
       {{#if enrolledVideos.length}}
         <div class="row g-2">
+
           {{#each enrolledVideos}}
             <div class="col-md-3 col-sm-6">
               <div class="card h-100 shadow-sm border-0">
-                <img src="https://img.youtube.com/vi/{{this.youtubeId}}/hqdefault.jpg" class="card-img-top" alt="{{this.title}}" />
-                <div class="card-body d-flex flex-column p-2">
-                  <h6 class="card-title small mb-1 text-truncate">{{this.title}}</h6>
-                  <a href="/video/start/{{this._id}}" class="btn btn-sm btn-orange mt-auto">
-                    <i class="fas fa-play me-1"></i>Xem
-                  </a>
+
+                <!-- Thumbnail -->
+                <div class="position-relative">
+                  <img src="https://img.youtube.com/vi/{{youtubeId}}/hqdefault.jpg"
+                      class="card-img-top"
+                      alt="{{title}}">
+
+                  {{!-- Progress bar nếu đã xem --}}
+                  {{#if (gt currentTime 0)}}
+                    <div class="progress" style="height: 4px; position:absolute; bottom:0; left:0; right:0;">
+                      <div class="progress-bar bg-orange"
+                          role="progressbar"
+                          style="width: {{calcPercent currentTime duration}}%;">
+                      </div>
+                    </div>
+                  {{/if}}
                 </div>
+
+                <!-- Nội dung -->
+                <div class="card-body d-flex flex-column p-2">
+                  <h6 class="card-title small mb-1 text-truncate">{{title}}</h6>
+
+                  {{!-- Nút logic --}}
+                  {{#if (gt currentTime 5)}}
+                    <a href="/video/start/{{_id}}" class="btn btn-sm btn-success mt-auto">
+                      <i class="fas fa-play me-1"></i>Tiếp tục xem
+                    </a>
+                  {{else}}
+                    <a href="/video/showdetail/{{_id}}" class="btn btn-sm btn-outline-primary mt-auto">
+                      <i class="fas fa-info-circle me-1"></i>Xem chi tiết
+                    </a>
+                  {{/if}}
+                </div>
+
               </div>
             </div>
           {{/each}}
+
         </div>
+
       {{else}}
+
         <div class="text-center py-4">
           <div class="empty-state">
             <i class="fas fa-video fa-3x text-muted mb-3"></i>
@@ -212,6 +246,7 @@
             </a>
           </div>
         </div>
+
       {{/if}}
     </div>
   </div>
