@@ -19,7 +19,12 @@ const videoSchema = new mongoose.Schema({
         username: String,
         rating: { type: Number, default: 0, min: 1, max: 5 },
         comment: String,
-        createdAt: { type: Date, default: Date.now }
+        createdAt: { type: Date, default: Date.now },
+        replies: [{
+            author: String,     // tên admin
+            text: String,       // nội dung trả lời
+            createdAt: { type: Date, default: Date.now }
+        }]
     }],
 
     createdAt: { type: Date, default: Date.now },

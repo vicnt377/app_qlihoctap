@@ -163,14 +163,6 @@ class VideoController {
         groupedDelete[cat] = allDeletedVideos.filter(v => v.category === cat);
       }
 
-
-
-      console.log("Deleted categories:", deletedCategories);
-      console.log("Page:", deletedPage);
-      console.log("Categories in this page:", paginatedDeletedCategories);
-      console.log("Grouped delete:", groupedDelete);
-
-
       // --------------------------
       // 11) RENDER TRANG CHÍNH
       // --------------------------
@@ -388,6 +380,32 @@ class VideoController {
     }
   }
 
+  // 9. Trả lời đánh giá
+  async replyReview(req, res) {
+    try {
+      const { videoId, reviewId } = req.params;
+      const { reply } = req.body;
+
+      const video = await Video.findById(videoId);
+      if (!video) return res.status(404).send("Video không tồn tại");
+
+      const review = video.reviews.id(reviewId);
+      if (!review) return res.status(404).send("Không tìm thấy đánh giá");
+
+      review.replies.push({
+        author: "Admin",
+        text: reply,
+        createdAt: new Date()
+      });
+
+      await video.save();
+
+      res.redirect(`/admin/videos/showdetail/${videoId}`);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Lỗi server khi trả lời");
+    }
+  }
 
 }
 
