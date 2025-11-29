@@ -711,6 +711,7 @@ body {
 }
 
 /* Document list improvements */
+
 .document-item {
   transition: all 0.3s ease;
   border-radius: 8px;

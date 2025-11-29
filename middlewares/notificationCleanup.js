@@ -3,7 +3,7 @@
 
 // cron.schedule("* * * * *", async () => {   // chạy mỗi phút
 //   try {
-//     const cutoff = new Date(Date.now() - 60 * 60 * 1000); 
+//     const cutoff = new Date(Date.now() - 10 * 60 * 1000); 
 //     const result = await Notification.deleteMany({ createdAt: { $lt: cutoff } });
 
 //     console.log(`🗑️ Đã xóa ${result.deletedCount} thông báo cũ hơn 60 phút`);
@@ -14,3 +14,4 @@
 // });
 
 
+// module.exports = cron;

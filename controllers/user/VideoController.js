@@ -27,7 +27,11 @@ class VideoController {
       const allVideos = await Video.find({ category: user.major, daXoa: false }).lean();
 
       // Danh sách ID video đã tham gia
-      const enrolledIds = (user.enrolledVideos || []).map(v => v.toString());
+      const enrolledIds = Array.isArray(user.enrolledVideos)
+        ? user.enrolledVideos
+            .filter(v => v != null) // bỏ null
+            .map(v => v.toString()) // convert an toàn
+        : [];
 
       // Video đã tham gia
       const enrolledVideos = allVideos.filter(v => enrolledIds.includes(v._id.toString()));

@@ -11,26 +11,33 @@ class DocumentController {
   async getDocument(req, res, next) {
     try {
       const userId = req.session.userId || req.session?.user?._id;
-      
-      if (!userId) {
-        return res.redirect('/login-user');
-      }
-      
+      if (!userId) return res.redirect('/login-user');
+
+      // Lấy thông tin user
       const user = await User.findById(userId).lean();
 
       const q = req.query.q || '';
       const regex = new RegExp(q, 'i');
 
+      // ============================
+      // 📌 TÀI LIỆU CỦA TÔI
+      // ============================
       const documents = await Document.find({
         user: userId,
         title: { $regex: regex }
-      }).sort({ createdAt: -1 });
+      })
+        .sort({ createdAt: -1 })
+        .lean();
 
+      // TÀI LIỆU THAM KHẢO PUBLIC
       const referenceDocs = await Document.find({
         visibility: 'public',
         user: { $ne: userId },
         title: { $regex: regex }
-      }).populate('user', 'username');
+      })
+        .populate('user', 'username')
+        .sort({ createdAt: -1 })
+        .lean();
 
       const successMessage = req.session.successMessage || null;
       const errorMessage = req.session.errorMessage || null;
@@ -45,7 +52,9 @@ class DocumentController {
         successMessage,
         errorMessage
       });
+
     } catch (err) {
+      console.error('❌ Lỗi getDocument:', err);
       next(err);
     }
   }
@@ -264,6 +273,7 @@ class DocumentController {
       res.redirect('/document');
     }
   }
+
 
 }
 
