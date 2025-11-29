@@ -1,107 +1,149 @@
 {{!< admin}}
 <title>Báo Cáo - Thống Kê</title>
 
-<div class="dashboard-header">
-    <h3 class="dashboard-title mb-0 text-2xl">Báo Cáo - Thống Kê</h3>
-    <button class="btn btn-success">
-        <i class="fas fa-download"></i> Xuất báo cáo
-    </button>
+<div class="dashboard-header flex items-center justify-between mb-6">
+  <h3 class="dashboard-title mb-0 text-2xl">Báo Cáo - Thống Kê</h3>
+    <a href="/admin/statistic/export-pdf"
+       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm">
+        <i class="bi bi-file-earmark-arrow-down"></i>
+        Xuất báo cáo
+    </a>
+
 </div>
 
-<main class="container">
-<div class="space-y-8 p-6 bg-gray-50 min-h-screen text-gray-800">
+<main class="container mx-auto">
+  <div class="space-y-10 p-6 min-h-screen text-gray-800">
 
     {{#if error}}
-        <div class="alert alert-danger">{{error}}</div>
+      <div class="bg-red-100 text-red-700 px-4 py-3 rounded-lg border border-red-300">
+        {{error}}
+      </div>
     {{/if}}
 
-    <!-- ===== THỐNG KÊ TỔNG QUAN ===== -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- THỐNG KÊ TỔNG QUAN -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
-            <div>
-                <p class="text-2xl font-bold">{{totalUsers}}</p>
-                <p class="text-sm text-gray-500 mt-1">Tổng học viên</p>
-            </div>
-            <div class="bg-blue-100 p-2 rounded-lg">
-                <i class="fas fa-users text-blue-600"></i>
-            </div>
+      <div class="bg-white p-6 rounded-2xl shadow border hover:shadow-md transition flex justify-between items-center">
+        <div>
+          <p class="text-3xl font-bold">{{totalUsers}}</p>
+          <p class="text-sm text-gray-500 mt-1">Tổng học viên</p>
         </div>
-
-        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
-            <div>
-                <p class="text-2xl font-bold">{{totalVideos}}</p>
-                <p class="text-sm text-gray-500 mt-1">Tổng video</p>
-            </div>
-            <div class="bg-green-100 p-2 rounded-lg">
-                <i class="fas fa-book text-green-600"></i>
-            </div>
+        <div class="p-3 bg-blue-100 rounded-xl">
+          <i class="fas fa-users text-blue-600 text-xl"></i>
         </div>
+      </div>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
-            <div>
-                <p class="text-2xl font-bold">{{totalRegisters}}</p>
-                <p class="text-sm text-gray-500 mt-1">Lượt đăng ký</p>
-            </div>
-            <div class="bg-purple-100 p-2 rounded-lg">
-                <i class="fas fa-chart-line text-purple-600"></i>
-            </div>
+      <div class="bg-white p-6 rounded-2xl shadow border hover:shadow-md transition flex justify-between items-center">
+        <div>
+          <p class="text-3xl font-bold">{{totalVideos}}</p>
+          <p class="text-sm text-gray-500 mt-1">Tổng video</p>
         </div>
-
-        <div class="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center">
-            <div>
-                <p class="text-2xl font-bold">{{completedVideos}}</p>
-                <p class="text-sm text-gray-500 mt-1">Hoàn thành</p>
-            </div>
-            <div class="bg-amber-100 p-2 rounded-lg">
-                <i class="fas fa-trophy text-amber-600"></i>
-            </div>
+        <div class="p-3 bg-green-100 rounded-xl">
+          <i class="fas fa-video text-green-600 text-xl"></i>
         </div>
+      </div>
 
-    </div>
-
-    <!-- ===== XU HƯỚNG ĐĂNG KÝ (T0 → T5) ===== -->
-    <div class="bg-white rounded-xl p-6 shadow-sm border">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Xu hướng đăng ký (12 tháng)</h2>
-
-        <div class="space-y-3">
-        {{#each growthMonths}}
-            <div class="flex items-center justify-between">
-                <span class="w-10 text-sm font-medium">{{label}}</span>
-                <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
-                    <div class="h-2 bg-blue-500 rounded-full" style="width: {{value}}%"></div>
-                </div>
-                <span class="text-sm text-gray-600">{{value}}</span>
-            </div>
-        {{/each}}
+      <div class="bg-white p-6 rounded-2xl shadow border hover:shadow-md transition flex justify-between items-center">
+        <div>
+          <p class="text-3xl font-bold">{{totalRegisters}}</p>
+          <p class="text-sm text-gray-500 mt-1">Lượt đăng ký</p>
         </div>
-    </div>
+        <div class="p-3 bg-purple-100 rounded-xl">
+          <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+        </div>
+      </div>
 
-    <!-- ===== TIẾN ĐỘ CHUNG ===== -->
+      <div class="bg-white p-6 rounded-2xl shadow border hover:shadow-md transition flex justify-between items-center">
+        <div>
+          <p class="text-3xl font-bold">{{completedVideos}}</p>
+          <p class="text-sm text-gray-500 mt-1">Hoàn thành</p>
+        </div>
+        <div class="p-3 bg-amber-100 rounded-xl">
+          <i class="fas fa-trophy text-amber-600 text-xl"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- BIỂU ĐỒ (NHỎ, GỌN, TRUNG TÂM) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- Tiến độ -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border text-center">
-            <div class="w-24 h-24 mx-auto bg-blue-50 rounded-full flex items-center justify-center text-3xl font-bold text-blue-600 mb-4">
-                {{averageProgress}}%
-            </div>
-            <h3 class="font-medium text-gray-900">Tiến độ trung bình</h3>
-            <p class="text-sm text-gray-600">Của tất cả học viên</p>
+        <!-- LINE CHART -->
+        <div class="bg-white p-6 rounded-2xl shadow border mb-6">
+        <h2 class="text-lg font-semibold mb-4">Xu hướng đăng ký</h2>
+        <div class="max-w-xl mx-auto">
+            <canvas id="lineChart" height="120"></canvas>
+        </div>
         </div>
 
-        <!-- Chỉ số tương tác -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border space-y-4">
-            <div class="flex justify-between">
-                <span class="text-sm text-gray-600">🎯 Tỷ lệ hoàn thành video</span>
-                <span class="font-bold text-gray-900">{{completedVideos}} video</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-sm text-gray-600">📚 Tổng video</span>
-                <span class="font-bold text-gray-900">{{totalVideos}}</span>
-            </div>
+        <!-- PIE CHART -->
+        <div class="bg-white p-6 rounded-2xl shadow border mb-6">
+        <h2 class="text-lg font-semibold mb-4">Tỷ lệ hoàn thành video</h2>
+        <div class="max-w-xs mx-auto">
+            <canvas id="pieChart" height="190"></canvas>
+        </div>
         </div>
 
+        <!-- BAR CHART -->
+        <div class="bg-white p-6 rounded-2xl shadow border mb-6 lg:col-span-2">
+        <h2 class="text-lg font-semibold mb-4">Thống kê theo chuyên ngành</h2>
+        <div class="max-w-3xl mx-auto">
+            <canvas id="barChart" height="150"></canvas>
+        </div>
+        </div>
     </div>
-
-</div>
+  </div>
 </main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const growthLabels = {{json growthLabels}};
+const growthValues = {{json growthValues}};
+
+// Line chart
+new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: {
+    labels: growthLabels,
+    datasets: [{
+      label: "Lượt đăng ký",
+      data: growthValues,
+      borderWidth: 2,
+      borderColor: '#2563eb',
+      fill: false,
+      tension: 0.3
+    }]
+  }
+});
+
+// Pie chart
+new Chart(document.getElementById('pieChart'), {
+  type: 'pie',
+  data: {
+    labels: ['Hoàn thành', 'Chưa hoàn thành'],
+    datasets: [{
+      data: [
+        {{completedVideos}},
+        {{totalVideos}} - {{completedVideos}}
+      ],
+    }]
+  }
+});
+
+// Bar chart chuyên ngành
+const majorLabels = {{json majorLabels}};
+const majorValues = {{json majorValues}};
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: majorLabels,
+    datasets: [{
+      label: 'Số học viên',
+      data: majorValues,
+      borderWidth: 1
+    }]
+  }
+});
+</script>
+

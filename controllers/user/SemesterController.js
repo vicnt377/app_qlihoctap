@@ -10,67 +10,76 @@ class SemesterController {
   async getSemester(req, res) {
     try {
       const userId = req.user?._id || req.session?.user?._id;
-      if (!userId) {
-        return res.render('auth/login');
-      }
+      if (!userId) return res.render("auth/login");
+
       const user = await User.findById(userId).lean();
-      // 1. Lấy tất cả học kỳ của user
+
+      // 1️⃣ Lấy tất cả học kỳ của user kèm Score + Course
       const semesterDocs = await Semester.find({ user: userId })
         .populate({
-          path: 'score',
-          populate: { path: 'HocPhan' }   // ✅ lấy chi tiết môn học
+          path: "score",
+          populate: { path: "HocPhan" }
         })
         .lean();
 
-      // 2. Nhóm score theo học kỳ
-      const classesGroupedBySemester = semesterDocs.map(sem => ({
+      // 2️⃣ Nhóm score theo học kỳ
+      const classesGroupedBySemester = semesterDocs.map((sem) => ({
         _id: sem._id,
         tenHocKy: sem.tenHocKy,
         startDate: sem.startDate,
         soTuan: sem.soTuan,
-        scores: sem.score || []   // ✅ giờ đây score đã có HocPhan
+        scores: sem.score || []
       }));
 
-      // 3. Tạo danh sách năm và tên học kỳ
-      const years = semesterDocs.map(sem => new Date(sem.startDate).getFullYear().toString());
-      const semestersList = semesterDocs.map(sem => sem.tenHocKy);
+      // 3️⃣ Danh sách năm & học kỳ (phục vụ filter)
+      const years = semesterDocs.map((sem) =>
+        new Date(sem.startDate).getFullYear().toString()
+      );
+      const semestersList = semesterDocs.map((sem) => sem.tenHocKy);
 
-      // 4. Tìm các HocPhan đã có trong Score
-      const usedCourseIds = await Score.find({ user: userId }).distinct('HocPhan');
+      // 4. Tìm các HocPhan đang có trong semester (loại score mồ côi)
+      const usedCourseIds = await Score.find({
+        user: userId,
+        semester: { $ne: null }   // 🔥 Chỉ lấy score thuộc học kỳ
+      }).distinct('HocPhan');
 
-      // 5. Tìm các Course của user chưa được thêm vào Score
+      // 5. Course chưa được thêm vào bất kỳ học kỳ nào
       const availableCourses = await Course.find({
         user: userId,
         _id: { $nin: usedCourseIds }
       }).lean();
 
-      // 6. Lấy các Score chưa gán semester
+      // 6. Lấy các score mồ côi (semester=null)
       const allScores = await Score.find({
         user: userId,
-        semester: { $exists: false }
+        $or: [
+          { semester: null },
+          { semester: { $exists: false } }
+        ]
       })
-        .populate('HocPhan')
-        .lean();
+      .populate('HocPhan')
+      .lean();
 
-      // 7. Tạo sự kiện FullCalendar
+
+      // 7️⃣ Tạo event cho FullCalendar
       const events = helper.generateEvents(semesterDocs);
 
-      // 8. Render view
-      res.render('user/semester', {
+      // 8️⃣ Render UI
+      res.render("user/semester", {
         user,
         classesGroupedBySemester,
-        selectedSemester: '',
-        selectedYear: '',
+        selectedSemester: "",
+        selectedYear: "",
         years,
         semestersList,
         courses: availableCourses,
         scores: allScores,
-        events,
+        events
       });
 
     } catch (error) {
-      console.error('Lỗi lấy lịch học:', error.message);
-      res.status(500).send('Lỗi khi lấy dữ liệu lớp học!');
+      console.error("❌ Lỗi getSemester:", error);
+      res.status(500).send("Lỗi khi lấy dữ liệu lớp học!");
     }
   }
 
@@ -144,58 +153,78 @@ class SemesterController {
       const userId = req.session.user._id;
       const { tenHocKy, startDate, soTuan, selectedCourses } = req.body;
 
-      // Tạo học kỳ
-      const newSemester = new Semester({
+      // 1️⃣ Tạo học kỳ mới
+      const newSemester = await Semester.create({
         tenHocKy,
         startDate,
         soTuan,
         user: userId,
       });
-      await newSemester.save();
 
-      // Tạo score tương ứng cho mỗi course
       const scoreIds = [];
+
+      // 2️⃣ Xử lý từng course được chọn
       for (const course of selectedCourses) {
         const { courseId, thu, gioBatDau, gioKetThuc } = course;
 
-        const newScore = await Score.create({
+        // 🔍 2.1 Kiểm tra xem đã có Score tương ứng chưa
+        let existingScore = await Score.findOne({
           user: userId,
           HocPhan: courseId,
-          thu,
-          gioBatDau,
-          gioKetThuc,
-          semester: newSemester._id,
+          semester: null, // CHỈ lấy các score bị mồ côi
         });
 
-        scoreIds.push(newScore._id);
+        if (existingScore) {
+          // 🔄 2.2 Nếu score bị mồ côi → cập nhật lại vào học kỳ mới
+          existingScore.semester = newSemester._id;
+          existingScore.thu = thu;
+          existingScore.gioBatDau = gioBatDau;
+          existingScore.gioKetThuc = gioKetThuc;
+          await existingScore.save();
+
+          scoreIds.push(existingScore._id);
+        } else {
+          // 🆕 2.3 Nếu chưa có score → tạo mới
+          const newScore = await Score.create({
+            user: userId,
+            HocPhan: courseId,
+            thu,
+            gioBatDau,
+            gioKetThuc,
+            semester: newSemester._id,
+          });
+
+          scoreIds.push(newScore._id);
+        }
       }
 
+      // 3️⃣ Lưu danh sách score vào học kỳ
       newSemester.score = scoreIds;
       await newSemester.save();
 
-      // 🔔 Thông báo sau khi thêm
+      // 4️⃣ Thông báo
       await Notification.create({
         recipient: userId,
         sender: userId,
-        type: 'success',
-        title: 'Thêm học kỳ mới',
+        type: "success",
+        title: "Thêm học kỳ mới",
         message: `Bạn đã thêm học kỳ "${tenHocKy}" thành công.`,
-        relatedModel: 'Semester',
-        relatedId: newSemester._id
+        relatedModel: "Semester",
+        relatedId: newSemester._id,
       });
 
+      // 5️⃣ Populate để trả về UI
       const populatedSemester = await Semester.findById(newSemester._id)
-        .populate({ path: 'score', populate: 'HocPhan' })
+        .populate({ path: "score", populate: "HocPhan" })
         .lean();
 
       res.status(200).json({
-        // message: '✅ Thêm học kỳ thành công!',
-        semester: populatedSemester
+        semester: populatedSemester,
       });
 
     } catch (error) {
-      console.error('❌ Lỗi khi thêm học kỳ:', error);
-      res.status(500).json({ message: '❌ Lỗi server khi thêm học kỳ.' });
+      console.error("❌ Lỗi khi thêm học kỳ:", error);
+      res.status(500).json({ message: "❌ Lỗi server khi thêm học kỳ." });
     }
   }
 
@@ -204,30 +233,41 @@ class SemesterController {
       const userId = req.session?.user?._id;
       const semesterId = req.params.id;
 
-      const deleted = await Semester.findOneAndDelete({
+      // 1️⃣ Tìm học kỳ
+      const semester = await Semester.findOne({
         _id: semesterId,
-        user: userId,
+        user: userId
       });
 
-      if (!deleted) {
-        return res.status(404).send('Không tìm thấy học kỳ cần xóa');
+      if (!semester) {
+        return res.status(404).send("Không tìm thấy học kỳ cần xóa");
       }
 
-      // 🔔 Thông báo sau khi xóa
+      // 2️⃣ Gỡ liên kết Score → Semester (BẢO TOÀN SCORE)
+      await Score.updateMany(
+        { semester: semesterId },
+        { $unset: { semester: "" } }
+      );
+
+      // 3️⃣ Xóa Semester
+      await Semester.findByIdAndDelete(semesterId);
+
+      // 4️⃣ Notification
       await Notification.create({
         recipient: userId,
         sender: userId,
         type: 'warning',
         title: 'Xóa học kỳ',
-        message: `Bạn đã xóa học kỳ "${deleted.tenHocKy}".`,
+        message: `Bạn đã xóa học kỳ "${semester.tenHocKy}".`,
         relatedModel: 'Semester',
         relatedId: semesterId
       });
 
       res.redirect('/semester');
+
     } catch (error) {
-      console.error('Lỗi khi xóa học kỳ:', error);
-      res.status(500).send('Lỗi máy chủ khi xóa học kỳ.');
+      console.error("Lỗi khi xóa học kỳ:", error);
+      res.status(500).send("Lỗi máy chủ khi xóa học kỳ.");
     }
   }
 

@@ -1,75 +1,134 @@
 const User = require('../../models/Admin');
-const Course = require('../../models/Course');
-const Video = require('../../models/Video')
-require('dotenv').config();
-const axios = require('axios');
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const Video = require('../../models/Video');
+const pdf = require('html-pdf-node');
 
 class StatisticController {
     async statistic(req, res) {
         try {
+            const { from, to } = req.query;
 
-            // ========== 1) Tổng học viên ==========
-            const totalUsers = await User.countDocuments({ role: "user" });
+            // ====== Date filter ======
+            const dateFilter = {};
+            if (from || to) {
+                dateFilter.createdAt = {};
+                if (from) dateFilter.createdAt.$gte = new Date(from);
+                if (to) dateFilter.createdAt.$lte = new Date(to);
+            }
 
-            // ========== 2) Tổng khóa học ==========
-            const totalVideos = await Video.countDocuments({ daXoa: false });
-
-            // ========== 3) Tổng lượt đăng ký video ==========
-            const totalEnrollments = await User.aggregate([
-                { $unwind: "$enrolledVideos" },
-                { $count: "total" }
-            ]);
-            const totalRegisters = totalEnrollments[0]?.total || 0;
-
-            // ========== 4) Khóa học hoàn thành (VD: >=70% review rating) ==========
-            const completedVideos = await Video.countDocuments({
-                reviews: { $exists: true, $not: { $size: 0 } },
+            // ====== Tổng học viên (không tính admin) ======
+            const totalUsers = await User.countDocuments({
+                role: "user",
+                ...dateFilter
             });
 
-            // ========== 5) Tiến độ trung bình (giả sử dựa trên % video có review) ==========
+            // ====== Tổng video ======
+            const totalVideos = await Video.countDocuments({ daXoa: false });
+
+            // ====== Tổng lượt đăng ký (enrolledVideos) ======
+            const totalRegisters = await User.aggregate([
+                { $match: { role: "user", ...dateFilter }},  // lọc user
+                { $unwind: "$enrolledVideos" },
+                { $count: "total" }
+            ]).then(r => r[0]?.total || 0);
+
+            // ====== Video có review (xem như hoàn thành) ======
+            const completedVideos = await Video.countDocuments({
+                reviews: { $exists: true, $not: { $size: 0 } }
+            });
+
             const averageProgress = totalVideos > 0
                 ? Math.round((completedVideos / totalVideos) * 100)
                 : 0;
 
-            // ========== 6) Dữ liệu tăng trưởng T0 → T5 (giả lập từ User.createdAt) ==========
+            // ====== Growth by month (chỉ học viên) ======
             const growth = await User.aggregate([
+                { $match: { role: "user" }},   // ❗ chỉ user
                 {
                     $group: {
                         _id: { $month: "$createdAt" },
                         total: { $sum: 1 }
                     }
-                },
-                { $sort: { "_id": 1 } }
+                }
             ]);
 
-            // Format lại 12 tháng gần nhất (T0 – T11)
             const growthMonths = Array.from({ length: 12 }, (_, i) => ({
-                label: `T${i+1}`,
-                value: growth[i+1]?.total || 0
+                label: `T${i + 1}`,
+                value: growth.find(m => m._id === i + 1)?.total || 0
             }));
 
+            const growthLabels = growthMonths.map(m => m.label);
+            const growthValues = growthMonths.map(m => m.value);
+
+            // ====== Thống kê chuyên ngành (CHỈ user, KHÔNG đếm admin) ======
+            const majorStats = await User.aggregate([
+                { $match: { role: "user" }},   // ❗ lọc user
+                {
+                    $group: {
+                        _id: "$major",
+                        total: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            const majorLabels = majorStats.map(m => m._id || "Không xác định");
+            const majorValues = majorStats.map(m => m.total);
+
+            // ====== Render ======
             res.render("admin/statistic", {
                 layout: "admin",
-
-                // ---- Dashboard numbers ----
                 totalUsers,
                 totalVideos,
                 totalRegisters,
                 completedVideos,
                 averageProgress,
-
-                // ---- Growth data (T0 → T5) ----
-                growthMonths
+                growthLabels,
+                growthValues,
+                majorLabels,
+                majorValues,
+                from,
+                to
             });
 
         } catch (err) {
-            console.error("❌ Lỗi lấy thống kê:", err);
+            console.error("❌ Lỗi thống kê:", err);
             res.render("admin/statistic", {
                 layout: "admin",
-                error: "Không thể tải dữ liệu thống kê!"
+                error: "Không thể tải dữ liệu thống kê"
             });
         }
     }
+
+    // ====================== EXPORT PDF ======================
+    async exportPDF(req, res) {
+        try {
+            const html = `
+                <h1>BÁO CÁO THỐNG KÊ HỆ THỐNG</h1>
+                <p>Ngày xuất: ${new Date().toLocaleString()}</p>
+                <p>Tổng học viên: ${req.query.totalUsers}</p>
+                <p>Tổng video: ${req.query.totalVideos}</p>
+                <p>Tổng đăng ký: ${req.query.totalRegisters}</p>
+                <p>Video hoàn thành: ${req.query.completedVideos}</p>
+                <p>Tiến độ trung bình: ${req.query.averageProgress}%</p>
+            `;
+
+            const file = { content: html };
+
+            const pdfBuffer = await pdf.generatePdf(file, {
+                format: 'A4'
+            });
+
+            res.set({
+                "Content-Type": "application/pdf",
+                "Content-Disposition": "attachment; filename=baocao.pdf",
+            });
+
+            res.send(pdfBuffer);
+
+        } catch (err) {
+            console.error("❌ Lỗi xuất PDF:", err);
+            res.status(500).send("Không thể xuất PDF!");
+        }
+    }
 }
+
 module.exports = new StatisticController();
