@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const videoController = require('../../controllers/admin/VideoController');
+const videoController = require('../../controllers/admin/VideoAdminController');
 const { isAdmin } = require('../../middlewares/adminCheck');
 
 // VIDEO

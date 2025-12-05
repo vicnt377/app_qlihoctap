@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const chatController = require('../../controllers/admin/ChatController');
+const chatController = require('../../controllers/admin/ChatAdminController');
 const { isAdmin } = require('../../middlewares/adminCheck');
 
 // CHAT
