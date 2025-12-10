@@ -1,4 +1,4 @@
-// app/config/js/socket.js
+// app/config/socket/socket.js
 const Message = require('../../models/Message');
 
 module.exports = function (io) {

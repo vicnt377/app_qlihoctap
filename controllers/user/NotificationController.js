@@ -289,66 +289,6 @@ class NotificationController {
         }
     }
 
-    // ✅ Lấy thống kê thông báo
-    async getNotificationStats(req, res) {
-        try {
-            const userId = req.user._id;
-            
-            const stats = await Notification.aggregate([
-                {
-                    $match: {
-                        recipient: userId,
-                        isDeleted: false
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        total: { $sum: 1 },
-                        unread: { $sum: { $cond: ['$isRead', 0, 1] } },
-                        byType: {
-                            $push: {
-                                type: '$type',
-                                count: 1
-                            }
-                        }
-                    }
-                }
-            ]);
-            
-            const result = stats[0] || { total: 0, unread: 0, byType: [] };
-            
-            // Nhóm theo type
-            const byType = {};
-            result.byType.forEach(item => {
-                byType[item.type] = (byType[item.type] || 0) + item.count;
-            });
-            
-            res.json({
-                success: true,
-                data: {
-                    total: result.total,
-                    unread: result.unread,
-                    byType
-                }
-            });
-        } catch (error) {
-            console.error('Error getting notification stats:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi khi lấy thống kê thông báo'
-            });
-        }
-    }
-
-    // ✅ Methods cũ để tương thích ngược
-    async getNotifications(req, res) {
-        return this.getUserNotifications(req, res);
-    }
-
-    async loadMoreNotifications(req, res) {
-        return this.getUserNotifications(req, res);
-    }
 }
 
 module.exports = new NotificationController();

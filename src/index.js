@@ -15,7 +15,7 @@ const session = require("express-session");   // ✅ quản lý session
 const flash = require("connect-flash");       // ✅ thông báo flash
 
 const app = express();
-const port = process.env.PORT || 3000;
+
 /* ============================================================
    1. 🔌 Kết nối MongoDB
 ============================================================ */
@@ -36,7 +36,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 // ⚡️ Gọi file socket đã tách riêng
-require('../config/js/socket')(io);
+require('../config/socket/socket')(io);
 
 app.set('io', io);
 
@@ -130,6 +130,7 @@ app.get('/debug-auth', (req, res) => {
 /* ============================================================
    8. 🚀 Start server
 ============================================================ */
+const port = 3000;
 server.listen(port, () => {
   console.log(`🚀 Server is running at http://localhost:${port}`);
 });
