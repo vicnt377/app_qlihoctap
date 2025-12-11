@@ -4,11 +4,11 @@
     <div class="row align-items-center">
       <div class="col-md-8">
         <h1 class="h3 fw-bold text-white mb-1">
-          <i class="fas fa-chart-line me-2"></i>Tiến Độ Học Tập
+          Tiến Độ Học Tập
         </h1>
         <p class="text-white-50 mb-0">Theo dõi tiến độ học tập của bạn</p>
       </div>
-      <div class="col-md-4 text-end">
+      {{!-- <div class="col-md-4 text-end">
         <div class="stats-card">
           <div class="stats-item">
             <i class="fas fa-award text-orange mb-1"></i>
@@ -16,7 +16,7 @@
             <span class="stats-label">Tín chỉ</span>
           </div>
         </div>
-      </div>
+      </div> --}}
     </div>
   </div>
 </div>
@@ -28,10 +28,10 @@
       <!-- Chart Card -->
       <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-gradient-gray text-white py-3">
-          <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Biểu đồ tiến độ</h6>
+          <h6 class="mb-0">iểu đồ tiến độ</h6>
         </div>
         <div class="card-body text-center p-3">
-          <h6 class="text-dark mb-2">🎯 Tổng số tín chỉ đã hoàn thành</h5>
+          <h6 class="text-dark mb-2">Tổng số tín chỉ đã hoàn thành</h5>
           <p class="h5 fw-bold text-orange mb-2">{{totalCredits}} / {{maxCredits}} tín chỉ</p>
           <canvas id="creditChart" ></canvas>
 
@@ -47,7 +47,7 @@
       <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-gray text-white py-3">
           <h6 class="mb-0">
-            <i class="fas fa-times-circle me-2"></i>Môn bị nợ (điểm F)
+            Môn bị nợ (điểm F)
           </h6>
         </div>
         <div class="card-body p-3">
@@ -61,8 +61,7 @@
           {{!-- Trường hợp 2: có học kỳ nhưng không có môn nợ --}}
           {{else if (not hasMonNo)}}
             <div class="text-center py-3">
-              <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-              <h6 class="text-success">🎉 Bạn không bị nợ môn nào!</h6>
+              <h6 class="text-success">Bạn không bị nợ môn nào!</h6>
             </div>
 
           {{!-- Trường hợp 3: có môn nợ --}}
@@ -91,7 +90,7 @@
     <div class="col-lg-6">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-header bg-gradient-gray text-white py-3">
-          <h6 class="mb-0"><i class="fas fa-book me-2"></i>Học phần đã hoàn thành</h6>
+          <h6 class="mb-0">Học phần đã hoàn thành</h6>
         </div>
         <div class="card-body p-3">
           {{#if scores.length}}
@@ -99,7 +98,7 @@
               {{#each scores}}
                 <div class="list-group-item border-0 px-0 py-2">
                   <div class="d-flex align-items-center">
-                    <i class="fas fa-check-circle text-success me-2"></i>
+                    
                     <div class="flex-grow-1">
                       <h6 class="mb-1">{{HocPhan.tenHocPhan}}</h6>
                       <small class="text-muted">{{HocPhan.soTinChi}} tín chỉ</small>
@@ -110,7 +109,7 @@
             </div>
           {{else}}
             <div class="text-center py-3">
-              <i class="fas fa-book fa-2x text-muted mb-2"></i>
+              
               <h6 class="text-muted">Chưa có học phần nào hoàn thành</h6>
             </div>
           {{/if}}

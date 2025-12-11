@@ -53,7 +53,7 @@ class RegisterController {
             sender: newUser._id,
             type: 'welcome',
             title: 'Chào mừng bạn!',
-            message: `Tài khoản "${newUser.username}" đã được tạo thành công. Chúc bạn có một quá trình học tập vui vẻ 🎉`,
+            message: `Tài khoản "${newUser.username}" đã được tạo thành công. Chúc bạn có một quá trình học tập vui vẻ `,
             relatedModel: 'User',
             relatedId: newUser._id,
             isRead: false,

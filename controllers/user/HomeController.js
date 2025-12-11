@@ -48,7 +48,7 @@ class HomeController {
 
       const videos = await Video.find({ category: user.major, daXoa: false }).lean();
 
-      // 🔥 Lấy tài liệu public trong 3 ngày gần nhất
+      // Lấy tài liệu public trong 3 ngày gần nhất
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 

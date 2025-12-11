@@ -175,13 +175,13 @@ class AccountController {
                 html: MailTemplate.passwordChanged(user.username)
                 });
             } catch (mailErr) {
-                console.error("❌ Lỗi gửi email updatePassword:", mailErr);
+                console.error(" Lỗi gửi email updatePassword:", mailErr);
             }
 
             return res.redirect('/account');
 
         } catch (err) {
-            console.error('❌ Lỗi đổi mật khẩu:', err);
+            console.error(' Lỗi đổi mật khẩu:', err);
 
             // Nếu lỗi xảy ra trong khi tạo notification
             if (err.name === 'ValidationError') {

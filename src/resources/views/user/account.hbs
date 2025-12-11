@@ -18,7 +18,7 @@
     <div class="row align-items-center">
       <div class="col-md-8">
         <h1 class="h2 fw-bold text-white mb-1">
-          <i class="fas fa-user me-2"></i>Tài Khoản
+       Tài Khoản
         </h1>
         <p class="text-white-50 mb-0">Quản lý thông tin cá nhân và bảo mật tài khoản</p>
       </div>
@@ -32,7 +32,7 @@
     <div class="col-lg-4">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-header bg-gradient-gray text-white py-3">
-          <h6 class="mb-0"><i class="fas fa-user me-2"></i>Thông tin cá nhân</h6>
+          <h6 class="mb-0"></i>Thông tin cá nhân</h6>
         </div>
         <div class="card-body text-center p-4">
           <img src="{{user.avatar}}" alt="Avatar" class="rounded-circle mb-3 shadow-sm" 
@@ -43,20 +43,20 @@
           <form action="/account/update-profile" method="POST" enctype="multipart/form-data" class="mb-3">
             <input type="file" name="avatar" accept="image/*" id="avatarInput" style="display: none;" onchange="this.form.submit()">
             <button type="button" class="btn btn-outline-orange btn-sm" onclick="document.getElementById('avatarInput').click()">
-              <i class="fas fa-camera me-1"></i>Thay đổi ảnh đại diện
+              Thay đổi ảnh đại diện
             </button>
           </form>
 
           <div class="profile-info">
             <h5 class="fw-bold mb-2">{{user.username}}</h5>
-            <p class="text-muted mb-1"><i class="fas fa-university me-2"></i>{{majorName user.major}}</p>
-            <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{user.email}}</p>
-            <p class="text-muted mb-3"><i class="fas fa-phone me-2"></i>{{user.phone}}</p>
+            <p class="text-muted mb-1">{{majorName user.major}}</p>
+            <p class="text-muted mb-1">{{user.email}}</p>
+            <p class="text-muted mb-3">{{user.phone}}</p>
           </div>
 
           <div class="mt-3">
             <a href="/logout" class="btn btn-outline-danger btn-sm">
-              <i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất
+             Đăng Xuất
             </a>
           </div>
         </div>
@@ -67,23 +67,23 @@
     <div class="col-lg-8">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-header bg-gradient-gray text-white py-3">
-          <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin</h6>
+          <h6 class="mb-0">Chỉnh sửa thông tin</h6>
         </div>
         <div class="card-body p-4">
           <ul class="nav nav-pills mb-4" id="accountTabs" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab">
-                <i class="fas fa-user me-2"></i>Thông tin
+               Thông tin
               </button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="study-tab" data-bs-toggle="pill" data-bs-target="#study" type="button" role="tab">
-                <i class="fas fa-graduation-cap me-2"></i>Học tập
+                Học tập
               </button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="security-tab" data-bs-toggle="pill" data-bs-target="#security" type="button" role="tab">
-                <i class="fas fa-shield-alt me-2"></i>Bảo mật
+                Bảo mật
               </button>
             </li>
           </ul>
@@ -94,25 +94,25 @@
               <form action="/account/update-profile" method="POST">
                 <div class="mb-3">
                   <label for="username" class="form-label fw-bold">
-                    <i class="fas fa-user me-2 text-orange"></i>Tên người dùng
+                   Tên người dùng
                   </label>
                   <input type="text" class="form-control" id="username" name="username" value="{{user.username}}">
                 </div>
                 <div class="mb-3">
                   <label for="email" class="form-label fw-bold">
-                    <i class="fas fa-envelope me-2 text-orange"></i>Email
+                    Email
                   </label>
                   <input type="email" class="form-control" id="email" name="email" value="{{user.email}}">
                 </div>
                 <div class="mb-3">
                   <label for="phone" class="form-label fw-bold">
-                    <i class="fas fa-phone me-2 text-orange"></i>Số điện thoại
+                    Số điện thoại
                   </label>
                   <input type="text" class="form-control" id="phone" name="phone" value="{{user.phone}}">
                 </div>
                 <div class="form-button">
                   <button type="submit" class="btn btn-orange">
-                    <i class="fas fa-save me-1"></i>Lưu thay đổi
+                    Lưu thay đổi
                   </button>
                 </div>
               </form>
@@ -123,31 +123,31 @@
               <form action="/account/update-password" method="POST">
                 <div class="mb-3">
                   <label for="currentPassword" class="form-label fw-bold">
-                    <i class="fas fa-lock me-2 text-orange"></i>Mật khẩu hiện tại
+                    Mật khẩu hiện tại
                   </label>
                   <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                 </div>
 
                 <div class="mb-3">
                   <label for="newPassword" class="form-label fw-bold">
-                    <i class="fas fa-key me-2 text-orange"></i>Mật khẩu mới
+                    Mật khẩu mới
                   </label>
                   <input type="password" class="form-control" id="newPassword" name="newPassword" required>
                 </div>
 
                 <div class="mb-3">
                   <label for="confirmPassword" class="form-label fw-bold">
-                    <i class="fas fa-check me-2 text-orange"></i>Xác nhận mật khẩu mới
+                    Xác nhận mật khẩu mới
                   </label>
                   <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                 </div>
 
                 <div class="form-button d-flex gap-2">
                   <button type="reset" class="btn btn-outline-secondary">
-                    <i class="fas fa-undo me-1"></i>Đặt lại
+                   Đặt lại
                   </button>
                   <button type="submit" class="btn btn-orange">
-                    <i class="fas fa-key me-1"></i>Cập nhật mật khẩu
+                    Cập nhật mật khẩu
                   </button>
                 </div>
               </form>
@@ -158,7 +158,7 @@
               <form action="/account/update-profile" method="POST">
                 <div class="mb-3">
                   <label for="major" class="form-label fw-bold">
-                    <i class="fas fa-university me-2 text-orange"></i>Ngành học
+                   Ngành học
                   </label>
                   <select class="form-select" id="major" name="major" required>
                     <option value="">-- Lĩnh vực --</option>
@@ -178,14 +178,14 @@
 
                 <div class="mb-3">
                   <label for="totalCredits" class="form-label fw-bold">
-                    <i class="fas fa-layer-group me-2 text-orange"></i>Tổng số tín chỉ chương trình
+                    Tổng số tín chỉ chương trình
                   </label>
                   <input type="number" class="form-control" id="totalCredits" name="totalCredits" value="{{user.totalCredits}}" min="0" required>
                 </div>
 
                 <div class="form-button">
                   <button type="submit" class="btn btn-orange">
-                    <i class="fas fa-save me-1"></i>Lưu thay đổi
+                    Lưu thay đổi
                   </button>
                 </div>
               </form>

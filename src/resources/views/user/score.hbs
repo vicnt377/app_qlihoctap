@@ -4,11 +4,11 @@
     <div class="row align-items-center">
       <div class="col-md-8">
          <h1 class="h2 fw-bold text-white mb-2">
-           <i class="fas fa-graduation-cap me-2"></i>Kết Quả Học Tập
+           Kết Quả Học Tập
          </h1>
           <p class="text-white-50 mb-0">Xem và cập nhật điểm số các học phần</p>
       </div>
-      <div class="col-md-4">
+      {{!-- <div class="col-md-4">
         <div class="row g-2">
           <div class="col-6">
             <div class="stats-card p-2 text-center">
@@ -31,7 +31,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> --}}
     </div>
   </div>
 </div>
@@ -44,13 +44,13 @@
       <!-- Bộ lọc -->
       <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-gradient-gray text-white py-3">
-          <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Bộ lọc kết quả</h6>
+          <h6 class="mb-0">Bộ lọc kết quả</h6>
         </div>
         <div class="card-body p-4">
           <form method="GET" action="/score" class="row g-3">
             <div class="col-md-12">
               <label for="year" class="form-label fw-bold">
-                <i class="fas fa-calendar me-2 text-orange"></i>Năm học
+                Năm học
               </label>
               <select name="year" class="form-select">
                 <option value="Tất cả" {{#if (eq selectedYear 'Tất cả')}}selected{{/if}}>Tất cả</option>
@@ -61,7 +61,7 @@
             </div>
             <div class="col-md-12">
               <label for="semester" class="form-label fw-bold">
-                <i class="fas fa-graduation-cap me-2 text-orange"></i>Học kỳ
+                Học kỳ
               </label>
               <select name="semester" class="form-select">
                 <option value="Tất cả" {{#if (eq selectedSemester 'Tất cả')}}selected{{/if}}>Tất cả</option>
@@ -72,7 +72,7 @@
             </div>
             <div class="col-md-12 align-items-center">
               <button type="submit" class="btn btn-orange">
-                <i class="fas fa-search me-1"></i>Lọc kết quả
+                <i class="fas fa-search me-1"></i>
               </button>
             </div>
           </form>
@@ -83,17 +83,11 @@
       <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-gray text-white py-3">
           <h6 class="mb-0">
-            <i class="fas fa-trophy me-2"></i>Tổng kết toàn khóa
+            Tổng kết
           </h6>
         </div>
         <div class="card-body p-3">
-          {{!-- Giữ nguyên nội dung Tổng kết toàn khóa --}}
           {{#ifCond tongTinChi '>' 0}}
-            <div class="text-center mb-3">
-              <i class="fas fa-medal fa-2x text-orange mb-2"></i>
-              <h6 class="fw-bold">Kết quả học tập</h6>
-            </div>
-
             <div class="mb-2">
               <label class="form-label fw-bold text-muted small">Trung Bình Tích Lũy</label>
               <div class="h4 fw-bold text-orange">{{gpa}}</div>
@@ -132,7 +126,7 @@
       <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-gray text-white py-3">
           <h6 class="mb-0">
-            <i class="fas fa-table me-2"></i>Chi tiết điểm số
+            Chi tiết điểm số
           </h6>
         </div>
         <div class="card-body p-4">
@@ -142,7 +136,6 @@
                 <div class="mb-4">
                   <!-- Tiêu đề học kỳ -->
                   <h6 class="text-info border-bottom pb-2 mb-3">
-                    <i class="fas fa-calendar-alt me-2"></i>
                     {{tenHocKy}} - {{namHoc}}
                   </h6>
 
@@ -210,7 +203,7 @@
               <!-- Nút lưu -->
               <div class="text-center mt-4">
                 <button type="submit" class="btn btn-orange px-5">
-                  <i class="fas fa-save me-2"></i>Lưu điểm
+                 Lưu điểm
                 </button>
               </div>
             </form>

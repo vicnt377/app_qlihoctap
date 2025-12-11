@@ -66,7 +66,7 @@ class LoginController {
                     recipient: user._id, // Sử dụng recipient thay vì userId
                     sender: user._id, // Sử dụng sender
                     type: 'welcome', // Loại thông báo
-                    title: 'Chào mừng trở lại! 👋', // ✅ Thêm title
+                    title: 'Chào mừng trở lại!', // ✅ Thêm title
                     message: `Chào mừng ${user.username} đăng nhập vào hệ thống học tập! Chúc bạn có một ngày học hiệu quả.`,
                     relatedModel: 'System', // Model liên quan
                     relatedId: null, // Không có ID cụ thể
@@ -78,10 +78,10 @@ class LoginController {
                 });
                 
                 await welcomeNotification.save();
-                console.log("✅ Đã tạo thông báo chào mừng cho user:", user.username);
+                console.log("Đã tạo thông báo chào mừng cho user:", user.username);
                 
                 // Log thông báo đã tạo
-                console.log("🔔 Thông báo chào mừng:", {
+                console.log(" Thông báo chào mừng:", {
                     id: welcomeNotification._id,
                     recipient: welcomeNotification.recipient,
                     title: welcomeNotification.title,

@@ -3,11 +3,11 @@
     <div class="row align-items-center">
       <div class="col-md-8">
         <h1 class="h3 fw-bold text-white mb-1">
-          <i class="fas fa-video me-2"></i>Các Video Tham Khảo
+         Các Video Tham Khảo
         </h1>
         <p class="text-white-50 mb-0">Khám phá và đăng ký các video trực tuyến</p>
       </div>
-      <div class="col-md-4 text-end">
+      {{!-- <div class="col-md-4 text-end">
         <div class="stats-card">
           <div class="stats-item">
             <i class="fas fa-file-pdf text-orange"></i>
@@ -15,7 +15,7 @@
             <span class="stats-label">Video</span>
           </div>
         </div>
-      </div>
+      </div> --}}
     </div>
   </div>
 </div>
@@ -24,7 +24,7 @@
 
   {{!-- VIDEO ĐÃ THAM GIA --}}
   <h4 class="fw-bold mb-3 text-primary">
-    <i class="fas fa-check-circle me-1"></i> Video đã quan tâm ({{enrolledCount}})
+     Video đã quan tâm ({{enrolledCount}})
   </h4>
 
   <div class="video-list container-fluid mb-5">
@@ -43,11 +43,11 @@
 
                 {{#if (gt currentTime 5)}}
                   <a href="/video/start/{{_id}}" class="btn btn-success btn-sm mt-auto w-100">
-                    <i class="fas fa-play me-1"></i> Tiếp tục xem
+                     Tiếp tục xem
                   </a>
                 {{else}}
                   <a href="/video/showdetail/{{_id}}" class="btn btn-primary btn-sm mt-auto w-100">
-                    <i class="fas fa-info-circle me-1"></i> Xem chi tiết
+                    Xem chi tiết
                   </a>
                 {{/if}}
 
@@ -63,7 +63,7 @@
 
   {{!-- VIDEO KHÁC --}}
   <h4 class="fw-bold mb-3 text-secondary">
-    <i class="fas fa-play-circle me-1"></i> Video dành cho bạn ({{otherCount}})
+     Video dành cho bạn ({{otherCount}})
   </h4>
 
   <div class="video-list container-fluid mb-5">
@@ -80,7 +80,7 @@
               <p class="text-muted small text-truncate-2">{{description}}</p>
 
               <a href="/video/showdetail/{{_id}}" class="btn btn-orange btn-sm mt-auto w-100">
-                <i class="fas fa-play me-1"></i> Xem chi tiết
+                Xem chi tiết
               </a>
             </div>
           </div>

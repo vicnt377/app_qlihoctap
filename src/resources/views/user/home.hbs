@@ -5,18 +5,18 @@
     <div class="row align-items-center">
       <div class="col-md-8">
          <h1 class="h2 fw-bold text-white mb-2">
-           <i class="fas fa-home me-2"></i>Trang Chủ
+           Trang Chủ
          </h1>
          <div class="welcome-section">
            <div class="welcome-text mb-2">
-             <span class="text-white fs-5">👋 Chào mừng trở lại, </span>
+             {{!-- <span class="text-white fs-5">Chào mừng trở lại, </span> --}}
              <span class="text-white fw-bold fs-5">{{user.username}}</span>
              <span class="text-white fs-5">!</span>
            </div>
            <p class="text-white-50 mb-0 fs-6">Chúc bạn có một ngày học hiệu quả</p>
          </div>
       </div>
-      <div class="col-md-4">
+      {{!-- <div class="col-md-4">
         <div class="row g-2">
           <div class="col-4">
             <div class="stats-card p-2 text-center">
@@ -48,7 +48,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> --}}
     </div>
   </div>
 </div>
@@ -62,7 +62,7 @@
       <!-- Truy cập nhanh -->
       <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-gray text-white py-2">
-          <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Truy cập nhanh</h6>
+          <h6 class="mb-0">Truy cập nhanh</h6>
         </div>
         <div class="card-body pt-3 pb-2">
           <div class="row row-cols-2 row-cols-md-3 g-2 text-center">
@@ -115,7 +115,7 @@
       <!-- Các tài liệu mới -->
       <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-gray text-white py-2">
-          <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Các tài liệu mới</h6>
+          <h6 class="mb-0">Các tài liệu mới</h6>
         </div>
         <div class="card-body p-0">
           {{#if recentDocs.length}}
@@ -162,7 +162,7 @@
     <div class="col-lg-7">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-header bg-gradient-gray text-white py-2">
-          <h6 class="mb-0"><i class="fas fa-chart-column me-2"></i>Thống kê học tập</h6>
+          <h6 class="mb-0">Thống kê học tập</h6>
         </div>
         <div class="card-body p-4" style="height: 320px;">
           <p class="mb-3">
@@ -182,9 +182,7 @@
   <!-- Các video đã quan tâm -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-gradient-gray text-white py-2">
-      <h6 class="mb-0">
-        <i class="fas fa-list me-2"></i>Các video đã quan tâm
-      </h6>
+      <h6 class="mb-0">Các video đã quan tâm</h6>
     </div>
 
     <div class="card-body p-3">
@@ -219,11 +217,11 @@
                   {{!-- Nút logic --}}
                   {{#if (gt currentTime 5)}}
                     <a href="/video/start/{{_id}}" class="btn btn-sm btn-success mt-auto">
-                      <i class="fas fa-play me-1"></i>Tiếp tục xem
+                      Tiếp tục xem
                     </a>
                   {{else}}
                     <a href="/video/showdetail/{{_id}}" class="btn btn-sm btn-outline-primary mt-auto">
-                      <i class="fas fa-info-circle me-1"></i>Xem chi tiết
+                      Xem chi tiết
                     </a>
                   {{/if}}
                 </div>
@@ -260,7 +258,7 @@
         <!-- Header với nền gradient -->
         <div class="modal-header border-0 text-success">
           <h5 style="color: #198754" class="modal-title fw-bold d-flex align-items-center" id="congratsModalLabel">
-            🎉 Chào {{user.username}}!
+            Chào {{user.username}}!
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
         </div>

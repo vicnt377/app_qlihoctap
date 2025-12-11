@@ -115,9 +115,9 @@ class DocumentController {
         if (req.io) {
           req.io.to(userId.toString()).emit('new-notification', uploadNotification);
         }
-        console.log("🔔 Thông báo upload:", uploadNotification);
+        console.log(" Thông báo upload:", uploadNotification);
       } catch (notifyErr) {
-        console.error("❌ Lỗi tạo thông báo upload:", notifyErr);
+        console.error(" Lỗi tạo thông báo upload:", notifyErr);
       }
       
       // req.session.successMessage = 'Tải lên tài liệu thành công.';
