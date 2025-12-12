@@ -17,7 +17,7 @@ class LoginController {
 
     logout(req, res) {
         req.session.destroy(() => {
-            res.redirect("/",);
+            res.redirect("/login-user");
         });
     }
 

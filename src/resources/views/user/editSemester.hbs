@@ -18,13 +18,17 @@
           <input type="text" class="form-control" name="tenHocKy" value="{{semester.tenHocKy}}" required>
         </div>
         <div class="col-md-4">
+          <label class="form-label"><strong>Năm học</strong></label>
+          <input type="text" class="form-control" name="namHoc" value="{{semester.namHoc}}" required>
+        </div>
+        {{!-- <div class="col-md-4">
           <label class="form-label"><strong>Ngày bắt đầu</strong></label>
           <input type="date" class="form-control" name="startDate" value="{{formatDate semester.startDate 'yyyy-MM-dd'}}" required>
         </div>
         <div class="col-md-4">
           <label class="form-label"><strong>Số tuần</strong></label>
           <input type="number" class="form-control" name="soTuan" value="{{semester.soTuan}}" min="1" max="52" required>
-        </div>
+        </div> --}}
       </div>
     </div>
 
@@ -42,36 +46,51 @@
                 <th>STT</th>
                 <th>Mã học phần</th>
                 <th>Tên học phần</th>
-                <th>Thứ</th>
+                <th>Số tín chỉ</th>
+                {{!-- <th>Thứ</th>
                 <th>Bắt đầu</th>
-                <th>Kết thúc</th>
+                <th>Kết thúc</th> --}}
                 <th>Chọn</th>
               </tr>
             </thead>
             <tbody>
-              {{#each courseList}}
+              {{#if courseList.length}}
+                {{#each courseList}}
+                  <tr>
+                    <td>{{inc @index}}</td>
+                    <td><code>{{HocPhan.maHocPhan}}</code></td>
+                    <td>{{HocPhan.tenHocPhan}}</td>
+                    <td>{{HocPhan.soTinChi}}</td>
+                    {{!-- <td>
+                      <select name="items[{{_id}}][thu]" class="form-select form-select-sm">
+                        {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
+                          <option value="{{this}}" {{#ifEquals this ../thu}}selected{{/ifEquals}}>{{this}}</option>
+                        {{/each}}
+                      </select>
+                    </td>
+                    <td>
+                      <input type="time" name="items[{{_id}}][gioBatDau]" value="{{gioBatDau}}" class="form-control form-control-sm">
+                    </td>
+                    <td>
+                      <input type="time" name="items[{{_id}}][gioKetThuc]" value="{{gioKetThuc}}" class="form-control form-control-sm">
+                    </td> --}}
+                    <td class="text-center">
+                      <input type="checkbox" name="selectedItems" value="{{courseId}}" 
+       {{#if isSelected}}checked{{/if}}>
+<input type="hidden" name="scoreId_{{courseId}}" value="{{scoreId}}">
+
+
+                    </td>
+                  </tr>
+                {{/each}}
+              {{else}}
                 <tr>
-                  <td>{{inc @index}}</td>
-                  <td><code>{{HocPhan.maHocPhan}}</code></td>
-                  <td>{{HocPhan.tenHocPhan}}</td>
-                  <td>
-                    <select name="items[{{_id}}][thu]" class="form-select form-select-sm">
-                      {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
-                        <option value="{{this}}" {{#ifEquals this ../thu}}selected{{/ifEquals}}>{{this}}</option>
-                      {{/each}}
-                    </select>
-                  </td>
-                  <td>
-                    <input type="time" name="items[{{_id}}][gioBatDau]" value="{{gioBatDau}}" class="form-control form-control-sm">
-                  </td>
-                  <td>
-                    <input type="time" name="items[{{_id}}][gioKetThuc]" value="{{gioKetThuc}}" class="form-control form-control-sm">
-                  </td>
-                  <td class="text-center">
-                    <input type="checkbox" name="selectedItems" value="{{_id}}" {{#if isSelected}}checked{{/if}}>
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Không có học phần nào để hiển thị. Tất cả học phần đã được thêm vào các học kỳ.
                   </td>
                 </tr>
-              {{/each}}
+              {{/if}}
             </tbody>
           </table>
         </div>

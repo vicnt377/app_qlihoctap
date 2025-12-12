@@ -4,9 +4,9 @@
     <div class="row align-items-center">
       <div class="col-md-8">
         <h1 class="h3 fw-bold text-white mb-1">
-          Lịch Học
+          Học Kỳ
         </h1>
-        <p class="text-white-50 mb-0">Quản lý thời khóa biểu và lịch học các học kỳ</p>
+        <p class="text-white-50 mb-0">Quản lý danh sách học kỳ và thêm học kỳ mới</p>
       </div>
       {{!-- <div class="col-md-4 text-end">
         <div class="stats-card">
@@ -22,36 +22,36 @@
 </div>
 
 <main class="container mt-4">
-<!-- Tabs -->
-<ul class="nav nav-pills nav-fill" id="semesterTabs" role="tablist">
+
+<ul class="nav nav-pills mb-3" id="semesterTabs" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="calendar-tab" data-bs-toggle="pill" data-bs-target="#calendarSection" type="button">
-      <strong>Thời khóa biểu</strong>
+    <button class="nav-link active" id="add-tab" 
+            data-bs-toggle="pill" data-bs-target="#addSection"
+            type="button" role="tab">
+      Thêm học kỳ
     </button>
   </li>
+
   <li class="nav-item" role="presentation">
-     <button class="nav-link" id="add-tab" data-bs-toggle="pill" data-bs-target="#addSection" type="button">
-      <strong>Thêm học kỳ</strong>
-     </button>
-   </li>
-   <li class="nav-item" role="presentation">
-     <button class="nav-link" id="list-tab" data-bs-toggle="pill" data-bs-target="#listSection" type="button">
-       <strong>Danh sách học kỳ</strong>
-     </button>
-   </li>
+    <button class="nav-link" id="list-tab"
+            data-bs-toggle="pill" data-bs-target="#listSection"
+            type="button" role="tab">
+      Danh sách học kỳ
+    </button>
+  </li>
 </ul>
 
 <!-- Nội dung tab -->
 <div class="tab-content" id="semesterTabContent">
   <!-- Tab 1: Calendar -->
-  <div class="tab-pane fade show active" id="calendarSection">
+  {{!-- <div class="tab-pane fade show active" id="calendarSection">
     <div class="mt-3">
       <div id="calendar"></div>
     </div>
-  </div>
+  </div> --}}
 
   <!-- Tab 2: Form thêm học kỳ + Danh sách học phần -->
-  <div class="tab-pane fade" id="addSection">
+  <div class="tab-pane fade show active" id="addSection">
     <div class="row g-2">
       <!-- Form thêm học kỳ -->
       <div class="col-md-8 p-3">
@@ -67,6 +67,11 @@
                       id="tenHocKy" name="tenHocKy" placeholder="VD: Học kỳ 1" required>
               </div>
               <div class="col-md-4">
+                <label for="namHoc" class="form-label small fw-bold">Năm học</label>
+                <input type="text" class="form-control form-control-sm"
+                      id="namHoc" name="tenHocKy" placeholder="VD: 2021-2022" required>
+              </div>
+              {{!-- <div class="col-md-4">
                 <label for="startDate" class="form-label small fw-bold">Ngày bắt đầu</label>
                 <input type="date" class="form-control form-control-sm"
                       id="startDate" name="startDate" required>
@@ -75,7 +80,7 @@
                 <label for="soTuan" class="form-label small fw-bold">Số tuần</label>
                 <input type="number" class="form-control form-control-sm"
                       id="soTuan" name="soTuan" min="1" max="52" value="15" required>
-              </div>
+              </div> --}}
               <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-success btn-sm w-100">
                   Thêm
@@ -134,11 +139,12 @@
             <thead>
               <tr>
                 <th class="col-stt">STT</th>
-                <th class="col-name">Tên học phần</th>
                 <th class="col-code">Mã học phần</th>
-                <th class="col-day">Thứ</th>
+                <th class="col-name">Tên học phần</th>
+                <th class="col-name">Số tín chỉ</th>
+                {{!-- <th class="col-day">Thứ</th>
                 <th class="col-time">Giờ bắt đầu</th>
-                <th class="col-time">Giờ kết thúc</th>
+                <th class="col-time">Giờ kết thúc</th> --}}
                 <th class="col-choose text-center">Chọn</th>
               </tr>
             </thead>
@@ -147,9 +153,10 @@
                 {{#each courses}}
                   <tr>
                     <td class="text-center col-stt">{{inc @index}}</td>
-                    <td class="col-name">{{tenHocPhan}}</td>
                     <td><code>{{maHocPhan}}</code></td>
-                    <td class="col-day">
+                    <td class="col-name">{{tenHocPhan}}</td>
+                    <td class="col-name">{{soTinChi}}</td>
+                    {{!-- <td class="col-day">
                       <select class="form-select form-select-sm" name="thu_{{_id}}">
                         {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
                           <option value="{{this}}">{{this}}</option>
@@ -157,7 +164,7 @@
                       </select>
                     </td>
                     <td class="col-time"><input type="time" class="form-control form-control-sm" name="gioBatDau_{{_id}}"></td>
-                    <td class="col-time"><input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}"></td>
+                    <td class="col-time"><input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}"></td> --}}
                     <td class="text-center col-choose"><input type="checkbox" name="selectedCourses" value="{{_id}}"></td>
                   </tr>
                 {{/each}}
@@ -182,7 +189,7 @@
       {{#each classesGroupedBySemester}}
         <div class="card mb-4">
           <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
-            <h4 style="color: #0dcaf0">{{tenHocKy}} ({{formatDate startDate}} → {{formatDate (addDays startDate (multiply soTuan 7))}})</h4>
+            <h4 style="color: #0dcaf0">{{tenHocKy}} ({{namHoc}})</h4>
             <div>
               <a href="/semester/edit/{{_id}}" class="btn btn-sm btn-warning">Sửa</a>
               <button onclick="deleteSemester('{{_id}}')" class="btn btn-sm btn-danger">Xóa</button>
@@ -195,9 +202,9 @@
                   <th>STT</th>
                   <th>Mã học phần</th>
                   <th>Tên học phần</th>
-                  <th>Thứ</th>
+                  {{!-- <th>Thứ</th>
                   <th>Giờ bắt đầu</th>
-                  <th>Giờ kết thúc</th>
+                  <th>Giờ kết thúc</th> --}}
                   <th>Tín chỉ</th>
                 </tr>
               </thead>
@@ -207,9 +214,9 @@
                     <td>{{inc @index}}</td>
                     <td><code>{{HocPhan.maHocPhan}}</code></td>
                     <td>{{HocPhan.tenHocPhan}}</td>
-                    <td>{{thu}}</td>
+                    {{!-- <td>{{thu}}</td>
                     <td>{{gioBatDau}}</td>
-                    <td>{{gioKetThuc}}</td>
+                    <td>{{gioKetThuc}}</td> --}}
                     <td>{{HocPhan.soTinChi}}</td>
                   </tr>
                 {{/each}}
@@ -261,6 +268,7 @@
 </div>
 </main>
 
+{{!-- Script tìm kiếm học phần --}}
 <script>
   document.getElementById("courseSearch").addEventListener("keyup", function () {
     const searchText = this.value.toLowerCase();
@@ -277,8 +285,73 @@
   });
 </script>
 
-
+{{!-- xóa học phần --}}
 <script>
+  function deleteSemester(id) {
+    if (confirm("Bạn có chắc chắn muốn xóa học kỳ này?")) {
+      fetch(`/semester/delete/${id}`, {
+        method: 'POST'
+      })
+        .then(res => res.ok ? location.reload() : alert("Không thể xóa học kỳ."))
+        .catch(err => {
+          console.error(err);
+          alert("Lỗi server.");
+        });
+    }
+  }
+</script>
+
+{{!-- form thêm học kỳ --}}
+<script>
+document.getElementById('addSemesterForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const tenHocKy = document.getElementById('tenHocKy').value.trim();
+  const namHoc = document.getElementById('namHoc').value.trim();
+
+  // Lấy danh sách học phần được chọn
+  const checkboxes = document.querySelectorAll('input[name="selectedCourses"]:checked');
+  const selectedCoursesData = Array.from(checkboxes).map(cb => {
+    return { courseId: cb.value };
+  });
+
+  // Kiểm tra dữ liệu
+  if (!tenHocKy || !namHoc || selectedCoursesData.length === 0) {
+    alert('Vui lòng nhập tên học kỳ, năm học và chọn ít nhất một học phần!');
+    return;
+  }
+
+  try {
+    const response = await fetch('/semester/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tenHocKy,
+        namHoc,
+        selectedCourses: selectedCoursesData
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(data.message || 'Thêm học kỳ thành công!');
+      location.reload();
+    } else {
+      alert(data.message || 'Đã xảy ra lỗi khi thêm học kỳ.');
+    }
+
+  } catch (error) {
+    console.error('Lỗi fetch:', error);
+    alert('Lỗi kết nối đến server.');
+  }
+});
+</script>
+
+
+{{!-- <script>
 document.getElementById('addSemesterForm').addEventListener('submit', async function (e) {
   e.preventDefault();
 
@@ -328,24 +401,11 @@ document.getElementById('addSemesterForm').addEventListener('submit', async func
     alert('❌ Lỗi kết nối đến server.');
   }
 });
-</script>
+</script> --}}
 
-<script>
-  function deleteSemester(id) {
-    if (confirm("Bạn có chắc chắn muốn xóa học kỳ này?")) {
-      fetch(`/semester/delete/${id}`, {
-        method: 'POST'
-      })
-        .then(res => res.ok ? location.reload() : alert("Không thể xóa học kỳ."))
-        .catch(err => {
-          console.error(err);
-          alert("Lỗi server.");
-        });
-    }
-  }
-</script>
 
-<script>
+
+{{!-- <script>
   document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');
     if (!calendarEl) return;
@@ -374,5 +434,5 @@ document.getElementById('addSemesterForm').addEventListener('submit', async func
 
     calendar.render();
   });
-</script>
+</script> --}}
 

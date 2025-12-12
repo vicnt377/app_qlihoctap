@@ -8,9 +8,10 @@ const scoreSchema = new mongoose.Schema({
     HocPhan: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
     diemSo: { type: Number, required: false,},
     diemChu: { type: String, required: false, },
-    gioBatDau: { type: String, required: true, },
-    gioKetThuc: { type: String, required: true, },
-    thu: {type: String, required: true, },
+    // gioBatDau: { type: String, required: true, },
+    // gioKetThuc: { type: String, required: true, },
+    // thu: {type: String, required: true, },
+    tbchk: {type: Boolean, default: false},
     tichLuy: {type: Boolean, default: true},
     semester: { type: mongoose.Schema.Types.ObjectId, ref: 'Semester' },
 

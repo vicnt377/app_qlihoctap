@@ -1,6 +1,3 @@
-// ===============================
-//  IMPORT + UTILITIES
-// ===============================
 const Score = require('../../models/Score');
 const Course = require('../../models/Course');
 const Semester = require('../../models/Semester');
@@ -31,250 +28,212 @@ function xepLoaiHocLuc(gpa) {
   return 'Kém';
 }
 
-// Năm học dạng 2024 - 2025
-function getAcademicYear(startDate) {
-  const y = new Date(startDate).getFullYear();
-  return `${y} - ${y + 1}`;
+// xác định trình độ năm học theo tổng tín chỉ tích lũy
+function getYearOfStudy(totalCredits) {
+  if (totalCredits < 36) return 1;
+  if (totalCredits <= 70) return 2;
+  if (totalCredits <= 105) return 3;
+  if (totalCredits <= 141) return 4;
+  return 5;
 }
 
-// ===============================
-//  TÍNH MỨC CẢNH BÁO HỌC VỤ
-// ===============================
-async function getWarningLevel(userId, semesterId, cpaHK) {
+// Lấy mức cảnh báo học vụ cho học kỳ dựa trên các tiêu chí
+function getGpaWarningThreshold(year) {
+  switch (year) {
+    case 1: return 1.2;
+    case 2: return 1.4;
+    case 3: return 1.6;
+    default: return 1.8; // năm 4 và năm 5
+  }
+}
 
-  const semesters = await Semester.find({ user: userId })
-    .sort({ startDate: 1 });
+// Lấy mức cảnh báo học vụ cho học kỳ
+function calculateWarningLevel({
+  cpaHK,
+  gpaTL,
+  tongTinChiTichLuy,
+  tinChiHongTrongHK,
+  tongTinChiDangKyHK,
+  tongTinChiNo
+}) {
+  let level = 0;
 
-  const index = semesters.findIndex(s => s._id.toString() === semesterId.toString());
-  const isFirstSemester = index === 0;
-
-  const previous = semesters[index - 1];
-  const prevWarning = previous?.warningLevel || 0;
-
-  // -------------------------
-  // 🔥 CẢNH BÁO MỨC 2
-  // -------------------------
-  if (!isFirstSemester && prevWarning === 1 && cpaHK < 1.00) {
-    return 2;
+  // --- 1. Không đăng ký môn trong học kỳ ---
+  if (tongTinChiDangKyHK === 0) {
+    return 1; // Không học kỳ -> cảnh báo
   }
 
-  // -------------------------
-  // 🔥 CẢNH BÁO MỨC 1
-  // -------------------------
-  if (isFirstSemester && cpaHK < 0.80) {
-    return 1;
+  // --- 2. CPA học kỳ dưới chuẩn ---
+  if (cpaHK !== null && cpaHK < 1.0) {
+    level = Math.max(level, 1);
   }
 
-  if (!isFirstSemester && cpaHK < 1.00) {
-    return 1;
+  // --- 3. TC rớt trong học kỳ vượt quá 50% ---
+  if (tongTinChiDangKyHK > 0 && tinChiHongTrongHK / tongTinChiDangKyHK > 0.5) {
+    level = Math.max(level, 1);
   }
 
-  return 0; // không cảnh báo
+  // --- 4. Nợ đọng quá 24 tín chỉ ---
+  if (tongTinChiNo > 24) {
+    level = Math.max(level, 1);
+  }
+
+  // --- 5. GPA tích lũy dưới chuẩn năm học ---
+  const year = getYearOfStudy(tongTinChiTichLuy);
+  const thresholdGPA = getGpaWarningThreshold(year);
+
+  if (gpaTL < thresholdGPA) {
+    level = Math.max(level, 1);
+  }
+
+  // --- 6. Mức cảnh báo 2 (nghiêm trọng hơn) ---
+  // Bạn có thể nâng cấp rule tại đây, ví dụ:
+  if (cpaHK !== null && cpaHK < 0.8) {
+    level = 2;
+  }
+
+  return level;
 }
 
 
-// ===============================
-//  GET SCORE – FULL FEATURE
-// ===============================
 class ScoreController {
 
   async getScore(req, res) {
     try {
-      const userId = req.user?._id || req.session?.user?._id;
+      const userId = req.session?.user?._id || req.session.userId;
       if (!userId) return res.redirect('/login-user');
 
-      const user = await User.findById(userId).lean();
-      if (!user) return res.redirect('/login-user');
-
-      const maxCredits = user.totalCredits || 0;
-
-      // -----------------------------
-      //  BỘ LỌC & PHÂN TRANG
-      // -----------------------------
-      const selectedYear = req.query.year || 'Tất cả';
-      const selectedSemester = req.query.semester || 'Tất cả';
-
-      const page = parseInt(req.query.page) || 1;
-      const limit = 2;
-      const skip = (page - 1) * limit;
-
-      // -----------------------------
-      //  LẤY TOÀN BỘ HỌC KỲ
-      // -----------------------------
-      const allSemesters = await Semester.find({ user: userId })
+      // Lấy tất cả học kỳ + populate score + course
+      let semesters = await Semester.find({ user: userId })
         .populate({
           path: 'score',
-          match: { user: userId },
           populate: { path: 'HocPhan' }
         })
+        .sort({ createdAt: 1 })
         .lean();
 
-      // -----------------------------
-      //  TÍNH CPA MỖI HỌC KỲ
-      // -----------------------------
-      const semestersWithCPA = [];
+      let semestersWithScore = [];
+      let tongTinChiTichLuyTruoc = 0; // TCTL cộng dồn qua các kỳ
 
-      for (const s of allSemesters) {
-        let tongDiemHK = 0;
-        let tongTinChiHK = 0;
+      semesters.forEach((s, index) => {
+        let tongDiemCPA = 0;
+        let tongTinChiCPA = 0;
+
+        let tongDiemGPA = 0;
+        let tongTinChiGPA = 0;
+
+        let tinChiTichLuyHK = 0;
 
         if (Array.isArray(s.score)) {
           for (const sc of s.score) {
+            if (!sc.HocPhan) continue;
+
+            const tc = sc.HocPhan.soTinChi;
             const d = parseFloat(sc.diemSo);
-            if (!isNaN(d) && sc.HocPhan?.soTinChi) {
-              const diem4 = convertTo4Scale(d);
-              tongDiemHK += diem4 * sc.HocPhan.soTinChi;
-              tongTinChiHK += sc.HocPhan.soTinChi;
+
+            if (isNaN(d)) continue;
+
+            const d4 = convertTo4Scale(d);
+
+            // ===========================================
+            // 1) CPA học kỳ (TBCHK)
+            // – chỉ tính nếu tbchk === true
+            // – tính tất cả điểm, kể cả F
+            // ===========================================
+            if (sc.tbchk) {
+              tongDiemCPA += d4 * tc;
+              tongTinChiCPA += tc;
+            }
+
+            // ===========================================
+            // 2) GPA học kỳ (TBTL / tích lũy)
+            // – chỉ tính nếu tichLuy === true
+            // – loại F (< 4.0)
+            // ===========================================
+            if (sc.tichLuy && d >= 4.0) {
+              tongDiemGPA += d4 * tc;
+              tongTinChiGPA += tc;
+              tinChiTichLuyHK += tc; // tín chỉ tích lũy trong kỳ
             }
           }
         }
 
-        const cpaHK = tongTinChiHK > 0
-          ? Number((tongDiemHK / tongTinChiHK).toFixed(2))
-          : null;
+        // Tính CPA & GPA
+        const cpaHK =
+          tongTinChiCPA > 0 ? Number((tongDiemCPA / tongTinChiCPA).toFixed(2)) : null;
 
-        const namHoc = getAcademicYear(s.startDate);
+        const gpaHK =
+          tongTinChiGPA > 0 ? Number((tongDiemGPA / tongTinChiGPA).toFixed(2)) : null;
 
-        // ---- TÍNH MỨC CẢNH BÁO ----
-        const warningLevel = await getWarningLevel(userId, s._id, cpaHK);
+        // ===========================================
+        // 3) Tín chỉ tích lũy tổng cộng
+        // ===========================================
+        const tongTinChiTichLuyDenHK = tongTinChiTichLuyTruoc + tinChiTichLuyHK;
+        tongTinChiTichLuyTruoc = tongTinChiTichLuyDenHK; // cập nhật cho kỳ sau
 
-        // ---- KIỂM TRA XEM CÓ THAY ĐỔI MỨC CẢNH BÁO KHÔNG ----
-        const oldWarning = s.warningLevel ?? 0;
-
-        // ---- LƯU MỚI MỨC CẢNH BÁO ----
-        if (warningLevel !== oldWarning) {
-          await Semester.findByIdAndUpdate(s._id, { warningLevel });
-        }
-
-        // ---- GỬI EMAIL CHỈ KHI warningLevel TĂNG ----
-        if (warningLevel > oldWarning ) {
-
-          const msg = warningLevel === 1
-            ? "Cảnh báo học vụ mức 1"
-            : "Cảnh báo học vụ mức 2";
-
-          await sendMail({
-            to: user.email,
-            subject: `⚠ ${msg} – EduSystem`,
-            html: MailTemplate.academicWarning(
-              user.username, `${msg} (CPA học kỳ: ${cpaHK})`
-            )
-          });
-        }
-
-        semestersWithCPA.push({
+        // Push object kết quả
+        semestersWithScore.push({
           ...s,
-          namHoc,
           cpaHK,
-          warningLevel
+          gpaHK,
+          tinChiTichLuyHK,
+          tongTinChiTichLuyDenHK
         });
-      }
-
-      // -----------------------------
-      //  LỌC – PHÂN TRANG
-      // -----------------------------
-      const filtered = semestersWithCPA.filter(s => {
-        const matchYear = selectedYear === 'Tất cả' || s.namHoc === selectedYear;
-        const matchSemester = selectedSemester === 'Tất cả' || s.tenHocKy === selectedSemester;
-        return matchYear && matchSemester && s.score?.length;
       });
 
-      const totalFiltered = filtered.length;
-      const totalPages = Math.ceil(totalFiltered / limit);
-
-      const paginatedSemesters = filtered.slice(skip, skip + limit);
-
-      const years = [...new Set(semestersWithCPA.map(s => s.namHoc))];
-      const semestersList = [...new Set(semestersWithCPA.map(s => s.tenHocKy))];
-
-      // -----------------------------
-      //  GPA TÍCH LŨY
-      // -----------------------------
-      const allScores = await Score.find({ user: userId, tichLuy: true })
-        .populate('HocPhan')
-        .lean();
-
-      let tongDiem = 0, tongTC = 0;
-
-      for (const sc of allScores) {
-        const d = parseFloat(sc.diemSo);
-        if (!isNaN(d) && sc.HocPhan?.soTinChi) {
-          const diem4 = convertTo4Scale(d);
-          tongDiem += diem4 * sc.HocPhan.soTinChi;
-          tongTC += sc.HocPhan.soTinChi;
-        }
-      }
-
-      const gpa = tongTC > 0 ? (tongDiem / tongTC) : 0;
-      const hocLuc = xepLoaiHocLuc(gpa);
-
-      // -----------------------------
-      //  RENDER
-      // -----------------------------
       res.render('user/score', {
-        user: req.session.user,
-        semesters: paginatedSemesters,
-        years,
-        semestersList,
-        selectedYear,
-        selectedSemester,
-        gpa: gpa.toFixed(2),
-        hocLuc,
-        tongTinChi: Number(tongTC),
-        maxCredits,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          hasPrevPage: page > 1,
-          hasNextPage: page < totalPages,
-          prevPage: page > 1 ? page - 1 : null,
-          nextPage: page < totalPages ? page + 1 : null,
-          pages: Array.from({ length: totalPages }, (_, i) => i + 1),
-        },
-        queryString: req.query
+        semesters: semestersWithScore,
+        user: req.session.user
       });
 
-    } catch (err) {
-      console.error("❌ Lỗi getScore:", err);
-      res.status(500).send("Đã có lỗi xảy ra");
+    } catch (error) {
+      console.error('Lỗi getScore:', error);
+      res.status(500).send('Lỗi server khi lấy điểm');
     }
   }
 
   async updateScore(req, res) {
     try {
-      const updates = req.body.scores;
+      const updates = req.body.scores;     // scores[scoreId] = {...}
       const userId = req.session.user?._id;
 
       let semesterName = null;
-      let firstScoreSemester = null;
+      let semesterId = null;
 
-      // Cập nhật từng score
-      for (const scoreId in updates) {
-        let { diemSo, diemChu, tichLuy } = updates[scoreId];
+      for (const scoreId of Object.keys(updates)) {
+        let {
+          diemSo,
+          diemChu,
+          tichLuy,
+          tbchk
+        } = updates[scoreId];
 
-        tichLuy = tichLuy ? true : false;
-        diemSo = diemSo ? parseFloat(diemSo) : null;
+        // Chuẩn hóa dữ liệu
+        diemSo  = diemSo ? parseFloat(diemSo) : null;
+        tichLuy = tichLuy === 'on' || tichLuy === true;
+        tbchk   = tbchk === 'on' || tbchk === true;
 
-        const updatedScore = await Score.findByIdAndUpdate(
+        const updated = await Score.findByIdAndUpdate(
           scoreId,
-          { diemSo, diemChu, tichLuy },
+          {
+            diemSo,
+            diemChu,
+            tichLuy,
+            tbchk
+          },
           { new: true }
         ).populate({
-          path: 'HocPhan'
-        }).populate({
           path: 'semester',
           select: 'tenHocKy'
         });
 
-        if (!firstScoreSemester && updatedScore.semester) {
-          firstScoreSemester = updatedScore.semester;
-          semesterName = updatedScore.semester.tenHocKy;
+        if (!semesterId && updated.semester) {
+          semesterId = updated.semester._id;
+          semesterName = updated.semester.tenHocKy;
         }
       }
 
-      // =============================
-      // 🔥 Chỉ gửi 1 thông báo duy nhất
-      // =============================
+      // 🔥 Gửi 1 thông báo duy nhất
       if (semesterName) {
         await Notification.create({
           recipient: userId,
@@ -283,17 +242,16 @@ class ScoreController {
           title: 'Cập nhật điểm học kỳ thành công',
           message: `Bạn đã cập nhật toàn bộ điểm của học kỳ "${semesterName}".`,
           relatedModel: 'Semester',
-          relatedId: firstScoreSemester?._id
+          relatedId: semesterId
         });
       }
 
       res.redirect('/score');
-
-    } catch (err) {
+    }
+    catch (err) {
       console.error('❌ Lỗi khi cập nhật điểm:', err);
 
       const userId = req.session.user?._id;
-
       if (userId) {
         await Notification.create({
           recipient: userId,
@@ -308,6 +266,7 @@ class ScoreController {
       res.status(500).send('Cập nhật điểm thất bại!');
     }
   }
+
 
 
 }

@@ -104,7 +104,7 @@
     </div>
     <div class="col-md-3">
       <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#addUserModal">
-        <i class="fas fa-plus me-2"></i>Thêm học viên
+        Thêm học viên
       </button>
     </div>
   </form>
@@ -154,12 +154,14 @@
                         data-major="{{majorName major}}"
                         data-totalcredits="{{totalCredits}}"
                         data-status="{{#if isActive}}Hoạt động{{else}}Không hoạt động{{/if}}">
-                  Xem
+                  <i class="fas fa-eye"></i>
                 </button>
 
                 <form action="/admin/users/{{_id}}/clock?_method=PATCH" method="POST">
                   <button type="submit" class="btn btn-sm {{#if isActive}}btn-warning{{else}}btn-success{{/if}}">
-                    {{#if isActive}}Khóa{{else}}Hoạt động{{/if}}
+                    {{#if isActive}}<i class="fas fa-lock"></i>
+                    {{else}}<i class="fas fa-unlock"></i>
+                    {{/if}}
                   </button>
                 </form>
 
@@ -170,7 +172,7 @@
                         data-user-name="{{name}}"
                         data-user-email="{{email}}"
                         >
-                  Xóa
+                  <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
             </td>

@@ -42,11 +42,11 @@ class RegisterController {
       // ✅ Lưu session và redirect
       req.session.save(async (err) => {
         if (err) {
-          console.error("❌ Lỗi khi lưu session sau đăng ký:", err);
+          console.error(" Lỗi khi lưu session sau đăng ký:", err);
           return res.redirect('/login-user');
         }
 
-        // 🔔 Tạo notification chào mừng
+        //  Tạo notification chào mừng
         try {
           const welcomeNotification = new Notification({
             recipient: newUser._id,
@@ -70,16 +70,16 @@ class RegisterController {
 
           await sendMail({
             to: newUser.email,
-            subject: "🎉 Chào mừng đến EduSystem!",
+            subject: "Chào mừng đến EduSystem!",
             html: MailTemplate.registerSuccess(newUser.username)
           });
 
         } catch (notifyErr) {
-          console.error("❌ Lỗi tạo thông báo đăng ký:", notifyErr);
+          console.error(" Lỗi tạo thông báo đăng ký:", notifyErr);
         }
 
         req.session.showCongrats = true;
-        req.session.congratsMessage = `🎉 Chúc mừng ${newUser.username}! Bạn đã đăng ký thành công.`;
+        req.session.congratsMessage = `Chúc mừng ${newUser.username}! Bạn đã đăng ký thành công.`;
         return res.redirect('/home');
       });
 

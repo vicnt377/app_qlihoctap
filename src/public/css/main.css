@@ -26,20 +26,20 @@ body {
 }
 
 .navbar-nav .nav-link:hover {
-  color: #0022ff;
+  color: #1f5ca9;
   background-color: rgba(255,255,255,0.1);
   transform: translateY(-1px);
 }
 
 .navbar-nav .nav-link.active {
-  color: #0022ff !important;
+  color: #1f5ca9;
   border-radius: 6px;
   font-weight: 600;
 }
 
 .navbar-brand {
   font-size: 1.25rem;
-  color: #0022ff !important;
+  color: #1f5ca9 !important;
   font-weight: 700;
 }
 
@@ -508,8 +508,7 @@ body {
 }
 
 .btn-danger {
-  background-color: #e74c3c;
-  border-color: #e74c3c;
+  background-color: #ff1900;
   color: white;
 }
 
@@ -536,7 +535,7 @@ body {
 }
 
 .bg-primary {
-  background-color: #0022ff !important;
+  background-color: #1f5ca9 !important  ;
 }
 
 .bg-secondary {
@@ -829,7 +828,7 @@ body {
 
 .dropdown-item:hover {
   background-color: #f8f9fa;
-  color: #e08552;
+  color: #0022ff
 }
 
 /* ===== DOCUMENT PAGE SPECIFIC STYLES ===== */
@@ -1386,8 +1385,7 @@ body {
 
 /* Orange Buttons */
 .btn-orange {
-  background-color: #02f;
-  border-color: #02f;
+  background-color: #1f5ca9;
   color: white;
   transition: all 0.3s ease;
 }
@@ -1442,13 +1440,13 @@ body {
 }
 
 .card-header.bg-gradient-gray {
-  background: linear-gradient(135deg, #c7cfd6 0%, #c7cfd6 100%) !important;
+  background: #1f5ca9 !important;
   border-bottom: 1px solid #495057;
 }
 
 /* Orange Modal Headers */
 .modal-header.bg-gradient-orange {
-  background: linear-gradient(135deg, #02f 0%, #02f 100%) !important;
+  background: #1f5ca9 !important;
   border-bottom: 1px solid #02f;
 }
 
@@ -2082,7 +2080,7 @@ main {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(4, 0, 255, 0.25);
+  background: rgba(170, 170, 170, 0.25);
   flex-shrink: 0;
   font-size: 0.875rem;
   min-width: 32px;

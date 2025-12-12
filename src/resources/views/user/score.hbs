@@ -136,7 +136,7 @@
                 <div class="mb-4">
                   <!-- Tiêu đề học kỳ -->
                   <h6 class="text-info border-bottom pb-2 mb-3">
-                    {{tenHocKy}} - {{namHoc}}
+                    {{tenHocKy}} ({{namHoc}})
                   </h6>
 
                   <!-- Bảng điểm -->
@@ -149,6 +149,7 @@
                           <th class="text-center py-2">Tín chỉ</th>
                           <th class="text-center py-2">Điểm Số</th>
                           <th class="text-center py-2">Điểm Chữ</th>
+                          <th class="text-center py-2">TBCHK</th>
                           <th class="text-center py-2">Tích lũy</th>
                         </tr>
                       </thead>
@@ -176,6 +177,14 @@
                               <input 
                                 type="checkbox" 
                                 class="form-check-input"
+                                name="scores[{{_id}}][tbchk]"
+                                {{#if tbchk}}checked{{/if}}
+                              >
+                            </td>
+                            <td class="text-center">
+                              <input 
+                                type="checkbox" 
+                                class="form-check-input"
                                 name="scores[{{_id}}][tichLuy]"
                                 {{#if tichLuy}}checked{{/if}}
                               >
@@ -195,6 +204,10 @@
                       {{else}}
                         <span class="text-muted">Chưa có điểm</span>
                       {{/if}}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-2">
+                      <strong class="text-muted">Tổng tích lũy:</strong>
+                      <span class="text-orange fw-bold">{{tongTinChiTichLuyDenHK}}</span>
                     </div>
                   </div>
                 </div>
