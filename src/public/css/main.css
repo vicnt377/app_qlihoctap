@@ -103,14 +103,14 @@ body {
   align-items: center;
   padding: 20px 24px;
   border-radius: 16px;
-  background-color: #ffffff;
+  background-color: #f1f1f1;
   box-shadow: 0 4px 20px rgba(224,133,82,0.08);
   margin-bottom: 24px;
   border: 1px solid #dee2e6;
 }
 
 .dashboard-title {
-  color: #0022ff;
+  color: #1f5ca9;
   font-weight: 700;
   font-size: 1.5rem;
 }
@@ -138,7 +138,7 @@ body {
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #0022ff;
+  border: 3px solid #1f5ca9;
   box-shadow: 0 2px 8px rgba(224,133,82,0.08);
 }
 
@@ -835,7 +835,7 @@ body {
 
 /* Document Header */
 .document-header {
-  background: #495057;
+  background: #efefef;
   padding: 1rem 0;
   border-radius: 20px 20px 20px 20px;
   box-shadow: 0 8px 32px rgba(73, 80, 87, 0.25);
@@ -863,13 +863,13 @@ body {
 .document-header h1 {
   text-shadow: 0 2px 4px rgba(0,0,0,0.2);
   margin-bottom: 0.5rem;
-  color: white;
+  color: #1f5ca9 !important;
 }
 
 .document-header p {
   opacity: 0.9;
   font-weight: 400;
-  color: rgba(255,255,255,0.8);
+  color: #1f5ca9 !important;
 }
 
 /* Stats Card */
@@ -1423,20 +1423,20 @@ body {
 
 /* Orange Input Group Text */
 .input-group-text.bg-orange {
-  background-color: #02f !important;
-  border-color: #02f;
+  background-color: #1f5ca9 !important;
+  border-color: #1f5ca9;
   color: white;
 }
 
 /* Orange Spinner */
 .spinner-border.text-orange {
-  color: #02f !important;
+  color: #1f5ca9 !important;
 }
 
 /* Orange Card Headers */
 .card-header.bg-gradient-orange {
-  background: linear-gradient(135deg, #02f 0%, #02f 100%) !important;
-  border-bottom: 1px solid #02f;
+  background: linear-gradient(135deg, #1f5ca9 0%, #1f5ca9 100%) !important;
+  border-bottom: 1px solid #1f5ca9;
 }
 
 .card-header.bg-gradient-gray {
@@ -1447,28 +1447,28 @@ body {
 /* Orange Modal Headers */
 .modal-header.bg-gradient-orange {
   background: #1f5ca9 !important;
-  border-bottom: 1px solid #02f;
+  border-bottom: 1px solid #1f5ca9;
 }
 
 /* Orange Focus States */
 .form-control:focus,
 .form-select:focus {
-  border-color: #02f;
+  border-color: #1f5ca9;
   box-shadow: 0 0 0 0.2rem rgba(224,133,82,0.25);
 }
 
 /* Orange Link Colors */
 a.text-orange {
-  color: #02f !important;
+  color: #1f5ca9 !important;
 }
 
 a.text-orange:hover {
-  color: #02f !important;
+  color: #1f5ca9 !important;
 }
 
 /* Orange Border Colors */
 .border-orange {
-  border-color: #02f !important;
+  border-color: #1f5ca9 !important;
 }
 
 /* Orange Shadow Utilities */
@@ -1482,11 +1482,11 @@ a.text-orange:hover {
 
 /* Orange Hover Effects */
 .hover-orange:hover {
-  color: #02f !important;
+  color: #1f5ca9 !important;
 }
 
 .hover-bg-orange:hover {
-  background-color: #02f !important;
+  background-color: #1f5ca9 !important;
   color: white !important;
 }
 
