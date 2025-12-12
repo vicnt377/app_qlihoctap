@@ -98,99 +98,119 @@ function calculateWarningLevel({
 
 class ScoreController {
 
-  async getScore(req, res) {
-    try {
-      const userId = req.session?.user?._id || req.session.userId;
-      if (!userId) return res.redirect('/login-user');
+async getScore(req, res) {
+  try {
+    const userId = req.session?.user?._id || req.session.userId;
+    if (!userId) return res.redirect('/login-user');
 
-      // Lấy tất cả học kỳ + populate score + course
-      let semesters = await Semester.find({ user: userId })
-        .populate({
-          path: 'score',
-          populate: { path: 'HocPhan' }
-        })
-        .sort({ createdAt: 1 })
-        .lean();
+    // Lấy tất cả học kỳ + populate score + course
+    let semesters = await Semester.find({ user: userId })
+      .populate({
+        path: 'score',
+        populate: { path: 'HocPhan' }
+      })
+      .sort({ createdAt: 1 })
+      .lean();
 
-      let semestersWithScore = [];
-      let tongTinChiTichLuyTruoc = 0; // TCTL cộng dồn qua các kỳ
+    let semestersWithScore = [];
+    let tongTinChiTichLuyTruoc = 0;
 
-      semesters.forEach((s, index) => {
-        let tongDiemCPA = 0;
-        let tongTinChiCPA = 0;
+    // Dùng cho tổng kết toàn khóa
+    let tongDiemGPA_TongKet = 0;
+    let tongTinChiGPA_TongKet = 0;
 
-        let tongDiemGPA = 0;
-        let tongTinChiGPA = 0;
+    semesters.forEach((s) => {
+      let tongDiemCPA = 0;
+      let tongTinChiCPA = 0;
 
-        let tinChiTichLuyHK = 0;
+      let tongDiemGPA = 0;
+      let tongTinChiGPA = 0;
 
-        if (Array.isArray(s.score)) {
-          for (const sc of s.score) {
-            if (!sc.HocPhan) continue;
+      let tinChiTichLuyHK = 0;
 
-            const tc = sc.HocPhan.soTinChi;
-            const d = parseFloat(sc.diemSo);
+      if (Array.isArray(s.score)) {
+        for (const sc of s.score) {
+          if (!sc.HocPhan) continue;
 
-            if (isNaN(d)) continue;
+          const tc = sc.HocPhan.soTinChi;
+          const d = parseFloat(sc.diemSo);
 
-            const d4 = convertTo4Scale(d);
+          if (isNaN(d)) continue;
 
-            // ===========================================
-            // 1) CPA học kỳ (TBCHK)
-            // – chỉ tính nếu tbchk === true
-            // – tính tất cả điểm, kể cả F
-            // ===========================================
-            if (sc.tbchk) {
-              tongDiemCPA += d4 * tc;
-              tongTinChiCPA += tc;
-            }
+          const d4 = convertTo4Scale(d);
 
-            // ===========================================
-            // 2) GPA học kỳ (TBTL / tích lũy)
-            // – chỉ tính nếu tichLuy === true
-            // – loại F (< 4.0)
-            // ===========================================
-            if (sc.tichLuy && d >= 4.0) {
-              tongDiemGPA += d4 * tc;
-              tongTinChiGPA += tc;
-              tinChiTichLuyHK += tc; // tín chỉ tích lũy trong kỳ
-            }
+          // CPA
+          if (sc.tbchk) {
+            tongDiemCPA += d4 * tc;
+            tongTinChiCPA += tc;
+          }
+
+          // GPA kỳ + GPA tổng kết
+          if (sc.tichLuy && d >= 4.0) {
+            tongDiemGPA += d4 * tc;
+            tongTinChiGPA += tc;
+
+            tinChiTichLuyHK += tc;
+
+            // cộng vào tổng kết toàn khóa
+            tongDiemGPA_TongKet += d4 * tc;
+            tongTinChiGPA_TongKet += tc;
           }
         }
+      }
 
-        // Tính CPA & GPA
-        const cpaHK =
-          tongTinChiCPA > 0 ? Number((tongDiemCPA / tongTinChiCPA).toFixed(2)) : null;
+      const cpaHK = tongTinChiCPA > 0 ? Number((tongDiemCPA / tongTinChiCPA).toFixed(2)) : null;
+      const gpaHK = tongTinChiGPA > 0 ? Number((tongDiemGPA / tongTinChiGPA).toFixed(2)) : null;
 
-        const gpaHK =
-          tongTinChiGPA > 0 ? Number((tongDiemGPA / tongTinChiGPA).toFixed(2)) : null;
+      // Tín chỉ tích lũy cộng dồn
+      const tongTinChiTichLuyDenHK = tongTinChiTichLuyTruoc + tinChiTichLuyHK;
+      tongTinChiTichLuyTruoc = tongTinChiTichLuyDenHK;
 
-        // ===========================================
-        // 3) Tín chỉ tích lũy tổng cộng
-        // ===========================================
-        const tongTinChiTichLuyDenHK = tongTinChiTichLuyTruoc + tinChiTichLuyHK;
-        tongTinChiTichLuyTruoc = tongTinChiTichLuyDenHK; // cập nhật cho kỳ sau
-
-        // Push object kết quả
-        semestersWithScore.push({
-          ...s,
-          cpaHK,
-          gpaHK,
-          tinChiTichLuyHK,
-          tongTinChiTichLuyDenHK
-        });
+      semestersWithScore.push({
+        ...s,
+        cpaHK,
+        gpaHK,
+        tinChiTichLuyHK,
+        tongTinChiTichLuyDenHK
       });
+    });
 
-      res.render('user/score', {
-        semesters: semestersWithScore,
-        user: req.session.user
-      });
+    // ====== TÍNH TỔNG KẾT TOÀN KHÓA ======
 
-    } catch (error) {
-      console.error('Lỗi getScore:', error);
-      res.status(500).send('Lỗi server khi lấy điểm');
-    }
+    const gpaTongKet =
+      tongTinChiGPA_TongKet > 0
+        ? Number((tongDiemGPA_TongKet / tongTinChiGPA_TongKet).toFixed(2))
+        : null;
+
+    const hocLucTongKet = gpaTongKet ? xepLoaiHocLuc(gpaTongKet) : null;
+
+    const tongTinChiTongKet = tongTinChiGPA_TongKet;
+
+    const hasSemester = semesters.length > 0;
+
+    // Cảnh báo học vụ tổng kết (tùy chọn)
+    const canhBaoHocVuTongKet =
+      gpaTongKet && gpaTongKet < 1.2 ? 'Bạn đang bị cảnh báo học vụ' : null;
+
+    // Render
+    res.render('user/score', {
+      semesters: semestersWithScore,
+      user: req.session.user,
+
+      // Gửi biến tổng kết
+      gpaTongKet,
+      hocLucTongKet,
+      tongTinChiTongKet,
+      hasSemester,
+      canhBaoHocVuTongKet
+    });
+
+  } catch (error) {
+    console.error('Lỗi getScore:', error);
+    res.status(500).send('Lỗi server khi lấy điểm');
   }
+}
+
 
   async updateScore(req, res) {
     try {

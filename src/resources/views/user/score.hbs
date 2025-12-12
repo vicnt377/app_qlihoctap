@@ -82,29 +82,32 @@
       <!-- Tổng kết toàn khóa -->
       <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-gray text-white py-3">
-          <h6 class="mb-0">
-            Tổng kết
-          </h6>
+          <h6 class="mb-0">Tổng kết</h6>
         </div>
+
         <div class="card-body p-3">
-          {{#ifCond tongTinChi '>' 0}}
+
+          {{#ifCond tongTinChiTongKet '>' 0}}
+
             <div class="mb-2">
               <label class="form-label fw-bold text-muted small">Trung Bình Tích Lũy</label>
-              <div class="h4 fw-bold text-orange">{{gpa}}</div>
+              <div class="h4 fw-bold text-orange">{{gpaTongKet}}</div>
             </div>
 
             <div class="mb-2">
               <label class="form-label fw-bold text-muted small">Xếp loại học lực</label>
-              <div class="badge bg-warning text-dark fs-6 px-2 py-1">{{hocLuc}}</div>
+              <div class="badge bg-warning text-dark fs-6 px-2 py-1">{{hocLucTongKet}}</div>
             </div>
 
-            {{#if canhBaoHocVu}}
-              <div class="alert alert-danger mt-2 mb-0 py-2" role="alert">
+            {{#if canhBaoHocVuTongKet}}
+              <div class="alert alert-danger mt-2 mb-0 py-2">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>{{canhBaoHocVu}}</strong>
+                <strong>{{canhBaoHocVuTongKet}}</strong>
               </div>
             {{/if}}
+
           {{else}}
+
             {{#if hasSemester}}
               <div class="text-center py-4 text-muted">
                 <i class="fas fa-pen-alt fa-2x mb-2"></i>
@@ -116,9 +119,12 @@
                 <p class="mb-0">Bạn chưa có học kỳ nào để tính điểm</p>
               </div>
             {{/if}}
+
           {{/ifCond}}
+
         </div>
       </div>
+
     </div>
 
     <!-- Chi tiết điểm số -->
