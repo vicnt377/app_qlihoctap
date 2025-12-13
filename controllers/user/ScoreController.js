@@ -56,14 +56,13 @@ function calculateWarningLevel({
   tongTinChiDangKyHK,     // Tổng TC đăng ký HK
   tongTinChiNo,           // TC nợ đọng
   isFirstSemester,        // HK đầu khóa hay không
-  khoaHoc                 // Số khóa (vd: 47, 48…)
 }) {
-  // ===== 1. Không đăng ký học trong HK =====
+  // Không đăng ký học trong HK =====
   if (tongTinChiDangKyHK === 0) {
     return 1;
   }
 
-  // ===== 2. ĐTBCHK dưới chuẩn =====
+  //  ĐTBCHK dưới chuẩn =====
   if (cpaHK !== null) {
     if (isFirstSemester && cpaHK < 0.8) {
       return 1;
@@ -74,29 +73,24 @@ function calculateWarningLevel({
     }
   }
 
-  // ===== 3. Áp dụng riêng cho Khóa 47 trở về sau =====
-  if (khoaHoc >= 47) {
-
     // TC rớt > 50%
-    if (
-      tongTinChiDangKyHK > 0 &&
-      tinChiHongTrongHK / tongTinChiDangKyHK > 0.5
-    ) {
-      return 1;
-    }
+  if (
+    tongTinChiDangKyHK > 0 &&
+    tinChiHongTrongHK / tongTinChiDangKyHK > 0.5
+  ) {
+    return 1;
+  }
 
-    // TC nợ đọng > 24
-    if (tongTinChiNo > 24) {
-      return 1;
-    }
+  // TC nợ đọng > 24
+  if (tongTinChiNo > 24) {
+    return 1;
+  }
 
-    // GPA tích lũy dưới chuẩn năm học
-    const year = getYearOfStudy(tongTinChiTichLuy);
-    const threshold = getGpaWarningThreshold(year);
-
-    if (gpaTL < threshold) {
-      return 1;
-    }
+  // GPA tích lũy dưới chuẩn năm học
+  const year = getYearOfStudy(tongTinChiTichLuy);
+  const threshold = getGpaWarningThreshold(year);
+  if (gpaTL < threshold) {
+    return 1;
   }
 
   // ===== Không cảnh báo =====
