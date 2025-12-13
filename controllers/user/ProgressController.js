@@ -19,6 +19,7 @@ class ProgressController {
 
             let diemChuStats = {};
             let monNo = [];
+            let completedScores = [];
 
             scores.forEach(score => {
                 if (!score.HocPhan) return;
@@ -26,20 +27,18 @@ class ProgressController {
                 const tinChi = score.HocPhan.soTinChi;
                 const diemChu = score.diemChu?.toUpperCase();
 
-                // ⭐ Chỉ cộng tín chỉ nếu:
-                // 1) tichLuy = true
-                // 2) KHÔNG phải điểm F
-                if (score.tichLuy && diemChu !== 'F') {
+                // ✅ Chỉ tính & hiển thị nếu hoàn thành
+                if (score.tichLuy && diemChu && diemChu !== 'F') {
                     totalCredits += tinChi;
+                    completedScores.push(score);
                 }
 
-                // ★ Thống kê điểm chữ
+                // Thống kê điểm chữ
                 if (diemChu) {
                     diemChuStats[diemChu] = (diemChuStats[diemChu] || 0) + 1;
 
-                    // ★ Môn F → nằm trong danh sách nợ
                     if (diemChu === 'F') {
-                        monNo.push(score);
+                    monNo.push(score);
                     }
                 }
             });
@@ -58,7 +57,8 @@ class ProgressController {
                 totalCreditsExceeded,
                 maxCredits,
                 hasSemesters,
-                hasMonNo
+                hasMonNo,
+                completedScores,
             });
 
         } catch (error) {

@@ -49,51 +49,111 @@ function getGpaWarningThreshold(year) {
 
 // Lấy mức cảnh báo học vụ cho học kỳ
 function calculateWarningLevel({
+  cpaHK,                  // ĐTBCHK
+  gpaTL,                  // GPA tích lũy
+  tongTinChiTichLuy,      // Tổng TC tích lũy
+  tinChiHongTrongHK,      // TC không đạt trong HK
+  tongTinChiDangKyHK,     // Tổng TC đăng ký HK
+  tongTinChiNo,           // TC nợ đọng
+  isFirstSemester,        // HK đầu khóa hay không
+  khoaHoc                 // Số khóa (vd: 47, 48…)
+}) {
+  // ===== 1. Không đăng ký học trong HK =====
+  if (tongTinChiDangKyHK === 0) {
+    return 1;
+  }
+
+  // ===== 2. ĐTBCHK dưới chuẩn =====
+  if (cpaHK !== null) {
+    if (isFirstSemester && cpaHK < 0.8) {
+      return 1;
+    }
+
+    if (!isFirstSemester && cpaHK < 1.0) {
+      return 1;
+    }
+  }
+
+  // ===== 3. Áp dụng riêng cho Khóa 47 trở về sau =====
+  if (khoaHoc >= 47) {
+
+    // TC rớt > 50%
+    if (
+      tongTinChiDangKyHK > 0 &&
+      tinChiHongTrongHK / tongTinChiDangKyHK > 0.5
+    ) {
+      return 1;
+    }
+
+    // TC nợ đọng > 24
+    if (tongTinChiNo > 24) {
+      return 1;
+    }
+
+    // GPA tích lũy dưới chuẩn năm học
+    const year = getYearOfStudy(tongTinChiTichLuy);
+    const threshold = getGpaWarningThreshold(year);
+
+    if (gpaTL < threshold) {
+      return 1;
+    }
+  }
+
+  // ===== Không cảnh báo =====
+  return 0;
+}
+
+//  XÁC ĐỊNH LÝ DO CẢNH BÁO HỌC VỤ
+function getWarningReasons({
   cpaHK,
   gpaTL,
   tongTinChiTichLuy,
   tinChiHongTrongHK,
   tongTinChiDangKyHK,
-  tongTinChiNo
+  tongTinChiNo,
+  isFirstSemester,
+  khoaHoc
 }) {
-  let level = 0;
+  let reasons = [];
 
-  // --- 1. Không đăng ký môn trong học kỳ ---
+  // a) Không đăng ký học kỳ
   if (tongTinChiDangKyHK === 0) {
-    return 1; // Không học kỳ -> cảnh báo
+    reasons.push('Không đăng ký học trong học kỳ mà không được phép');
   }
 
-  // --- 2. CPA học kỳ dưới chuẩn ---
-  if (cpaHK !== null && cpaHK < 1.0) {
-    level = Math.max(level, 1);
+  // b) ĐTBCHK
+  if (cpaHK !== null) {
+    if (isFirstSemester && cpaHK < 0.8) {
+      reasons.push('ĐTBCHK dưới 0,80 đối với học kỳ đầu khóa');
+    }
+    if (!isFirstSemester && cpaHK < 1.0) {
+      reasons.push('ĐTBCHK dưới 1,00');
+    }
   }
 
-  // --- 3. TC rớt trong học kỳ vượt quá 50% ---
-  if (tongTinChiDangKyHK > 0 && tinChiHongTrongHK / tongTinChiDangKyHK > 0.5) {
-    level = Math.max(level, 1);
+  if (
+    tongTinChiDangKyHK > 0 &&
+    tinChiHongTrongHK / tongTinChiDangKyHK > 0.5
+  ) {
+    reasons.push(
+      'Tổng số tín chỉ không đạt trong học kỳ vượt quá 50% khối lượng đăng ký'
+    );
   }
 
-  // --- 4. Nợ đọng quá 24 tín chỉ ---
   if (tongTinChiNo > 24) {
-    level = Math.max(level, 1);
+    reasons.push('Tổng số tín chỉ nợ đọng vượt quá 24 tín chỉ');
   }
-
-  // --- 5. GPA tích lũy dưới chuẩn năm học ---
   const year = getYearOfStudy(tongTinChiTichLuy);
-  const thresholdGPA = getGpaWarningThreshold(year);
-
-  if (gpaTL < thresholdGPA) {
-    level = Math.max(level, 1);
+  const threshold = getGpaWarningThreshold(year);
+  if (gpaTL < threshold) {
+    reasons.push(
+      `Điểm trung bình tích lũy (${gpaTL.toFixed(2)}) dưới mức quy định cho năm học thứ ${year}`
+    );
   }
 
-  // --- 6. Mức cảnh báo 2 (nghiêm trọng hơn) ---
-  // Bạn có thể nâng cấp rule tại đây, ví dụ:
-  if (cpaHK !== null && cpaHK < 0.8) {
-    level = 2;
-  }
-
-  return level;
+  return reasons;
 }
+
 
 
 class ScoreController {
@@ -103,8 +163,9 @@ async getScore(req, res) {
     const userId = req.session?.user?._id || req.session.userId;
     if (!userId) return res.redirect('/login-user');
 
-    // Lấy tất cả học kỳ + populate score + course
-    let semesters = await Semester.find({ user: userId })
+    const user = await User.findById(userId).lean();
+
+    const semesters = await Semester.find({ user: userId })
       .populate({
         path: 'score',
         populate: { path: 'HocPhan' }
@@ -115,99 +176,207 @@ async getScore(req, res) {
     let semestersWithScore = [];
     let tongTinChiTichLuyTruoc = 0;
 
-    // Dùng cho tổng kết toàn khóa
     let tongDiemGPA_TongKet = 0;
     let tongTinChiGPA_TongKet = 0;
 
-    semesters.forEach((s) => {
+    let currentMaxWarningLevel = 0;
+    let latestWarning = null;
+
+    semesters.forEach((s, index) => {
       let tongDiemCPA = 0;
       let tongTinChiCPA = 0;
-
       let tongDiemGPA = 0;
       let tongTinChiGPA = 0;
 
       let tinChiTichLuyHK = 0;
+      let tinChiHongTrongHK = 0;
+      let tongTinChiDangKyHK = 0;
+      let allSubjectsScored = true; 
 
-      if (Array.isArray(s.score)) {
-        for (const sc of s.score) {
-          if (!sc.HocPhan) continue;
+      for (const sc of s.score || []) {
+        if (!sc.HocPhan) continue;
 
-          const tc = sc.HocPhan.soTinChi;
-          const d = parseFloat(sc.diemSo);
+        const tc = sc.HocPhan.soTinChi;
+        const d = parseFloat(sc.diemSo);
 
-          if (isNaN(d)) continue;
+        tongTinChiDangKyHK += tc;
 
-          const d4 = convertTo4Scale(d);
+        //  CHỈ CẦN 1 MÔN CHƯA CÓ ĐIỂM
+        if (isNaN(d)) {
+          allSubjectsScored = false;
+          continue; // vẫn cho vòng lặp chạy tiếp để tính thống kê
+        }
 
-          // CPA
-          if (sc.tbchk) {
-            tongDiemCPA += d4 * tc;
-            tongTinChiCPA += tc;
-          }
+        if (d < 4.0) tinChiHongTrongHK += tc;
 
-          // GPA kỳ + GPA tổng kết
-          if (sc.tichLuy && d >= 4.0) {
-            tongDiemGPA += d4 * tc;
-            tongTinChiGPA += tc;
+        const d4 = convertTo4Scale(d);
 
-            tinChiTichLuyHK += tc;
+        if (sc.tbchk) {
+          tongDiemCPA += d4 * tc;
+          tongTinChiCPA += tc;
+        }
 
-            // cộng vào tổng kết toàn khóa
-            tongDiemGPA_TongKet += d4 * tc;
-            tongTinChiGPA_TongKet += tc;
-          }
+        if (sc.tichLuy && d >= 4.0) {
+          tongDiemGPA += d4 * tc;
+          tongTinChiGPA += tc;
+          tinChiTichLuyHK += tc;
+
+          tongDiemGPA_TongKet += d4 * tc;
+          tongTinChiGPA_TongKet += tc;
         }
       }
 
-      const cpaHK = tongTinChiCPA > 0 ? Number((tongDiemCPA / tongTinChiCPA).toFixed(2)) : null;
-      const gpaHK = tongTinChiGPA > 0 ? Number((tongDiemGPA / tongTinChiGPA).toFixed(2)) : null;
 
-      // Tín chỉ tích lũy cộng dồn
-      const tongTinChiTichLuyDenHK = tongTinChiTichLuyTruoc + tinChiTichLuyHK;
+      const cpaHK = tongTinChiCPA
+        ? ((tongDiemCPA / tongTinChiCPA).toFixed(2))
+        : null;
+
+      const gpaHK = tongTinChiGPA
+        ? ((tongDiemGPA / tongTinChiGPA).toFixed(2))
+        : null;
+
+      const tongTinChiTichLuyDenHK =
+        tongTinChiTichLuyTruoc + tinChiTichLuyHK;
       tongTinChiTichLuyTruoc = tongTinChiTichLuyDenHK;
+
+      const gpaTL = tongTinChiGPA_TongKet
+        ? tongDiemGPA_TongKet / tongTinChiGPA_TongKet
+        : 0;
+      // Nếu học kỳ chưa có đủ điểm → KHÔNG xét cảnh báo, KHÔNG gửi mail
+      if (tongTinChiDangKyHK === 0 || !allSubjectsScored) {
+        semestersWithScore.push({
+          ...s,
+          cpaHK: null,
+          gpaHK: null,
+          tinChiTichLuyHK,
+          tongTinChiTichLuyDenHK,
+          warningLevel: 0
+        });
+        return; // chỉ thoát forEach
+      }
+
+      // ===== CẢNH BÁO HỌC VỤ =====
+      const reasons = getWarningReasons({
+        cpaHK,
+        gpaTL,
+        tongTinChiTichLuy: tongTinChiTichLuyDenHK,
+        tinChiHongTrongHK,
+        tongTinChiDangKyHK,
+        tongTinChiNo: 0,
+        isFirstSemester: index === 0,
+        khoaHoc: user.khoaHoc
+      });
+
+      let warningLevel = 0;
+      if (reasons.length > 0) warningLevel = 1;
+      if (reasons.some(r => r.includes('0.80'))) warningLevel = 2;
+
+      if (warningLevel > currentMaxWarningLevel) {
+        currentMaxWarningLevel = warningLevel;
+        latestWarning = {
+          tenHocKy: s.tenHocKy,
+          namHoc: s.namHoc,
+          reasons,
+          cpaHK,
+          gpaHK,
+          gpaTL
+        };
+      }
 
       semestersWithScore.push({
         ...s,
         cpaHK,
         gpaHK,
         tinChiTichLuyHK,
-        tongTinChiTichLuyDenHK
+        tongTinChiTichLuyDenHK,
+        warningLevel
       });
     });
 
-    // ====== TÍNH TỔNG KẾT TOÀN KHÓA ======
-
+    // ===== TỔNG KẾT TOÀN KHÓA =====
     const gpaTongKet =
       tongTinChiGPA_TongKet > 0
-        ? Number((tongDiemGPA_TongKet / tongTinChiGPA_TongKet).toFixed(2))
+        ? ((tongDiemGPA_TongKet / tongTinChiGPA_TongKet).toFixed(2))
         : null;
 
-    const hocLucTongKet = gpaTongKet ? xepLoaiHocLuc(gpaTongKet) : null;
+    let canhBaoHocVuTongKet = null;
+    if (gpaTongKet !== null && gpaTongKet < 1.2) {
+      canhBaoHocVuTongKet = 'Bạn đang bị cảnh báo học vụ';
+      currentMaxWarningLevel = Math.max(currentMaxWarningLevel, 1);
+    }
 
+    const hocLucTongKet = gpaTongKet ? xepLoaiHocLuc(gpaTongKet) : null;
     const tongTinChiTongKet = tongTinChiGPA_TongKet;
 
-    const hasSemester = semesters.length > 0;
+    // ===== GỬI MAIL (CHỈ KHI CẢNH BÁO TĂNG) =====
+      const hasRealScore =
+        latestWarning &&
+        latestWarning.cpaHK !== null &&     // có CPA
+        latestWarning.gpaTL > 0;             // có GPA tích lũy thực
 
-    // Cảnh báo học vụ tổng kết (tùy chọn)
-    const canhBaoHocVuTongKet =
-      gpaTongKet && gpaTongKet < 1.2 ? 'Bạn đang bị cảnh báo học vụ' : null;
+      if (
+        hasRealScore &&
+        currentMaxWarningLevel > (user.lastAcademicWarningLevel || 0)
+      ) {
 
-    // Render
+        const warningHtml = `
+          <h3 style="color:#d9534f; margin-bottom:10px;">
+          Cảnh báo học vụ
+          </h3>
+
+          <p>
+            <strong>Học kỳ:</strong> ${latestWarning.tenHocKy} (${latestWarning.namHoc})
+          </p>
+
+          <p style="margin-top:10px; margin-bottom:5px;">
+            <strong>Lý do cảnh báo:</strong>
+          </p>
+
+          <ul style="color:#d9534f; padding-left:20px;">
+            ${latestWarning.reasons.map(r => `<li>${r}</li>`).join('')}
+          </ul>
+
+          <table style="border-collapse:collapse; margin-top:10px;">
+            <tr>
+              <td style="padding:6px 12px;"><strong>CPA học kỳ:</strong></td>
+              <td style="padding:6px 12px; color:#d9534f; font-weight:bold;">
+                ${latestWarning.cpaHK ?? 'Chưa có'}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:6px 12px;"><strong>GPA tích lũy:</strong></td>
+              <td style="padding:6px 12px; color:#d9534f; font-weight:bold;">
+                ${latestWarning.gpaTL.toFixed(2)}
+              </td>
+            </tr>
+          </table>
+        `;
+
+
+      await sendMail({
+        to: user.email,
+        subject: 'Cảnh báo học vụ – EduSystem',
+        html: MailTemplate.academicWarning(user.username, warningHtml)
+      });
+
+      await User.findByIdAndUpdate(user._id, {
+        lastAcademicWarningLevel: currentMaxWarningLevel
+      });
+    }
+
     res.render('user/score', {
       semesters: semestersWithScore,
       user: req.session.user,
-
-      // Gửi biến tổng kết
       gpaTongKet,
       hocLucTongKet,
       tongTinChiTongKet,
-      hasSemester,
+      hasSemester: semesters.length > 0,
       canhBaoHocVuTongKet
     });
 
-  } catch (error) {
-    console.error('Lỗi getScore:', error);
-    res.status(500).send('Lỗi server khi lấy điểm');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Lỗi lấy bảng điểm');
   }
 }
 
@@ -286,7 +455,6 @@ async getScore(req, res) {
       res.status(500).send('Cập nhật điểm thất bại!');
     }
   }
-
 
 
 }

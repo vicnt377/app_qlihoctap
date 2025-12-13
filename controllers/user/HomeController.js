@@ -19,19 +19,28 @@ class HomeController {
 
       const scores = await Score.find({ user: userId }).populate('HocPhan').lean();
 
-      let totalCredits = 0;
       const maxCredits = user?.totalCredits
+
+      let totalCredits = 0;
       let monNo = [];
 
       scores.forEach(score => {
-        if (score.HocPhan) {
-          totalCredits += score.HocPhan.soTinChi;
+        if (!score.HocPhan) return;
 
-          if (score.diemChu && score.diemChu.toUpperCase() === 'F') {
-            monNo.push(score);
-          }
+        const tinChi = score.HocPhan.soTinChi;
+        const diemChu = score.diemChu?.toUpperCase();
+
+        // ✅ CHỈ tính tín chỉ khi tích lũy & không phải F
+        if (score.tichLuy && diemChu !== 'F') {
+          totalCredits += tinChi;
+        }
+
+        // Môn nợ
+        if (diemChu === 'F') {
+          monNo.push(score);
         }
       });
+
 
       const totalNoSubjects = monNo.length;
       const totalCreditsExceeded = totalCredits > maxCredits;

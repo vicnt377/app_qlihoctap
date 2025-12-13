@@ -11,7 +11,7 @@ const scoreSchema = new mongoose.Schema({
     // gioBatDau: { type: String, required: true, },
     // gioKetThuc: { type: String, required: true, },
     // thu: {type: String, required: true, },
-    tbchk: {type: Boolean, default: false},
+    tbchk: {type: Boolean, default: true},
     tichLuy: {type: Boolean, default: true},
     semester: { type: mongoose.Schema.Types.ObjectId, ref: 'Semester' },
 
