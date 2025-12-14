@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../../controllers/admin/UserController');
+const userController = require('../../controllers/admin/UserAdminController');
 const { isAdmin } = require('../../middlewares/adminCheck');
 
 // USER management
