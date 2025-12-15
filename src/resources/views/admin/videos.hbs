@@ -67,80 +67,50 @@
     </div>
   </div>
 
-  {{!-- Bộ lọc và form thêm video từ Youtube
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <div class="row g-4 align-items-start">
-        <!-- 🔹 Cột trái: Bộ lọc -->
-        <div class="col-md-6 border-end">
-          <h6 class="fw-bold mb-3">Bộ lọc khóa học</h6>
-          <form method="GET" action="/admin/videos" id="filterForm-search" class="row g-2 align-items-end">
-            <div class="col-md-8">
-              <input type="text" class="form-control form-control-sm" name="search" 
-                    placeholder=" Tìm kiếm..." value="{{query.search}}">
-            </div>
-            <div class="col-md-4">
-              <select id="category" name="category" class="form-select">
-                <option value="all" {{#if (eq query.category 'all')}}selected{{/if}}>📁 Tất cả danh mục</option>
-                {{#each allMajors}}
-                  <option value="{{@key}}" {{#if (eq ../query.category @key)}}selected{{/if}}>
-                    {{this}}
-                  </option>
-                {{/each}}
-              </select>
-            </div>
-          </form>
+  <!-- Nút thêm video (căn phải) -->
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+      <i class="fas fa-plus me-1"></i> Thêm video mới
+    </button>
+  </div>
+
+<!-- Modal -->
+<div class="modal fade" id="addVideoModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm video YouTube</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">YouTube ID</label>
+          <input type="text" id="youtubeId" class="form-control" placeholder="VD: dQw4w9WgXcQ">
         </div>
 
-        <!-- 🔹 Cột phải: Form thêm video -->
-        <div class="col-md-6">
-          <h6 class="fw-bold mb-3">Thêm video từ YouTube</h6>
-          <form id="youtubeSearchForm" class="row g-2 align-items-end">
-            <div class="col-md-8">
-              <input type="text" class="form-control form-control-sm" id="youtubeQuery" 
-                    placeholder="Nhập từ khóa hoặc ID video YouTube">
-            </div>
-            <div class="col-md-4">
-              <button type="submit" class="btn btn-danger btn-sm w-100">
-                <i class="fab fa-youtube me-1"></i>Tìm kiếm
-              </button>
-            </div>
-          </form>
-
-          <!-- 🔸 Kết quả preview -->
-          <div id="youtubeResult" class="row g-2 mt-2 d-none">
-            <div class="col-md-3">
-              <img id="ytThumbnail" src="" class="img-fluid rounded" style="height: 80px; object-fit: cover;">
-            </div>
-            <div class="col-md-9">
-              <div class="row g-2">
-                <div class="col-md-6">
-                  <input type="text" id="ytTitleInput" class="form-control form-control-sm" placeholder="Tiêu đề">
-                </div>
-                <div class="col-md-3">
-                  <input type="text" id="ytCategory" class="form-control form-control-sm" placeholder="Danh mục">
-                </div>
-                <div class="col-md-3">
-                  <select class="form-select form-select-sm" id="ytLevel">
-                    <option value="Cơ bản">Cơ bản</option>
-                    <option value="Trung bình" selected>Trung bình</option>
-                    <option value="Nâng cao">Nâng cao</option>
-                  </select>
-                </div>
-              </div>
-              <div class="mt-2">
-                <button class="btn btn-success btn-sm" id="ytAddBtn">
-                  <i class="fas fa-plus me-1"></i>Thêm vào hệ thống
-                </button>
-                <span id="ytMsg" class="ms-2"></span>
-              </div>
-            </div>
-          </div>
+        <div class="mb-3">
+          <label class="form-label">Danh mục</label>
+          <select id="category" class="form-select">
+            <option value="">-- Chọn danh mục --</option>
+            <option value="CNTT">CNTT</option>
+            <option value="GD">Giáo dục</option>
+            <option value="KT-TC">Kinh tế - Tài chính</option>
+            <option value="NN">Ngoại ngữ</option>
+            <option value="KD-QL">Kinh doanh - Quản lý</option>
+          </select>
         </div>
 
+        <div id="videoError" class="text-danger small d-none"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button class="btn btn-primary" onclick="createVideo()">Lưu video</button>
       </div>
     </div>
-  </div> --}}
+  </div>
+</div>
 
   <!-- Tabs gọn gàng -->
   <ul class="nav nav-pills mb-3" id="videoTabs">
@@ -356,7 +326,6 @@
 
   </div>
 </main>
-
 <!-- Modal chỉnh sửa video -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -426,53 +395,67 @@
   </div>
 </div>
 
+{{!-- Thêm video mới --}}
+<script>
+async function createVideo() {
+  const youtubeId = document.getElementById('youtubeId').value.trim();
+  const category = document.getElementById('category').value;
+  const errorBox = document.getElementById('videoError');
+
+  errorBox.classList.add('d-none');
+
+  if (!youtubeId || !category) {
+    errorBox.textContent = 'Vui lòng nhập YouTube ID và chọn danh mục';
+    errorBox.classList.remove('d-none');
+    return;
+  }
+
+  try {
+    const res = await fetch('/admin/videos/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ youtubeId, category })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorBox.textContent = data.message;
+      errorBox.classList.remove('d-none');
+      return;
+    }
+
+    alert('✅ Thêm video thành công');
+    location.reload();
+  } catch (err) {
+    errorBox.textContent = 'Lỗi kết nối server';
+    errorBox.classList.remove('d-none');
+  }
+}
+</script>
+
 {{!-- Phân trang active --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('filterForm-search');
-  const searchInput = form.querySelector('input[name="search"]');
-  const categorySelect = form.querySelector('select[name="category"]');
   const videoContainer = document.getElementById('videoContainer');
-  let typingTimer;
+  if (!videoContainer) return;
 
   function fetchVideos() {
-    const params = new URLSearchParams(new FormData(form));
-    const openItems = [...document.querySelectorAll('.accordion-collapse.show')].map(el => el.id);
-
-    fetch(`/admin/videos?${params.toString()}&ajax=1`)
+    fetch('/admin/videos?ajax=1')
       .then(res => res.text())
       .then(html => {
-        // Tạm ẩn container để tránh nhấp nháy
         videoContainer.style.visibility = 'hidden';
-
         videoContainer.innerHTML = html;
-
-        // Mở lại các danh mục đang mở
-        openItems.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && !el.classList.contains('show')) {
-            const collapse = new bootstrap.Collapse(el, { toggle: false });
-            collapse.show();
-          }
-        });
-
-        // Hiện lại container sau 100ms
-        setTimeout(() => (videoContainer.style.visibility = 'visible'), 100);
+        setTimeout(() => {
+          videoContainer.style.visibility = 'visible';
+        }, 100);
       })
       .catch(err => console.error('❌ Lỗi fetch videos:', err));
   }
 
-  // Gõ tìm kiếm tự động lọc (debounce)
-  searchInput.addEventListener('input', () => {
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(fetchVideos, 400);
-  });
-
-  // Đổi danh mục lọc ngay
-  categorySelect.addEventListener('change', fetchVideos);
+  // Nếu sau này cần reload thủ công:
+  // fetchVideos();
 });
-
-
 </script>
 
 {{!-- Phân trang delete --}}
@@ -578,7 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-
+{{!-- Chỉnh sửa video, xóa mềm, khôi phục --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // ========== FORM EDIT ==========

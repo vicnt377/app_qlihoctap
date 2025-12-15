@@ -160,22 +160,22 @@ class UserController {
 
     
     // test gửi mail
-    async testSendMail (req, res) { 
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_ADMIN, 
-                to: "caovi070703@gmail.com", // email người nhận
-                subject: "Test Email từ EduSystem",
-                text: "Xin chào! Đây là email gửi thử từ Node.js",
-                html: "<h2>Xin chào!</h2><p>Email gửi thành công 🚀</p>"
-            });
+    // async testSendMail (req, res) { 
+    //     try {
+    //         await transporter.sendMail({
+    //             from: process.env.EMAIL_ADMIN, 
+    //             to: "caovi070703@gmail.com", // email người nhận
+    //             subject: "Test Email từ EduSystem",
+    //             text: "Xin chào! Đây là email gửi thử từ Node.js",
+    //             html: "<h2>Xin chào!</h2><p>Email gửi thành công 🚀</p>"
+    //         });
 
-            res.send("Đã gửi email thành công!");
-        } catch (err) {
-            console.error("Lỗi gửi email:", err);
-            res.status(500).send("Không gửi được email!");
-        }
-    };
+    //         res.send("Đã gửi email thành công!");
+    //     } catch (err) {
+    //         console.error("Lỗi gửi email:", err);
+    //         res.status(500).send("Không gửi được email!");
+    //     }
+    // };
 }
 
 module.exports = new UserController();

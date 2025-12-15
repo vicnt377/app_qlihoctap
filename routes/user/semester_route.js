@@ -13,6 +13,5 @@ router.get('/edit/:id',isUser, semesterController.getEditSemesterForm);
 
 router.post('/update/:id',isUser, semesterController.updateSemester);
 
-// router.post('/add-course', isUser, courseController.addCourseToScore);
 
 module.exports = router

@@ -5,14 +5,11 @@ const mongoose = require('mongoose');
 
 class ChatController{
 
-  // --------------------------
-  // 📌 LẤY DANH SÁCH CHAT + badge tin chưa đọc
-  // --------------------------
   async inbox(req, res) {
     try {
       const adminId = new mongoose.Types.ObjectId(req.session.user._id);
 
-      // 🔥 Tìm tất cả user từng nhắn với admin
+      // Tìm tất cả user từng nhắn với admin
       const partners = await Message.aggregate([
         {
           $match: {
@@ -77,11 +74,6 @@ class ChatController{
     }
   }
 
-
-
-  // --------------------------
-  // 📌 LẤY LỊCH SỬ CHAT GIỮA Admin ↔ User
-  // --------------------------
   async getMessages(req, res) {
     try {
       const adminId = req.session.user._id;
@@ -104,11 +96,7 @@ class ChatController{
     }
   }
 
-
-
-  // --------------------------
-  // 📌 ĐÁNH DẤU ĐÃ ĐỌC TIN NHẮN
-  // --------------------------
+  //  ĐÁNH DẤU ĐÃ ĐỌC TIN NHẮN
   async markRead(req, res) {
     try {
       const adminId = req.session.user._id;

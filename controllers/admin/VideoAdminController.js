@@ -6,14 +6,12 @@ const Video = require('../../models/Video');
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';
 
 // ===== Helper: Chuyển đổi chuỗi thời lượng ISO8601 (PT#M#S) từ API sang định dạng dễ đọc
-function parseDuration(durationStr) {
-  if (!durationStr) return '0m 0s';
-  const match = durationStr.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return '0m 0s';
-  const hours = parseInt(match[1]) || 0;
-  const minutes = parseInt(match[2]) || 0;
-  const seconds = parseInt(match[3]) || 0;
-  return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${seconds}s`;
+function convertDuration(iso) {
+  const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  const h = match[1] || 0;
+  const m = match[2] || 0;
+  const s = match[3] || 0;
+  return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
 }
 
 class VideoController {
@@ -200,59 +198,40 @@ class VideoController {
     }
   }
 
-
-  //  2. Tìm kiếm video trên YouTube (preview)
-  async searchAndPreview(req, res) {
-    const { query } = req.query;
-    if (!query) return res.status(400).json({ message: 'Thiếu từ khóa' });
-
-    try {
-      const isId = /^[\w-]{11}$/.test(query);
-      let videoInfo;
-
-      if (isId) {
-        const response = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
-          params: { key: YOUTUBE_API_KEY, id: query, part: 'snippet,contentDetails' },
-        });
-        const item = response.data?.items?.[0];
-        if (!item) return res.status(404).json({ message: 'Không tìm thấy video theo ID' });
-
-        videoInfo = {
-          youtubeId: item.id,
-          title: item.snippet.title,
-          description: item.snippet.description,
-          thumbnail: item.snippet.thumbnails.medium.url,
-          duration: parseDuration(item.contentDetails.duration),
-        };
-      } else {
-        const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-          params: { key: YOUTUBE_API_KEY, q: query, part: 'snippet', type: 'video', maxResults: 1 },
-        });
-        const item = response.data?.items?.[0];
-        if (!item) return res.status(404).json({ message: 'Không tìm thấy video theo từ khóa' });
-
-        videoInfo = {
-          youtubeId: item.id.videoId,
-          title: item.snippet.title,
-          description: item.snippet.description,
-          thumbnail: item.snippet.thumbnails.medium.url,
-        };
-      }
-
-      res.json({ video: videoInfo });
-    } catch (err) {
-      console.error('Lỗi tìm video YouTube:', err?.response?.data || err.message);
-      res.status(500).json({ message: 'Lỗi khi tìm video từ YouTube' });
-    }
-  }
-
   //  3. Tạo video mới
   async createVideo(req, res) {
     try {
-      const { youtubeId, title, description, thumbnail, category, duration = '0m 0s' } = req.body;
+      const { youtubeId, category } = req.body;
 
+      if (!youtubeId || !category) {
+        return res.status(400).json({ message: 'Thiếu dữ liệu' });
+      }
+
+      // Kiểm tra trùng video
       const exists = await Video.findOne({ youtubeId });
-      if (exists) return res.status(400).json({ message: 'Video đã tồn tại' });
+      if (exists) {
+        return res.status(400).json({ message: 'Video đã tồn tại' });
+      }
+
+      // Gọi YouTube API
+      const apiKey = process.env.YOUTUBE_API_KEY;
+      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${youtubeId}&key=${apiKey}`;
+
+      const { data } = await axios.get(url);
+
+      if (!data.items || data.items.length === 0) {
+        return res.status(404).json({ message: 'Không tìm thấy video trên YouTube' });
+      }
+
+      const item = data.items[0];
+
+      const title = item.snippet.title;
+      const description = item.snippet.description;
+      const thumbnail = item.snippet.thumbnails.high.url;
+
+      // Chuyển ISO 8601 → mm ss
+      const isoDuration = item.contentDetails.duration;
+      const duration = convertDuration(isoDuration);
 
       const video = new Video({
         youtubeId,
@@ -261,11 +240,16 @@ class VideoController {
         thumbnail,
         category,
         duration,
-        daXoa: false,
+        daXoa: false
       });
 
       await video.save();
-      res.status(201).json({ message: '✅ Đã thêm video mới', video });
+
+      res.status(201).json({
+        message: '✅ Đã thêm video mới',
+        video
+      });
+
     } catch (err) {
       console.error('❌ Lỗi tạo video:', err);
       res.status(500).json({ message: 'Thêm video thất bại' });
@@ -406,6 +390,7 @@ class VideoController {
       res.status(500).send("Lỗi server khi trả lời");
     }
   }
+
 
 }
 
