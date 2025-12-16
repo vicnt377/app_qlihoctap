@@ -6,12 +6,14 @@ const Video = require('../../models/Video');
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || 'AIzaSyCAsJisZhiEP6Haersjru30mcOnwZ3lLhs';
 
 // ===== Helper: Chuyển đổi chuỗi thời lượng ISO8601 (PT#M#S) từ API sang định dạng dễ đọc
-function convertDuration(iso) {
-  const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  const h = match[1] || 0;
-  const m = match[2] || 0;
-  const s = match[3] || 0;
-  return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
+function parseDuration(durationStr) {
+  if (!durationStr) return '0m 0s';
+  const match = durationStr.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return '0m 0s';
+  const hours = parseInt(match[1]) || 0;
+  const minutes = parseInt(match[2]) || 0;
+  const seconds = parseInt(match[3]) || 0;
+  return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${seconds}s`;
 }
 
 class VideoController {

@@ -3,7 +3,7 @@ const Admin = require('../../models/Admin');    // Model admin (chung collection
 const transporter = require("../../config/mail/mail");  // Cấu hình gửi mail
 class UserController {
 
-    // 📌 Danh sách học viên
+    //  Danh sách học viên
     async getUsers(req, res) {
         try {
             const { search, status } = req.query;
@@ -60,8 +60,7 @@ class UserController {
         }
     }
 
-
-    // 📌 Khóa/Mở khóa học viên
+    //  Khóa/Mở khóa học viên
     async clockUser(req, res) {
         try {
             const user = await User.findById(req.params.id);
@@ -89,8 +88,7 @@ class UserController {
         }
     }
 
-
-    // 📌 Thêm học viên mới
+    // Thêm học viên mới
     async addUser(req, res) {
         try {
             const { name, email, phone, password, confirmPassword, avatar, major, totalCredits } = req.body;
@@ -134,8 +132,7 @@ class UserController {
         }
     }
 
-
-    // 📌 Xóa học viên
+    //  Xóa học viên
     async deleteUser(req, res) {
         try {
             const user = await User.findById(req.params.id);
@@ -158,24 +155,6 @@ class UserController {
         }
     }
 
-    
-    // test gửi mail
-    // async testSendMail (req, res) { 
-    //     try {
-    //         await transporter.sendMail({
-    //             from: process.env.EMAIL_ADMIN, 
-    //             to: "caovi070703@gmail.com", // email người nhận
-    //             subject: "Test Email từ EduSystem",
-    //             text: "Xin chào! Đây là email gửi thử từ Node.js",
-    //             html: "<h2>Xin chào!</h2><p>Email gửi thành công 🚀</p>"
-    //         });
-
-    //         res.send("Đã gửi email thành công!");
-    //     } catch (err) {
-    //         console.error("Lỗi gửi email:", err);
-    //         res.status(500).send("Không gửi được email!");
-    //     }
-    // };
 }
 
 module.exports = new UserController();

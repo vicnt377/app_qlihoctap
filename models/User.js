@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     lastAcademicWarningLevel: {
         type: Number,
         default: 0
-    }
+    },
 
 });
 
