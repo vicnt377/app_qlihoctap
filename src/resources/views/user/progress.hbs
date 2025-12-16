@@ -15,9 +15,9 @@
   <div class="alert alert-{{progressStatus.color}}">
     <strong>Tiến độ học tập:</strong>
     {{progressStatus.label}} <br>
-    Đã tích lũy {{totalCredits}} /
+    {{!-- Đã tích lũy {{totalCredits}} /
     {{multiply semesterCount 20}} tín chỉ
-    ({{progressStatus.ratio}}%)
+    ({{progressStatus.ratio}}%) --}}
   </div>
 
   <div class="row g-4 align-items-stretch">
@@ -284,22 +284,37 @@ document.addEventListener('DOMContentLoaded', () => {
     {{/each}}
   ];
 
-  const data = [
+  const rawData = [
     {{#each scores}}
       {{diemSo}},
     {{/each}}
   ];
 
+  // ✅ Chia điểm đạt / rớt
+  const diemDat = rawData.map(d => d > 4 ? d : null);
+  const diemRot = rawData.map(d => d <= 4 ? d : null);
+
   new Chart(canvas, {
     type: 'bar',
     data: {
-      labels,
-      datasets: [{
-        label: 'Điểm',
-        data,
-        barThickness: 16,
-        maxBarThickness: 18
-      }]
+      labels: labels,
+      datasets: [
+        {
+          label: 'Đạt',
+          data: diemDat,
+          backgroundColor: 'rgba(33, 150, 243, 0.8)', // xanh
+          barThickness: 16,
+          maxBarThickness: 18
+        },
+        {
+          label: 'Rớt',
+          data: diemRot,
+          backgroundColor: 'rgba(244, 67, 54, 0.85)', // đỏ
+          barThickness: 16,
+          maxBarThickness: 18,
+          grouped: false
+        }
+      ]
     },
     options: {
       indexAxis: 'y',
@@ -309,9 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
       plugins: {
         title: {
           display: true,
-          text: 'Điểm các môn',
+          text: 'Điểm các môn (Đạt / Rớt)',
           font: {
-            size: 20,        
+            size: 20,
             weight: 'bold'
           }
         }
@@ -320,3 +335,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+

@@ -1,26 +1,21 @@
 const Message = require('../../models/Message');
-const User = require('../../models/User');   // user thường
-const Admin = require('../../models/Admin'); // admin riêng
+const User = require('../../models/User');
 const mongoose = require('mongoose');
 
-class ChatController{
+class ChatController {
 
+  // 📥 Inbox admin
   async inbox(req, res) {
     try {
       const adminId = new mongoose.Types.ObjectId(req.session.user._id);
 
-      // Tìm tất cả user từng nhắn với admin
       const partners = await Message.aggregate([
         {
           $match: {
-            $or: [
-              { sender: adminId },
-              { receiver: adminId }
-            ]
+            $or: [{ sender: adminId }, { receiver: adminId }]
           }
         },
-        { $sort: { timestamp: -1 } },
-
+        { $sort: { createdAt: -1 } },
         {
           $group: {
             _id: {
@@ -31,49 +26,54 @@ class ChatController{
               ]
             },
             lastMessage: { $first: '$content' },
-            timestamp: { $first: '$timestamp' }
+            lastTime: { $first: '$createdAt' }
           }
         }
       ]);
 
-      // Danh sách userId
       const userIds = partners.map(p => p._id);
 
-      // 🔥 Lấy thông tin user tương ứng
-      const users = await User.find({ _id: { $in: userIds } });
+      const users = await User.find({ _id: { $in: userIds } })
+        .select('username')
+        .lean();
 
-      // 🔥 Đếm tin nhắn chưa đọc từ mỗi user
       const unreadCounts = await Message.aggregate([
         { $match: { receiver: adminId, isRead: false } },
         { $group: { _id: '$sender', count: { $sum: 1 } } }
       ]);
 
-      // Chuyển thành map
       const unreadMap = {};
       unreadCounts.forEach(u => {
         unreadMap[u._id.toString()] = u.count;
       });
 
-      // 🔥 Ghép dữ liệu cuối cùng
-      const result = partners.map(p => ({
-        user: users.find(u => u._id.toString() === p._id.toString()),
-        lastMessage: p.lastMessage,
-        timestamp: p.timestamp,
-        unreadCount: unreadMap[p._id.toString()] || 0
-      }));
+      const chats = partners
+        .map(p => {
+          const user = users.find(u => u._id.toString() === p._id.toString());
+          if (!user) return null;
 
-      res.render("admin/chatInbox", {
+          return {
+            user,
+            lastMessage: p.lastMessage,
+            timestamp: p.lastTime,
+            unreadCount: unreadMap[p._id.toString()] || 0
+          };
+        })
+        .filter(Boolean);
+
+      res.render('admin/chatInbox', {
         layout: 'admin',
-        chats: result,
+        chats,
         adminId: req.session.user._id
       });
 
     } catch (err) {
       console.error(err);
-      res.status(500).send("Lỗi lấy danh sách chat");
+      res.status(500).send('Lỗi lấy danh sách chat');
     }
   }
 
+  // 💬 Lấy tin nhắn
   async getMessages(req, res) {
     try {
       const adminId = req.session.user._id;
@@ -85,18 +85,19 @@ class ChatController{
           { sender: userId, receiver: adminId }
         ]
       })
-        .populate("sender", "username")
-        .sort({ timestamp: 1 });
+        .populate('sender', 'username')
+        .sort({ createdAt: 1 })
+        .lean();
 
       res.json({ messages });
 
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Lỗi lấy tin nhắn" });
+      res.status(500).json({ error: 'Lỗi lấy tin nhắn' });
     }
   }
 
-  //  ĐÁNH DẤU ĐÃ ĐỌC TIN NHẮN
+  // ✅ Đánh dấu đã đọc
   async markRead(req, res) {
     try {
       const adminId = req.session.user._id;
@@ -107,11 +108,11 @@ class ChatController{
         { $set: { isRead: true } }
       );
 
-      res.json({ ok: true });
+      res.json({ success: true });
 
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Lỗi đánh dấu đã đọc" });
+      res.status(500).json({ error: 'Lỗi đánh dấu đã đọc' });
     }
   }
 }

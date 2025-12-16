@@ -85,7 +85,22 @@ async addNewSemester(req, res) {
     if (!Array.isArray(selectedCourses) || selectedCourses.length === 0) {
       return res.status(400).json({ message: "Chưa chọn học phần nào." });
     }
+    // ✅ TÍNH TỔNG TÍN CHỈ HỌC KỲ
+    const courseIds = selectedCourses.map(c => c.courseId);
 
+    const courses = await Course.find({ _id: { $in: courseIds } }).lean();
+
+    const tongTinChiHocKy = courses.reduce(
+      (sum, c) => sum + (c.soTinChi || 0),
+      0
+    );
+
+    // ❌ Vượt quá 20 tín chỉ
+    if (tongTinChiHocKy > 20) {
+      return res.status(400).json({
+        message: `Mỗi học kỳ chỉ được đăng ký tối đa 20 tín chỉ (hiện tại: ${tongTinChiHocKy} tín chỉ).`
+      });
+    }
     // 1️⃣ Tạo Semester mới cho người dùng
     const newSemester = await Semester.create({
       tenHocKy,

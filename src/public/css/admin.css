@@ -666,3 +666,44 @@ body {
 #videoContainer.hidden {
   opacity: 0;
 }
+
+/* Khung chứa từng tin nhắn */
+.message-wrapper {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+/* Admin bên phải */
+.message-wrapper.admin {
+  justify-content: flex-end;
+}
+
+/* User bên trái */
+.message-wrapper.user {
+  justify-content: flex-start;
+}
+
+/* Bubble tin nhắn */
+.message-bubble {
+  max-width: 65%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Màu admin */
+.message-wrapper.admin .message-bubble {
+  background-color: #0d6efd;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+/* Màu user */
+.message-wrapper.user .message-bubble {
+  background-color: #757576;
+  color: #ffffff;
+  border-bottom-left-radius: 4px;
+}
+
