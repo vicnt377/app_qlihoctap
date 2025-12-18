@@ -20,6 +20,8 @@
     </div>
   </div>
 </div>
+{{!-- Thông báo import học phần --}}
+<div id="importAlert" class="alert d-none mt-3"></div>
 
 <main class="container mt-4">
 
@@ -43,14 +45,7 @@
 
 <!-- Nội dung tab -->
 <div class="tab-content" id="semesterTabContent">
-  <!-- Tab 1: Calendar -->
-  {{!-- <div class="tab-pane fade show active" id="calendarSection">
-    <div class="mt-3">
-      <div id="calendar"></div>
-    </div>
-  </div> --}}
-
-  <!-- Tab 2: Form thêm học kỳ + Danh sách học phần -->
+  <!-- Tab 1: Form thêm học kỳ + Danh sách học phần -->
   <div class="tab-pane fade show active" id="addSection">
     <div class="row g-2">
       <!-- Form thêm học kỳ -->
@@ -92,31 +87,25 @@
       </div>
       <!-- Form import học phần -->
       <div class="col-md-4 p-3">
-        <div class="card shadow-sm h-100">
-          <div class="card-header bg-primary text-white py-2 small fw-bold">
+        <div class="card import-card text-white h-100 shadow-sm">
+          <div class="card-header">
             Import học phần
           </div>
-          <div class="card-body d-flex justify-content-center align-items-center">
-            <form id="importForm" action="/course/import" method="POST"
-                  enctype="multipart/form-data" class="d-flex gap-2">
-              
-              <!-- Choose file -->
-              <input type="file" 
-                    name="excelFile" 
-                    id="excelFile"
+          <div class="card-body">
+            <form id="importForm"  method="POST"
+            enctype="multipart/form-data" class="d-flex gap-2 import-form">
+              <input type="file" name="excelFile" id="excelFile" 
                     accept=".xlsx,.xls" 
-                    class="form-control form-control-sm" 
-                    required>
-
-              <!-- Import button -->
+                    class="form-control form-control-sm mb-2" required>
               <button type="submit" class="btn btn-primary btn-sm px-3 text-white fw-bold">
-                 Import
+                Import
               </button>
             </form>
           </div>
         </div>
       </div>
     </div>
+
     <!-- Danh sách học phần -->
     <div class="card shadow-sm mb-3">
       <div class="card-header bg-gradient-gray d-flex justify-content-between align-items-center">
@@ -183,7 +172,7 @@
 
   </div>
 
-  <!-- Tab 3: Danh sách học kỳ -->
+  <!-- Tab 2: Danh sách học kỳ -->
   <div class="tab-pane fade mt-3" id="listSection">
     {{#if classesGroupedBySemester.length}}
       {{#each classesGroupedBySemester}}
@@ -350,89 +339,44 @@ document.getElementById('addSemesterForm').addEventListener('submit', async func
 });
 </script>
 
+{{!-- báo lỗi import học phần --}}
+<script>
+const form = document.getElementById('importForm');
+const pageAlert = document.getElementById('importAlert');
 
-{{!-- <script>
-document.getElementById('addSemesterForm').addEventListener('submit', async function (e) {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const tenHocKy = document.getElementById('tenHocKy').value.trim();
-  const startDate = document.getElementById('startDate').value;
-  const soTuan = document.getElementById('soTuan').value || 18;
+  pageAlert.classList.add('d-none');
+  pageAlert.innerHTML = '';
 
-  const checkboxes = document.querySelectorAll('input[name="selectedCourses"]:checked');
-  const selectedCoursesData = Array.from(checkboxes).map(cb => {
-    const courseId = cb.value;
-    const thu = document.querySelector(`[name="thu_${courseId}"]`).value.trim();
-    const gioBatDau = document.querySelector(`[name="gioBatDau_${courseId}"]`).value;
-    const gioKetThuc = document.querySelector(`[name="gioKetThuc_${courseId}"]`).value;
-    return { courseId, thu, gioBatDau, gioKetThuc };
+  const formData = new FormData(form);
+
+  const res = await fetch('/course/import', {
+    method: 'POST',
+    body: formData
   });
 
-  if (!tenHocKy || !startDate || selectedCoursesData.length === 0) {
-    alert('Vui lòng nhập đầy đủ thông tin và chọn ít nhất một học phần!');
+  const data = await res.json();
+
+  if (!res.ok) {
+    pageAlert.className = 'alert alert-danger mt-3';
+    pageAlert.innerHTML = `
+      <strong>${data.message}</strong>
+      ${
+        data.missingColumns
+          ? `<br>Thiếu cột: <b>${data.missingColumns.join(', ')}</b>`
+          : ''
+      }
+    `;
+    pageAlert.classList.remove('d-none');
     return;
   }
 
-  try {
-    const response = await fetch('/semester/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        tenHocKy,
-        startDate,
-        soTuan,
-        selectedCourses: selectedCoursesData
-      }),
-    });
+  pageAlert.className = 'alert alert-success mt-3';
+  pageAlert.innerHTML = data.message;
+  pageAlert.classList.remove('d-none');
 
-    const data = await response.json();
-
-    if (response.ok) {
-      alert(data.message || '✅ Thêm học kỳ thành công!');
-      location.reload();
-    } else {
-      alert(data.message || '❌ Đã xảy ra lỗi khi thêm học kỳ.');
-    }
-
-  } catch (error) {
-    console.error('Lỗi fetch:', error);
-    alert('❌ Lỗi kết nối đến server.');
-  }
+  setTimeout(() => location.reload(), 1000);
 });
-</script> --}}
-
-
-
-{{!-- <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
-    if (!calendarEl) return;
-
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      locale: 'vi',
-      initialView: 'timeGridWeek',
-      allDaySlot: false,
-      slotMinTime: '07:00:00',
-      slotMaxTime: '18:00:00',
-      headerToolbar: {
-        left: 'prev,today,next',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      },
-      height: 'auto',
-      expandRows: true,
-      events: {{{json events}}},
-      eventDidMount: function(info) {
-        new bootstrap.Tooltip(info.el, {
-          title: info.event.title,
-          placement: 'top'
-        });
-      }
-    });
-
-    calendar.render();
-  });
-</script> --}}
-
+</script>

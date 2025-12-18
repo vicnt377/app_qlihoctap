@@ -2312,3 +2312,21 @@ main {
   background-color: unset;
   border-color: #e8e5e5 ;
 }
+
+.import-card {
+  max-width: 500px;
+  margin: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.import-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#importAlert {
+  border-radius: 10px;
+  font-size: 14px;
+}

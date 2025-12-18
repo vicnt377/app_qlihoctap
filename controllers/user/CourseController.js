@@ -98,80 +98,47 @@ class CourseController {
   // Import danh sách học phần từ file Excel
   async importCourses(req, res) {
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'Vui lòng chọn file Excel để import.' });
-      }
-
+      const data = req.excelData;
       const userId = req.user?._id || req.session?.user?._id;
-      if (!userId) {
-        return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
-      }
 
-      const workbook = xlsx.readFile(req.file.path);
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const data = xlsx.utils.sheet_to_json(worksheet);
+      let insertedCount = 0;
+      let skippedCount = 0;
 
-      if (data.length === 0) {
-        return res.status(400).json({ message: 'File Excel không có dữ liệu.' });
-      }
+      for (const row of data) {
+        const exists = await Course.findOne({
+          user: userId,
+          maHocPhan: row.maHocPhan.trim()
+        });
 
-      const coursesToImport = [];
-      const errors = [];
-      let successCount = 0;
-      let skipCount = 0;
-
-      for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        const rowNumber = i + 2;
-
-        try {
-          if (!row.maHocPhan || !row.tenHocPhan || !row.soTinChi) {
-            errors.push(`Dòng ${rowNumber}: Thiếu thông tin bắt buộc (maHocPhan, tenHocPhan, soTinChi)`);
-            continue;
-          }
-
-          const soTinChi = parseInt(row.soTinChi);
-          if (isNaN(soTinChi) || soTinChi <= 0) {
-            errors.push(`Dòng ${rowNumber}: Số tín chỉ không hợp lệ`);
-            continue;
-          }
-
-          // Check học phần đã tồn tại cho user này
-          const existingCourse = await Course.findOne({ user: userId, maHocPhan: row.maHocPhan.trim() });
-          if (existingCourse) {
-            skipCount++;
-            continue;
-          }
-
-          coursesToImport.push({
-            user: userId,
-            maHocPhan: row.maHocPhan.trim(),
-            tenHocPhan: row.tenHocPhan.trim(),
-            soTinChi
-          });
-
-        } catch (error) {
-          errors.push(`Dòng ${rowNumber}: Lỗi xử lý dữ liệu - ${error.message}`);
+        if (exists) {
+          skippedCount++;
+          continue;
         }
+
+        await Course.create({
+          user: userId,
+          maHocPhan: row.maHocPhan.trim(),
+          tenHocPhan: row.tenHocPhan.trim(),
+          soTinChi: Number(row.soTinChi)
+        });
+
+        insertedCount++;
       }
 
-      if (coursesToImport.length > 0) {
-        await Course.insertMany(coursesToImport);
-        successCount = coursesToImport.length;
-      }
-
-      if (fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
-
-      return res.redirect('/semester');
+      return res.json({
+        success: true,
+        insertedCount,
+        skippedCount,
+        message: `Import thành công ${insertedCount} học phần`
+      });
 
     } catch (error) {
-      console.error('Lỗi khi import học phần:', error);
-      res.status(500).json({ message: '❌ Lỗi server khi import!' });
+      console.error(error);
+      return res.status(500).json({ message: 'Lỗi server khi import học phần' });
     }
   }
+
+
 
 }
 

@@ -9,6 +9,6 @@ router.get('/', isUser, courseController.getCourses);
 router.post('/add-course', isUser, courseController.createCourse);
 
 // Routes mới cho import
-router.post('/import', isUser, uploadExcel.single('excelFile'), courseController.importCourses);
+router.post('/import', isUser, uploadExcel, courseController.importCourses);
 
 module.exports = router;
