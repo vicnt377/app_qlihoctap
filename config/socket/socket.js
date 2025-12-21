@@ -20,8 +20,8 @@ module.exports = function (io) {
     {
       keywords: ['thêm học phần', 'createcourse', 'addcourse'],
       reply: `Hướng dẫn Thêm Học Phần:
-        1. Nhập mã học phần (maHocPhan), tên học phần (tenHocPhan), số tín chỉ (soTinChi).
-        2. Nếu mã học phần chưa tồn tại → hệ thống sẽ lưu mới.
+        1. Nhập mã học phần, tên học phần, số tín chỉ.
+        2. Nếu mã học phần chưa tồn tại hệ thống sẽ lưu mới.
         3. Sau khi thêm, bạn nhận được thông báo xác nhận thành công.`
     },
     {
@@ -36,13 +36,13 @@ module.exports = function (io) {
       keywords: ['upload tài liệu', 'uploaddocument', 'tải tài liệu'],
       reply: `Hướng dẫn upload tài liệu:
         1. Vào mục Tài liệu → Chọn file muốn tải.
-        2. Nhập tiêu đề (title), chọn chế độ hiển thị: Public hoặc Private.
+        2. Nhập tiêu đề, chọn chế độ hiển thị.
         3. Sau khi tải lên thành công, bạn sẽ nhận thông báo kèm tên tài liệu.`
     },
     {   
       keywords: ['thêm học kỳ', 'addsemester', 'createsemester','tạo học kỳ'],
       reply: `Hướng dẫn Thêm Học Kỳ Mới:
-        1. Nhập tên học kỳ (tenHocKy) và chọn các học phần đã có để gán vào học kỳ.
+        1. Nhập tên học kỳ và chọn các học phần đã có để gán vào học kỳ.
         2. Hệ thống sẽ tạo học kỳ mới với các học phần đã chọn.
         3. Sau khi thêm, bạn nhận được thông báo xác nhận thành công.`
     },

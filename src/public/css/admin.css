@@ -402,13 +402,6 @@ body {
   min-height: calc(100vh - 100px);
 }
 
-/* Video management styles */
-.hover-shadow:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  transition: all 0.3s ease;
-}
-
 /* Accordion styling */
 .accordion-item {
   border-radius: 12px !important;
@@ -511,11 +504,6 @@ body {
   border: 1px solid #e9ecef;
 }
 
-.video-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-  border-color: #007bff;
-}
 
 .video-card .card-title {
   font-size: 0.9rem;
@@ -560,10 +548,6 @@ body {
 
 .card-img-top {
   transition: transform 0.3s ease;
-}
-
-.hover-shadow:hover .card-img-top {
-  transform: scale(1.05);
 }
 
 .badge {

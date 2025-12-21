@@ -8,15 +8,6 @@
         </h1>
         <p class="mb-0">Quản lý danh sách học kỳ và thêm học kỳ mới</p>
       </div>
-      {{!-- <div class="col-md-4 text-end">
-        <div class="stats-card">
-          <div class="stats-item">
-            <i class="fas fa-calendar-alt text-orange"></i>
-            <span class="stats-number">{{semestersList.length}}</span>
-            <span class="stats-label">Học kỳ</span>
-          </div>
-        </div>
-      </div> --}}
     </div>
   </div>
 </div>
@@ -127,14 +118,11 @@
           <table class="table table-hover table-sm mb-0" id="courseTable">
             <thead>
               <tr>
-                <th class="col-stt">STT</th>
-                <th class="col-code">Mã học phần</th>
-                <th class="col-name">Tên học phần</th>
-                <th class="col-name">Số tín chỉ</th>
-                {{!-- <th class="col-day">Thứ</th>
-                <th class="col-time">Giờ bắt đầu</th>
-                <th class="col-time">Giờ kết thúc</th> --}}
-                <th class="col-choose text-center">Chọn</th>
+                <th class="text-center col-stt">STT</th>
+                <th class="text-center col-code">Mã học phần</th>
+                <th class="text-center col-name">Tên học phần</th>
+                <th class="text-center col-credit">Số tín chỉ</th>
+                <th class="text-center col-choose">Chọn</th>
               </tr>
             </thead>
             <tbody>
@@ -142,18 +130,16 @@
                 {{#each courses}}
                   <tr>
                     <td class="text-center col-stt">{{inc @index}}</td>
-                    <td><code>{{maHocPhan}}</code></td>
-                    <td class="col-name">{{tenHocPhan}}</td>
-                    <td class="col-name">{{soTinChi}}</td>
-                    {{!-- <td class="col-day">
-                      <select class="form-select form-select-sm" name="thu_{{_id}}">
-                        {{#each (array "Thứ Hai" "Thứ Ba" "Thứ Tư" "Thứ Năm" "Thứ Sáu" "Thứ Bảy")}}
-                          <option value="{{this}}">{{this}}</option>
-                        {{/each}}
-                      </select>
+                    <td class="text-center col-code"><code>{{maHocPhan}}</code></td>
+                    <td class="text-center col-name">
+                      {{tenHocPhan}}
+                      {{#if isRetake}}
+                        <span class="badge bg-danger ms-2">
+                          Học lại
+                        </span>
+                      {{/if}}
                     </td>
-                    <td class="col-time"><input type="time" class="form-control form-control-sm" name="gioBatDau_{{_id}}"></td>
-                    <td class="col-time"><input type="time" class="form-control form-control-sm" name="gioKetThuc_{{_id}}"></td> --}}
+                    <td class="text-center col-credit">{{soTinChi}}</td>
                     <td class="text-center col-choose"><input type="checkbox" name="selectedCourses" value="{{_id}}"></td>
                   </tr>
                 {{/each}}
@@ -188,25 +174,19 @@
             <table class="table table-hover table-sm">
               <thead class="table-light">
                 <tr>
-                  <th>STT</th>
-                  <th>Mã học phần</th>
-                  <th>Tên học phần</th>
-                  {{!-- <th>Thứ</th>
-                  <th>Giờ bắt đầu</th>
-                  <th>Giờ kết thúc</th> --}}
-                  <th>Tín chỉ</th>
+                  <th class="text-center col-stt">STT</th>
+                  <th class="text-center col-code">Mã học phần</th>
+                  <th class="text-center col-name">Tên học phần</th>
+                  <th class="text-center col-credit">Số tín chỉ</th>
                 </tr>
               </thead>
               <tbody>
                 {{#each scores}}
                   <tr>
-                    <td>{{inc @index}}</td>
-                    <td><code>{{HocPhan.maHocPhan}}</code></td>
-                    <td>{{HocPhan.tenHocPhan}}</td>
-                    {{!-- <td>{{thu}}</td>
-                    <td>{{gioBatDau}}</td>
-                    <td>{{gioKetThuc}}</td> --}}
-                    <td>{{HocPhan.soTinChi}}</td>
+                    <td class="text-center col-stt">{{inc @index}}</td>
+                    <td class="text-center col-code"><code>{{HocPhan.maHocPhan}}</code></td>
+                    <td class="text-center col-name">{{HocPhan.tenHocPhan}}</td>
+                    <td class="text-center col-credit">{{HocPhan.soTinChi}}</td>
                   </tr>
                 {{/each}}
               </tbody>

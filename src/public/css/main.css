@@ -60,10 +60,7 @@ body {
 .video-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.video-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
+
 /* Giới hạn 2 dòng mô tả */
 .text-truncate-2 {
   display: -webkit-box;
@@ -158,11 +155,6 @@ body {
   box-shadow: 0 4px 16px rgba(224,133,82,0.08);
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(224,133,82,0.15);
 }
 
 .card-header {
@@ -630,23 +622,148 @@ body {
   table-layout: fixed;
 }
 
+#courseTable {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#courseTable th,
+#courseTable td {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
 /* Cột nhỏ */
 .col-stt {
-  width: 50px;       /* hoặc 40px nếu muốn nhỏ hơn */
-  max-width: 50px;
+  width: 150px;
 }
 
 .col-choose {
-  width: 60px;       /* vừa đủ để checkbox không bị dính */
-  max-width: 60px;
+  width: 150px;
 }
 
-/* Giữ cho các cột khác tự co giãn */
-.col-name { width: 30%; }
-.col-code { width: 15%; }
-.col-day,
-.col-time { width: 15%; }
+/* Cột vừa */
+.col-code {
+  width: 200px;
+}
 
+.col-credit {
+  width: 200px;
+}
+
+/* Cột lớn */
+.col-name {
+  width: calc(100% - 150px - 150px - 200px - 200px);
+}
+
+/* ===== BẢNG ĐIỂM ===== */
+.semester-scroll-wrapper {
+  max-height: 520px;      /* chỉnh theo layout */
+  overflow-y: auto;
+  padding-right: 6px;
+}
+/* Vùng cuộn */
+.semester-scroll-wrapper {
+  max-height: 520px;     /* chỉnh theo layout */
+  overflow-y: auto;
+  padding-right: 6px;   /* tránh che nội dung */
+}
+
+/* Scrollbar nhỏ */
+.semester-scroll-wrapper::-webkit-scrollbar {
+  width: 5px;           /* nhỏ lại */
+}
+
+.semester-scroll-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.semester-scroll-wrapper::-webkit-scrollbar-thumb {
+  background-color: #bfc5d2;
+  border-radius: 10px;
+}
+
+.semester-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: #9aa3b2;
+}
+
+/* Nhìn tách học kỳ rõ hơn */
+.semester-block {
+  background: #fff;
+}
+
+/* Header bảng đứng yên trong lúc cuộn */
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 2;
+}
+
+
+.score-table {
+  table-layout: fixed;   /* BẮT BUỘC để cột đều */
+  width: 100%;
+}
+
+/* Mã HP */
+.score-table th:nth-child(1),
+.score-table td:nth-child(1) {
+  width: 90px;
+}
+
+/* Tên học phần */
+.score-table th:nth-child(2),
+.score-table td:nth-child(2) {
+  width: auto;           /* chiếm phần còn lại */
+}
+
+/* Tín chỉ */
+.score-table th:nth-child(3),
+.score-table td:nth-child(3) {
+  width: 60px;
+  text-align: center;
+}
+
+/* Điểm số */
+.score-table th:nth-child(4),
+.score-table td:nth-child(4) {
+  width: 100px;
+  text-align: center;
+}
+
+/* Điểm chữ */
+.score-table th:nth-child(5),
+.score-table td:nth-child(5) {
+  width: 100px;
+  text-align: center;
+}
+
+/* TBCHK */
+.score-table th:nth-child(6),
+.score-table td:nth-child(6) {
+  width: 70px;
+  text-align: center;
+}
+
+/* Tích lũy */
+.score-table th:nth-child(7),
+.score-table td:nth-child(7) {
+  width: 70px;
+  text-align: center;
+}
+
+/* Input gọn hơn */
+.score-table input.form-control {
+  padding: 4px 6px;
+  font-size: 0.875rem;
+}
+
+
+/* Tránh layout nhảy */
+.score-table-wrapper table {
+  margin-bottom: 0;
+}
 
 /* Alert improvements */
 .alert {
@@ -1154,10 +1271,6 @@ body {
   border: 1px solid #dee2e6;
 }
 
-.reference-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 35px rgba(4, 0, 255, 0.25);
-}
 
 .reference-card .card-body {
   padding: 2rem;
@@ -1562,9 +1675,6 @@ a.text-orange:hover {
   box-shadow: 0 2px 8px rgba(4, 0, 255, 0.25) !important;
 }
 
-.card.shadow-sm:hover {
-  box-shadow: 0 4px 16px rgba(4, 0, 255, 0.25) !important;
-}
 
 /* Button Group Improvements */
 .btn-group {
@@ -1608,11 +1718,6 @@ a.text-orange:hover {
   box-shadow: 0 4px 16px rgba(4, 0, 255, 0.25);
   border: 1px solid #dee2e6;
   height: 100%;
-}
-
-.reference-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 35px rgba(4, 0, 255, 0.25);
 }
 
 .reference-card .card-body {

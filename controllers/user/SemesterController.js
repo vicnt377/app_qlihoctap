@@ -30,17 +30,31 @@ class SemesterController {
         scores: sem.score || []
       }));
 
-      //  Lấy tất cả Course chưa thuộc học kỳ nào
-      const usedCourseIds = await Score.find({
+      //  LẤY DANH SÁCH HỌC PHẦN ĐÃ ĐẬU dùng để LOẠI khỏi danh sách thêm
+      const passedCourseIds = await Score.find({
         user: userId,
-        semester: { $ne: null }
+        semester: { $ne: null },
+        diemChu: { $ne: 'F' }     //chỉ loại môn ĐẬU
       }).distinct("HocPhan");
 
-      const availableCourses = await Course.find({
+      // LẤY DANH SÁCH HỌC PHẦN ĐÃ RỚT
+      const failedCourseIds = await Score.find({
         user: userId,
-        _id: { $nin: usedCourseIds }
+        diemChu: 'F'
+      }).distinct('HocPhan');
+
+      const availableCoursesRaw = await Course.find({
+        user: userId,
+        _id: { $nin: passedCourseIds }
       }).lean();
 
+      const availableCourses = availableCoursesRaw.map(course => ({
+        ...course,
+        isRetake: failedCourseIds.some(
+          id => id.toString() === course._id.toString()
+        )
+      }));
+      
       // Lấy score mồ côi
       const orphanScores = await Score.find({
         user: userId,
@@ -49,7 +63,7 @@ class SemesterController {
         .populate("HocPhan")
         .lean();
 
-      //  Render
+
       res.render("user/semester", {
         user,
         classesGroupedBySemester,
@@ -182,85 +196,187 @@ class SemesterController {
     }
   }
 
+  // async getEditSemesterForm(req, res) {
+  //   try {
+  //     const userId = req.session?.user?._id;
+  //     const semesterId = req.params.id;
+
+  //     const user = await User.findById(userId).lean();
+
+  //     // Lấy học kỳ + score
+  //     const semester = await Semester.findOne({
+  //       _id: semesterId,
+  //       user: userId
+  //     })
+  //       .populate({
+  //         path: "score",
+  //         populate: { path: "HocPhan" }
+  //       })
+  //       .lean();
+
+  //     if (!semester) return res.status(404).send("Không tìm thấy học kỳ");
+
+  //     semester.score = semester.score.filter(s => s && s.HocPhan);
+
+  //     // Lấy tất cả Course
+  //     const allCourses = await Course.find({ user: userId }).lean();
+
+  //     // Score thuộc học kỳ khác
+  //     const scoresOther = await Score.find({
+  //       user: userId,
+  //       semester: { $nin: [null, semesterId] }
+  //     }).lean();
+
+  //     const excludedCourseIds = new Set(
+  //       scoresOther
+  //         .map(s => s.HocPhan?.toString())
+  //         .filter(Boolean)
+  //     );
+
+  //     // Map score thuộc học kỳ hiện tại
+  //     const scoreMap = {};
+  //     semester.score.forEach(s => {
+  //       scoreMap[s.HocPhan._id.toString()] = s;
+  //     });
+
+  //     //  Tạo danh sách hiển thị
+  //     const courseList = allCourses
+  //       .filter(c => {
+  //         const cid = c._id.toString();
+
+  //         //  Bị khóa bởi học kỳ khác → ẩn
+  //         if (excludedCourseIds.has(cid)) return false;
+
+  //         //  Thuộc học kỳ hiện tại → hiển thị và tick
+  //         if (scoreMap[cid]) return true;
+
+  //         //  Course mới → hiển thị
+  //         return true;
+  //       })
+  //       .map(c => {
+  //         const cid = c._id.toString();
+  //         const sc = scoreMap[cid];
+
+  //         return {
+  //           courseId: cid,
+  //           scoreId: sc?._id?.toString() || null,
+  //           HocPhan: c,
+  //           isSelected: !!sc
+  //         };
+  //       });
+
+  //     // 6️⃣ Render
+  //     res.render("user/editSemester", {
+  //       user,
+  //       semester,
+  //       courseList
+  //     });
+
+  //   } catch (err) {
+  //     console.error(" Lỗi getEditSemesterForm:", err);
+  //     res.status(500).send("Lỗi server!");
+  //   }
+  // }
+
   async getEditSemesterForm(req, res) {
     try {
       const userId = req.session?.user?._id;
       const semesterId = req.params.id;
 
+      if (!userId) {
+        return res.redirect('/login');
+      }
+
       const user = await User.findById(userId).lean();
 
-      // 1️⃣ Lấy học kỳ + score
+      // 1️⃣ Lấy học kỳ hiện tại + score + học phần
       const semester = await Semester.findOne({
         _id: semesterId,
         user: userId
       })
         .populate({
-          path: "score",
-          populate: { path: "HocPhan" }
+          path: 'score',
+          populate: { path: 'HocPhan' }
         })
         .lean();
 
-      if (!semester) return res.status(404).send("Không tìm thấy học kỳ");
+      if (!semester) {
+        return res.status(404).send('Không tìm thấy học kỳ');
+      }
 
-      semester.score = semester.score.filter(s => s && s.HocPhan);
+      // Loại score lỗi (thiếu học phần)
+      semester.score = (semester.score || []).filter(
+        s => s && s.HocPhan
+      );
 
-      // Lấy tất cả Course
+      // 2️⃣ Lấy toàn bộ học phần của user
       const allCourses = await Course.find({ user: userId }).lean();
 
-      // Score thuộc học kỳ khác
+      // 3️⃣ Lấy score thuộc các học kỳ KHÁC (có populate để kiểm tra điểm F)
       const scoresOther = await Score.find({
         user: userId,
         semester: { $nin: [null, semesterId] }
-      }).lean();
+      })
+        .populate('HocPhan')
+        .lean();
 
-      const excludedCourseIds = new Set(
-        scoresOther
-          .map(s => s.HocPhan?.toString())
-          .filter(Boolean)
-      );
+      // 4️⃣ Map courseId → score ở học kỳ khác
+      const scoreOtherMap = {};
+      scoresOther.forEach(s => {
+        if (s.HocPhan) {
+          scoreOtherMap[s.HocPhan._id.toString()] = s;
+        }
+      });
 
-      // Map score thuộc học kỳ hiện tại
+      // 5️⃣ Map courseId → score thuộc học kỳ hiện tại
       const scoreMap = {};
       semester.score.forEach(s => {
         scoreMap[s.HocPhan._id.toString()] = s;
       });
 
-      //  Tạo danh sách hiển thị
+      // 6️⃣ Tạo danh sách học phần hiển thị
       const courseList = allCourses
-        .filter(c => {
-          const cid = c._id.toString();
+        .filter(course => {
+          const cid = course._id.toString();
 
-          //  Bị khóa bởi học kỳ khác → ẩn
-          if (excludedCourseIds.has(cid)) return false;
-
-          //  Thuộc học kỳ hiện tại → hiển thị và tick
+          // Thuộc học kỳ đang sửa → LUÔN hiển thị
           if (scoreMap[cid]) return true;
 
-          //  Course mới → hiển thị
-          return true;
+          const scoreOther = scoreOtherMap[cid];
+
+          // Chưa từng có score → hiển thị
+          if (!scoreOther) return true;
+
+          // Đã học nhưng điểm F → cho phép học lại
+          if (scoreOther.diemChu === 'F') return true;
+
+          // Các trường hợp khác → ẩn
+          return false;
         })
-        .map(c => {
-          const cid = c._id.toString();
-          const sc = scoreMap[cid];
+        .map(course => {
+          const cid = course._id.toString();
+          const scoreCurrent = scoreMap[cid];
+          const scoreOther = scoreOtherMap[cid];
 
           return {
             courseId: cid,
-            scoreId: sc?._id?.toString() || null,
-            HocPhan: c,
-            isSelected: !!sc
+            scoreId: scoreCurrent?._id?.toString() || null,
+            HocPhan: course,
+            isSelected: !!scoreCurrent,
+            isRetake: !scoreCurrent && scoreOther?.diemChu === 'F'
           };
         });
 
-      // 6️⃣ Render
-      res.render("user/editSemester", {
+      // 7️⃣ Render
+      res.render('user/editSemester', {
         user,
         semester,
         courseList
       });
 
-    } catch (err) {
-      console.error(" Lỗi getEditSemesterForm:", err);
-      res.status(500).send("Lỗi server!");
+    } catch (error) {
+      console.error('Lỗi getEditSemesterForm:', error);
+      res.status(500).send('Lỗi server!');
     }
   }
 

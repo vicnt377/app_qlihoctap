@@ -38,8 +38,8 @@
 
 
 <main class="container-fluid px-4">
-  <div class="row g-4">
   <!-- Cột trái: Bộ lọc + Tổng kết toàn khóa -->
+  <div class="row g-4">
     <div class="col-lg-4">
       <!-- Bộ lọc -->
       <div class="card shadow-sm border-0 mb-4">
@@ -138,147 +138,129 @@
           {{/ifCond}}
         </div>
       </div>
-
     </div>
 
-    <!-- Chi tiết điểm số -->
-    <div class="col-lg-8">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-gradient-gray text-white py-3">
-          <h6 class="mb-0">
-            Chi tiết điểm số
-          </h6>
-        </div>
-        <div class="card-body p-4">
-          {{#if semesters.length}}
-            <form method="POST" action="/score/update">
-              {{#each semesters}}
-                <div class="mb-4">
-                  <!-- Tiêu đề học kỳ -->
-                  <h6 class="text-info border-bottom pb-2 mb-3">
-                    {{tenHocKy}} ({{namHoc}})
-                  </h6>
+    <!--Cột phải: Chi tiết điểm số -->
+<div class="col-lg-8">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-gradient-gray text-white py-3">
+      <h6 class="mb-0">Chi tiết điểm số</h6>
+    </div>
 
-                  <!-- Bảng điểm -->
-                  <div class="table-responsive">
-                    <table class="table table-hover table-sm align-middle">
-                      <thead class="table-light">
-                        <tr>
-                          <th class="py-2">Mã HP</th>
-                          <th class="py-2">Tên Học Phần</th>
-                          <th class="text-center py-2">Tín chỉ</th>
-                          <th class="text-center py-2">Điểm Số</th>
-                          <th class="text-center py-2">Điểm Chữ</th>
-                          <th class="text-center py-2">TBCHK</th>
-                          <th class="text-center py-2">Tích lũy</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {{#each score}}
-                          <tr>
-                            <td><code>{{HocPhan.maHocPhan}}</code></td>
-                            <td>{{HocPhan.tenHocPhan}}</td>
-                            <td class="text-center">{{HocPhan.soTinChi}}</td>
-                            <td class="text-center">
-                              <input 
-                                type="number" step="0.1" min="0" max="10"
-                                name="scores[{{_id}}][diemSo]" 
-                                class="form-control form-control-sm text-center"
-                                value="{{diemSo}}">
-                            </td>
-                            <td class="text-center">
-                              <input 
-                                type="text" 
-                                name="scores[{{_id}}][diemChu]" 
-                                class="form-control form-control-sm text-center
-                                  {{#if (eq diemChu 'F')}}text-danger{{/if}}"
-                                value="{{diemChu}}">
-                            </td>
+    <div class="card-body p-4">
 
+      {{#if semesters.length}}
 
-                            <td class="text-center">
-                              <input 
-                                type="checkbox" 
-                                class="form-check-input"
-                                name="scores[{{_id}}][tbchk]"
-                                {{#if tbchk}}checked{{/if}}
-                              >
-                            </td>
-                            <td class="text-center">
-                              <input 
-                                type="checkbox" 
-                                class="form-check-input"
-                                name="scores[{{_id}}][tichLuy]"
-                                {{#if tichLuy}}checked{{/if}}
-                              >
-                            </td>
-                          </tr>
-                        {{/each}}
-                      </tbody>
-                    </table>
-                  </div>
+      <form method="POST" action="/score/update">
 
-                  <!-- Tổng kết học kỳ -->
-                  <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center border-top pt-2">
-                      <strong class="text-muted">Trung bình học kỳ:</strong>
-                        {{#if (ne cpaHK null)}}
-                          <span class="text-orange fw-bold">{{cpaHK}}</span>
-                        {{else}}
-                          <span class="text-muted">Chưa có điểm</span>
-                        {{/if}}
+        <!-- ===== VÙNG CUỘN TOÀN BỘ HỌC KỲ ===== -->
+        <div class="semester-scroll-wrapper">
 
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2">
-                      <strong class="text-muted">Tổng số tính chỉ tích lũy học kỳ:</strong>
-                      <span class="text-orange fw-bold">{{tinChiTichLuyHK}}</span>
-                    </div>
-                  </div>
-                </div>
-              {{/each}}
+          {{#each semesters}}
+          <div class="semester-block mb-5">
 
-              <!-- Nút lưu -->
-              <div class="text-center mt-4">
-                <button type="submit" class="btn btn-orange px-5">
-                 Lưu điểm
-                </button>
-              </div>
-            </form>
+            <!-- TÊN HỌC KỲ -->
+            <h6 class="text-info border-bottom pb-2 mb-3">
+              {{tenHocKy}} ({{namHoc}})
+            </h6>
 
-            <!-- Pagination -->
-            {{#if pagination.totalPages}}
-            <nav aria-label="Page navigation" class="mt-4">
-              <ul class="pagination justify-content-center">
-                {{#if pagination.hasPrevPage}}
-                  <li class="page-item">
-                    <a class="page-link" href="?page={{pagination.prevPage}}{{#if queryString.year}}&year={{queryString.year}}{{/if}}{{#if queryString.semester}}&semester={{queryString.semester}}{{/if}}">&laquo;</a>
-                  </li>
-                {{/if}}
+            <!-- BẢNG ĐIỂM -->
+            <div class="table-responsive mb-3">
+              <table class="table table-hover table-sm align-middle score-table">
+                <thead class="table-light">
+                  <tr>
+                    <th>Mã HP</th>
+                    <th>Tên học phần</th>
+                    <th class="text-center">TC</th>
+                    <th class="text-center">Điểm số</th>
+                    <th class="text-center">Điểm chữ</th>
+                    <th class="text-center">TBCHK</th>
+                    <th class="text-center">Tích lũy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each score}}
+                  <tr>
+                    <td><code>{{HocPhan.maHocPhan}}</code></td>
+                    <td>{{HocPhan.tenHocPhan}}</td>
+                    <td class="text-center">{{HocPhan.soTinChi}}</td>
 
-                {{#each pagination.pages}}
-                  <li class="page-item {{#ifEquals this ../pagination.currentPage}}active{{/ifEquals}}">
-                    <a class="page-link" href="?page={{this}}{{#if ../queryString.year}}&year={{../queryString.year}}{{/if}}{{#if ../queryString.semester}}&semester={{../queryString.semester}}{{/if}}">{{this}}</a>
-                  </li>
-                {{/each}}
+                    <td class="text-center">
+                      <input type="number" step="0.1" min="0" max="10"
+                        name="scores[{{_id}}][diemSo]"
+                        class="form-control form-control-sm text-center"
+                        value="{{diemSo}}">
+                    </td>
 
-                {{#if pagination.hasNextPage}}
-                  <li class="page-item">
-                    <a class="page-link" href="?page={{pagination.nextPage}}{{#if queryString.year}}&year={{queryString.year}}{{/if}}{{#if queryString.semester}}&semester={{queryString.semester}}{{/if}}">&raquo;</a>
-                  </li>
-                {{/if}}
-              </ul>
-            </nav>
-            {{/if}}
+                    <td class="text-center">
+                      <input type="text"
+                        name="scores[{{_id}}][diemChu]"
+                        class="form-control form-control-sm text-center {{#if (eq diemChu 'F')}}text-danger{{/if}}"
+                        value="{{diemChu}}">
+                    </td>
 
-          {{else}}
-            <div class="text-center text-muted py-4">
-              <i class="fas fa-info-circle me-2"></i>
-              Bạn chưa có học kỳ nào để tính điểm.
+                    <td class="text-center">
+                      <input type="checkbox"
+                        name="scores[{{_id}}][tbchk]"
+                        class="form-check-input"
+                        {{#if tbchk}}checked{{/if}}>
+                    </td>
+
+                    <td class="text-center">
+                      <input type="checkbox"
+                        name="scores[{{_id}}][tichLuy]"
+                        class="form-check-input"
+                        {{#if tichLuy}}checked{{/if}}>
+                    </td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
             </div>
-          {{/if}}
+
+            <!-- TỔNG KẾT -->
+            <div class="border-top pt-2 small">
+              <div class="d-flex justify-content-between">
+                <strong>Trung bình học kỳ:</strong>
+                {{#if (ne cpaHK null)}}
+                  <span class="text-orange fw-bold">{{cpaHK}}</span>
+                {{else}}
+                  <span class="text-muted">Chưa có điểm</span>
+                {{/if}}
+              </div>
+
+              <div class="d-flex justify-content-between mt-1">
+                <strong>Tín chỉ tích lũy:</strong>
+                <span class="text-orange fw-bold">{{tinChiTichLuyHK}}</span>
+              </div>
+            </div>
+
+          </div>
+          {{/each}}
+
         </div>
+        <!-- ===== HẾT VÙNG CUỘN ===== -->
+
+        <!-- NÚT LƯU (KHÔNG CUỘN) -->
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-orange px-5">
+            Lưu điểm
+          </button>
+        </div>
+
+      </form>
+
+      {{else}}
+      <div class="text-center text-muted py-4">
+        <i class="fas fa-info-circle me-2"></i>
+        Bạn chưa có học kỳ nào để tính điểm.
       </div>
+      {{/if}}
+
     </div>
+  </div>
+</div>
+
   </div>
 </main>
 
