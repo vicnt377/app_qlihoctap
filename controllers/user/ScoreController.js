@@ -43,7 +43,7 @@ function getGpaWarningThreshold(year) {
     case 1: return 1.2;
     case 2: return 1.4;
     case 3: return 1.6;
-    default: return 1.8; // năm 4 và năm 5
+    default: return 1.8;
   }
 }
 
@@ -148,8 +148,6 @@ function getWarningReasons({
   return reasons;
 }
 
-
-
 class ScoreController {
 
   async getScore(req, res) {
@@ -246,10 +244,10 @@ class ScoreController {
             tongTinChiTichLuyDenHK,
             warningLevel: 0
           });
-          return; // chỉ thoát forEach
+          return;
         }
 
-        // ===== CẢNH BÁO HỌC VỤ =====
+        // CẢNH BÁO HỌC VỤ 
         const reasons = getWarningReasons({
           cpaHK,
           gpaTL,
@@ -377,7 +375,7 @@ class ScoreController {
 
   async updateScore(req, res) {
     try {
-      const updates = req.body.scores;     // scores[scoreId] = {...}
+      const updates = req.body.scores;    
       const userId = req.session.user?._id;
 
       let semesterName = null;
@@ -416,7 +414,7 @@ class ScoreController {
         }
       }
 
-      // 🔥 Gửi 1 thông báo duy nhất
+      // Gửi 1 thông báo duy nhất
       if (semesterName) {
         await Notification.create({
           recipient: userId,
@@ -432,7 +430,7 @@ class ScoreController {
       res.redirect('/score');
     }
     catch (err) {
-      console.error('❌ Lỗi khi cập nhật điểm:', err);
+      console.error(' Lỗi khi cập nhật điểm:', err);
 
       const userId = req.session.user?._id;
       if (userId) {

@@ -42,7 +42,7 @@ class StatisticController {
 
             // ====== Growth by month (chỉ học viên) ======
             const growth = await User.aggregate([
-                { $match: { role: "user" }},   // ❗ chỉ user
+                { $match: { role: "user" }},
                 {
                     $group: {
                         _id: { $month: "$createdAt" },
@@ -61,7 +61,7 @@ class StatisticController {
 
             // ====== Thống kê chuyên ngành (CHỈ user, KHÔNG đếm admin) ======
             const majorStats = await User.aggregate([
-                { $match: { role: "user" }},   // ❗ lọc user
+                { $match: { role: "user" }},   //  lọc user
                 {
                     $group: {
                         _id: "$major",
@@ -90,7 +90,7 @@ class StatisticController {
             });
 
         } catch (err) {
-            console.error("❌ Lỗi thống kê:", err);
+            console.error(" Lỗi thống kê:", err);
             res.render("admin/statistic", {
                 layout: "admin",
                 error: "Không thể tải dữ liệu thống kê"

@@ -31,7 +31,7 @@ function uploadAndConvert(req, res, next) {
         const inputPath = req.file.path;
         const outputPath = inputPath.replace(ext, '.pdf');
 
-        console.log("📂 Spawn LibreOffice convert:", inputPath);
+        console.log("Spawn LibreOffice convert:", inputPath);
 
         // Gọi soffice trực tiếp
         const soffice = spawn(
@@ -45,7 +45,7 @@ function uploadAndConvert(req, res, next) {
         );
 
         soffice.on('error', (e) => {
-          console.error("❌ Lỗi khi gọi soffice:", e.message);
+          console.error("Lỗi khi gọi soffice:", e.message);
           return next(); // fallback: giữ file gốc
         });
 
@@ -60,12 +60,12 @@ function uploadAndConvert(req, res, next) {
             req.file.mimetype = 'application/pdf';
             next();
           } else {
-            console.error("⚠️ Convert thất bại, giữ file gốc:", inputPath);
+            console.error("Convert thất bại, giữ file gốc:", inputPath);
             next(); // fallback: giữ file gốc
           }
         });
       } catch (convErr) {
-        console.error("⚠️ Exception khi convert:", convErr.message);
+        console.error("Exception khi convert:", convErr.message);
         next(); // fallback
       }
     } else {

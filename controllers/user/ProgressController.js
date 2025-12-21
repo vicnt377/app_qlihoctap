@@ -93,7 +93,7 @@ class ProgressController {
                 const tinChi = score.HocPhan.soTinChi;
                 const diemChu = score.diemChu?.toUpperCase();
 
-                // ✅ Chỉ tính tín chỉ đã hoàn thành
+                //  Chỉ tính tín chỉ đã hoàn thành
                 if (score.tichLuy && diemChu && diemChu !== 'F') {
                     totalCredits += tinChi;
                     completedScores.push(score);
@@ -113,7 +113,7 @@ class ProgressController {
             const hasSemesters = scores.length > 0;
             const hasMonNo = monNo.length > 0;
 
-            // ✅ Xác định năm học
+            // Xác định năm học
             const yearOfStudy = getYearOfStudy(totalCredits);
             const yearText = getYearText(yearOfStudy);
 
@@ -228,12 +228,6 @@ class ProgressController {
                 diemChuTinChi: JSON.stringify(diemChuTinChi),
 
             });
-semesters.forEach(sem => {
-  console.log(sem.tenHocKy, sem.score.length);
-
-
-});
-  console.log(diemTBHocKy, diemTBTichLuy);
 
         } catch (error) {
             console.error("Lỗi lấy tiến độ:", error);

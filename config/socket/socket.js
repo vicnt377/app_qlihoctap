@@ -65,14 +65,14 @@ module.exports = function (io) {
     socket.on('chatMessage', async ({ senderId, receiverId, message }) => {
       if (!message?.trim()) return;
 
-      // 1️⃣ Lưu tin nhắn user
+      // Lưu tin nhắn user
       await Message.create({
         sender: senderId,
         receiver: receiverId,
         content: message
       });
 
-      // 2️⃣ Gửi cho người nhận
+      // Gửi cho người nhận
       const receiverSocket = userSockets.get(receiverId);
       if (receiverSocket) {
         io.to(receiverSocket).emit('newMessage', {
@@ -81,7 +81,7 @@ module.exports = function (io) {
         });
       }
 
-      // 3️⃣ AUTO-REPLY (🔥 ĐÚNG CHUẨN)
+      //  AUTO-REPLY 
       const rule = autoReplies.find(r =>
         r.keywords.some(k => message.toLowerCase().includes(k))
       );

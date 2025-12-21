@@ -12,22 +12,22 @@ class RegisterController {
     try {
       const { username, email, password, confirmPassword, phone, major, totalCredits } = req.body;
 
-      // ✅ Kiểm tra mật khẩu nhập lại
+      //  Kiểm tra mật khẩu nhập lại
       if (password !== confirmPassword) {
         return res.render('auth/register', { layout: "auth", error: "Mật khẩu xác nhận không khớp!" });
       }
 
-      // ✅ Kiểm tra trùng tên đăng nhập
+      //  Kiểm tra trùng tên đăng nhập
       const existingUser = await User.findOne({ username });
       if (existingUser) {
         return res.render('auth/register', { layout: "auth", error: "Tên đăng nhập đã tồn tại!" });
       }
 
-      // ✅ Tạo user mới
+      //  Tạo user mới
       const newUser = new User({ username, email, password, phone, major, totalCredits });
       await newUser.save();
 
-      // ✅ Tự động đăng nhập (lưu session)
+      // Tự động đăng nhập (lưu session)
       req.session.user = {
         _id: newUser._id,
         username: newUser.username,
@@ -39,7 +39,7 @@ class RegisterController {
         totalCredits: newUser.totalCredits
       };
 
-      // ✅ Lưu session và redirect
+      // Lưu session và redirect
       req.session.save(async (err) => {
         if (err) {
           console.error(" Lỗi khi lưu session sau đăng ký:", err);

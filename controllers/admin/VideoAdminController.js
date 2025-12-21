@@ -195,7 +195,7 @@ class VideoController {
 
 
     } catch (err) {
-      console.error("❌ Lỗi getVideos:", err);
+      console.error(" Lỗi getVideos:", err);
       res.status(500).send("Lỗi server khi lấy danh sách video");
     }
   }
@@ -248,12 +248,12 @@ class VideoController {
       await video.save();
 
       res.status(201).json({
-        message: '✅ Đã thêm video mới',
+        message: ' Đã thêm video mới',
         video
       });
 
     } catch (err) {
-      console.error('❌ Lỗi tạo video:', err);
+      console.error(' Lỗi tạo video:', err);
       res.status(500).json({ message: 'Thêm video thất bại' });
     }
   }
@@ -308,7 +308,7 @@ class VideoController {
       return res.status(200).json({ message: "Xóa vĩnh viễn thành công!" });
 
     } catch (err) {
-      console.error("❌ Lỗi deletePermanentVideo:", err);
+      console.error(" Lỗi deletePermanentVideo:", err);
       return res.status(500).json({ message: "Lỗi server khi xóa vĩnh viễn." });
     }
   }
@@ -361,7 +361,7 @@ class VideoController {
       });
 
     } catch (err) {
-      console.error("❌ showDetail error:", err);
+      console.error(" showDetail error:", err);
       res.status(500).send("Lỗi server");
     }
   }

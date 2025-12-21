@@ -8,7 +8,7 @@ class UserController {
         try {
             const { search, status } = req.query;
 
-            let filter = { role: 'user' };   // ❗ Chỉ lấy học viên
+            let filter = { role: 'user' };   // Chỉ lấy học viên
 
             // Tìm kiếm
             if (search) {
@@ -68,7 +68,7 @@ class UserController {
             if (!user) return res.status(404).send("Không tìm thấy người dùng");
 
             if (user.role === 'admin') {
-                console.log("❌ Không được khóa admin");
+                console.log(" Không được khóa admin");
                 return res.status(403).send("Không thể khóa tài khoản admin");
             }
 
@@ -78,12 +78,12 @@ class UserController {
                 { new: true }
             );
 
-            console.log(`🛠️ Đổi trạng thái user ${updated._id} → ${updated.isActive}`);
+            console.log(` Đổi trạng thái user ${updated._id} → ${updated.isActive}`);
 
             res.redirect('/admin/users');
 
         } catch (error) {
-            console.error("❌ Lỗi toggle:", error);
+            console.error(" Lỗi toggle:", error);
             res.status(500).send("Lỗi máy chủ");
         }
     }
@@ -126,7 +126,7 @@ class UserController {
             res.redirect('/admin/users');
 
         } catch (error) {
-            console.error("❌ Lỗi thêm user:", error);
+            console.error(" Lỗi thêm user:", error);
             req.flash('error', 'Lỗi máy chủ');
             res.redirect('/admin/users');
         }
@@ -150,7 +150,7 @@ class UserController {
             return res.json({ success: true, message: "Xóa học viên thành công" });
 
         } catch (error) {
-            console.error("❌ Lỗi xóa user:", error);
+            console.error(" Lỗi xóa user:", error);
             res.status(500).json({ success: false, message: "Lỗi máy chủ" });
         }
     }

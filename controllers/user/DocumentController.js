@@ -20,7 +20,7 @@ class DocumentController {
       const regex = new RegExp(q, 'i');
 
       // ============================
-      // 📌 TÀI LIỆU CỦA TÔI
+      //  TÀI LIỆU CỦA TÔI
       // ============================
       const documents = await Document.find({
         user: userId,
@@ -54,7 +54,7 @@ class DocumentController {
       });
 
     } catch (err) {
-      console.error('❌ Lỗi getDocument:', err);
+      console.error(' Lỗi getDocument:', err);
       next(err);
     }
   }
@@ -93,7 +93,7 @@ class DocumentController {
 
       await newDoc.save();
       
-      // ✅ Tạo thông báo upload
+      //  Tạo thông báo upload
       try {
         const uploadNotification = new Notification({
           recipient: userId,
@@ -123,7 +123,7 @@ class DocumentController {
       // req.session.successMessage = 'Tải lên tài liệu thành công.';
       res.redirect('/document');
     } catch (err) {
-      console.error('❌ Upload error:', err);
+      console.error(' Upload error:', err);
       next(err);
     }
   }
@@ -194,7 +194,7 @@ class DocumentController {
         }
         console.log("Thông báo tải xuống:", downloadNotification);
       } catch (notifyErr) {
-        console.error("❌ Lỗi tạo thông báo download:", notifyErr);
+        console.error(" Lỗi tạo thông báo download:", notifyErr);
       }
 
     } catch (err) {
@@ -262,7 +262,7 @@ class DocumentController {
         }
         console.log("🔔 Thông báo xóa:", deleteNotification);
       } catch (notifyErr) {
-        console.error("❌ Lỗi tạo thông báo xóa:", notifyErr);
+        console.error(" Lỗi tạo thông báo xóa:", notifyErr);
       }
 
       // req.flash('successMessage', 'Đã xóa tài liệu thành công.');

@@ -14,19 +14,19 @@ class LoginController {
             const admin = await Admin.findOne({ username });
             console.log("Admin tìm thấy:", admin);
 
-            // ❌ Sai mật khẩu hoặc không tồn tại
+            //  Sai mật khẩu hoặc không tồn tại
             if (!admin || admin.password !== password) {
                 req.flash('error_msg', 'Tên đăng nhập hoặc mật khẩu không đúng!');
                 return res.redirect('/admin/login-admin');
             }
 
-            // ❌ Kiểm tra role
+            //  Kiểm tra role
             if (admin.role !== 'admin') {
                 req.flash('error_msg', 'Bạn không có quyền truy cập trang quản trị!');
                 return res.redirect('/admin/login-admin');
             }
 
-            // ⭐ Lưu session đúng chuẩn
+            //  Lưu session đúng chuẩn
             req.session.user = {
                 _id: admin._id,
                 username: admin.username,

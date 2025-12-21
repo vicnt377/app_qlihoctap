@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const notificationController = require('../../controllers/user/notificationController')
+const notificationController = require('../../controllers/user/NotificationController')
 const { isUser } = require('../../middlewares/userCheck')
 
 
@@ -17,7 +17,6 @@ router.patch("/mark-all-read", isUser, notificationController.markAllAsRead)
 // ✅ Route để tạo thông báo mới (admin only)
 router.post("/", isUser, notificationController.createNotification)
 
-// ✅ Route để tạo thông báo cho nhiều người (admin only)
-router.post("/multiple", isUser, notificationController.createMultipleNotifications)
+
 
 module.exports = router

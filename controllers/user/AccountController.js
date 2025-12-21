@@ -95,7 +95,7 @@ class AccountController {
             req.io.to(userId.toString()).emit('new-notification', profileNotification);
             }
         } catch (notifyErr) {
-            console.error('❌ Lỗi tạo thông báo updateProfile:', notifyErr);
+            console.error(' Lỗi tạo thông báo updateProfile:', notifyErr);
         }
 
         res.render('user/account', {

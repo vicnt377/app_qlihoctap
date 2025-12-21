@@ -30,7 +30,7 @@ class CourseController {
 
     } catch (err) {
       console.error("Lỗi khi lấy danh sách khóa học:", err);
-      res.status(500).send("❌ Lỗi khi lấy danh sách khóa học");
+      res.status(500).send(" Lỗi khi lấy danh sách khóa học");
     }
   }
 
@@ -44,7 +44,7 @@ class CourseController {
       // Kiểm tra mã học phần đã tồn tại
       const existing = await Course.findOne({ user: userId, maHocPhan });
       if (existing) {
-        req.session.errorMessage = "❌ Mã học phần đã tồn tại.";
+        req.session.errorMessage = " Mã học phần đã tồn tại.";
         return res.redirect('/semester');
       }
 
@@ -56,7 +56,7 @@ class CourseController {
         soTinChi
       });
 
-      // ✅ Tạo notification khi thêm học phần
+      // Tạo notification khi thêm học phần
       const courseNotification = new Notification({
         recipient: userId,
         sender: userId,
@@ -76,20 +76,19 @@ class CourseController {
       });
 
       await courseNotification.save();
-      console.log("🔔 Notification đã lưu:", courseNotification);
+      console.log(" Notification đã lưu:", courseNotification);
 
 
-      // 🔔 Gửi notification realtime bằng socket
+      //  Gửi notification realtime bằng socket
       if (req.io) {
         req.io.to(userId.toString()).emit('new-notification', courseNotification);
       }
 
       // Gắn session success message
-      // req.session.successMessage = '✅ Học phần mới đã được thêm thành công!';
       return res.redirect('/semester');
 
     } catch (err) {
-      console.error("❌ Lỗi thêm học phần:", err);
+      console.error("Lỗi thêm học phần:", err);
       req.session.errorMessage = "Lỗi server khi thêm học phần.";
       return res.redirect('/semester');
     }

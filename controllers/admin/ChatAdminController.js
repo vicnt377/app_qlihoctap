@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 class ChatController {
 
-  // 📥 Inbox admin
+  //  Inbox admin
   async inbox(req, res) {
     try {
       const adminId = new mongoose.Types.ObjectId(req.session.user._id);
@@ -73,7 +73,7 @@ class ChatController {
     }
   }
 
-  // 💬 Lấy tin nhắn
+  //  Lấy tin nhắn
   async getMessages(req, res) {
     try {
       const adminId = req.session.user._id;
@@ -97,7 +97,7 @@ class ChatController {
     }
   }
 
-  // ✅ Đánh dấu đã đọc
+  //  Đánh dấu đã đọc
   async markRead(req, res) {
     try {
       const adminId = req.session.user._id;

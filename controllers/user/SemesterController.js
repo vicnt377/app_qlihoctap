@@ -14,7 +14,7 @@ class SemesterController {
 
       const user = await User.findById(userId).lean();
 
-      // 1️⃣ Lấy tất cả học kỳ + score + course
+      //Lấy tất cả học kỳ + score + course
       const semesterDocs = await Semester.find({ user: userId })
         .populate({
           path: "score",
@@ -22,7 +22,7 @@ class SemesterController {
         })
         .lean();
 
-      // 2️⃣ Nhóm score theo học kỳ
+      // Nhóm score theo học kỳ
       const classesGroupedBySemester = semesterDocs.map(sem => ({
         _id: sem._id,
         tenHocKy: sem.tenHocKy,
@@ -30,7 +30,7 @@ class SemesterController {
         scores: sem.score || []
       }));
 
-      // 3️⃣ Lấy tất cả Course chưa thuộc học kỳ nào
+      //  Lấy tất cả Course chưa thuộc học kỳ nào
       const usedCourseIds = await Score.find({
         user: userId,
         semester: { $ne: null }
@@ -41,7 +41,7 @@ class SemesterController {
         _id: { $nin: usedCourseIds }
       }).lean();
 
-      // 4️⃣ Lấy score mồ côi
+      // Lấy score mồ côi
       const orphanScores = await Score.find({
         user: userId,
         $or: [{ semester: null }, { semester: { $exists: false } }]
@@ -49,7 +49,7 @@ class SemesterController {
         .populate("HocPhan")
         .lean();
 
-      // 5️⃣ Render
+      //  Render
       res.render("user/semester", {
         user,
         classesGroupedBySemester,
@@ -84,7 +84,7 @@ class SemesterController {
       if (!Array.isArray(selectedCourses) || selectedCourses.length === 0) {
         return res.status(400).json({ message: "Chưa chọn học phần nào." });
       }
-      // ✅ TÍNH TỔNG TÍN CHỈ HỌC KỲ
+      //  TÍNH TỔNG TÍN CHỈ HỌC KỲ
       const courseIds = selectedCourses.map(c => c.courseId);
 
       const courses = await Course.find({ _id: { $in: courseIds } }).lean();
@@ -94,13 +94,19 @@ class SemesterController {
         0
       );
 
+      //  Dưới 8 tín chỉ
+      if (tongTinChiHocKy < 8) {
+        return res.status(400).json({
+          message: `Mỗi học kỳ phải đăng ký tối thiểu 8 tín chỉ (hiện tại: ${tongTinChiHocKy} tín chỉ).`
+        });
+      }
       //  Vượt quá 20 tín chỉ
       if (tongTinChiHocKy > 20) {
         return res.status(400).json({
           message: `Mỗi học kỳ chỉ được đăng ký tối đa 20 tín chỉ (hiện tại: ${tongTinChiHocKy} tín chỉ).`
         });
       }
-      // 1️⃣ Tạo Semester mới cho người dùng
+      // Tạo Semester mới cho người dùng
       const newSemester = await Semester.create({
         tenHocKy,
         namHoc,
@@ -110,7 +116,7 @@ class SemesterController {
 
       const scoreIds = [];
 
-      // 2️⃣ Tạo hoặc cập nhật Score tương ứng với từng Course
+      //  Tạo hoặc cập nhật Score tương ứng với từng Course
       for (const course of selectedCourses) {
         const { courseId } = course;
 
@@ -142,11 +148,11 @@ class SemesterController {
         }
       }
 
-      // 3️⃣ Thêm danh sách Score vào Semester
+      // Thêm danh sách Score vào Semester
       newSemester.score = scoreIds;
       await newSemester.save();
 
-      // 4️⃣ Gửi thông báo (nếu bạn dùng Notification)
+      //  Gửi thông báo (nếu bạn dùng Notification)
       await Notification.create({
         recipient: userId,
         sender: userId,
@@ -157,7 +163,7 @@ class SemesterController {
         relatedId: newSemester._id,
       });
 
-      // 5️⃣ Trả về dữ liệu đã populate
+      // Trả về dữ liệu đã populate
       const populatedSemester = await Semester.findById(newSemester._id)
         .populate({
           path: "score",
@@ -171,8 +177,8 @@ class SemesterController {
       });
 
     } catch (error) {
-      console.error("❌ Lỗi khi thêm học kỳ:", error);
-      res.status(500).json({ message: "❌ Lỗi server khi thêm học kỳ." });
+      console.error(" Lỗi khi thêm học kỳ:", error);
+      res.status(500).json({ message: " Lỗi server khi thêm học kỳ." });
     }
   }
 
@@ -198,10 +204,10 @@ class SemesterController {
 
       semester.score = semester.score.filter(s => s && s.HocPhan);
 
-      // 2️⃣ Lấy tất cả Course
+      // Lấy tất cả Course
       const allCourses = await Course.find({ user: userId }).lean();
 
-      // 3️⃣ Score thuộc học kỳ khác
+      // Score thuộc học kỳ khác
       const scoresOther = await Score.find({
         user: userId,
         semester: { $nin: [null, semesterId] }
@@ -213,24 +219,24 @@ class SemesterController {
           .filter(Boolean)
       );
 
-      // 4️⃣ Map score thuộc học kỳ hiện tại
+      // Map score thuộc học kỳ hiện tại
       const scoreMap = {};
       semester.score.forEach(s => {
         scoreMap[s.HocPhan._id.toString()] = s;
       });
 
-      // 5️⃣ Tạo danh sách hiển thị
+      //  Tạo danh sách hiển thị
       const courseList = allCourses
         .filter(c => {
           const cid = c._id.toString();
 
-          // ❌ Bị khóa bởi học kỳ khác → ẩn
+          //  Bị khóa bởi học kỳ khác → ẩn
           if (excludedCourseIds.has(cid)) return false;
 
-          // ✔ Thuộc học kỳ hiện tại → hiển thị và tick
+          //  Thuộc học kỳ hiện tại → hiển thị và tick
           if (scoreMap[cid]) return true;
 
-          // ✔ Course mới → hiển thị
+          //  Course mới → hiển thị
           return true;
         })
         .map(c => {
@@ -253,7 +259,7 @@ class SemesterController {
       });
 
     } catch (err) {
-      console.error("❌ Lỗi getEditSemesterForm:", err);
+      console.error(" Lỗi getEditSemesterForm:", err);
       res.status(500).send("Lỗi server!");
     }
   }
@@ -270,8 +276,6 @@ class SemesterController {
         ? selectedItems
         : selectedItems ? [selectedItems] : [];
 
-      console.log("▶ Selected Courses:", selectedCourses);
-
       const semester = await Semester.findOne({ _id: semesterId, user: userId })
         .populate("score")
         .exec();
@@ -282,7 +286,7 @@ class SemesterController {
 
       const newScoreIds = [];
 
-      // 1️⃣ XỬ LÝ TẤT CẢ COURSE ĐƯỢC TICK
+      // XỬ LÝ TẤT CẢ COURSE ĐƯỢC TICK
       for (const courseId of selectedCourses) {
         let scoreIdFromForm = req.body[`scoreId_${courseId}`];
 
@@ -318,7 +322,7 @@ class SemesterController {
         newScoreIds.push(score._id);
       }
 
-      // 2️⃣ BỎ TICK → GỠ KHỎI HỌC KỲ
+      // BỎ TICK → GỠ KHỎI HỌC KỲ
       await Score.updateMany(
         {
           user: userId,
@@ -328,7 +332,7 @@ class SemesterController {
         { $set: { semester: null } }
       );
 
-      // 3️⃣ CẬP NHẬT LẠI SEMESTER
+      // CẬP NHẬT LẠI SEMESTER
       semester.tenHocKy = tenHocKy;
       semester.namHoc = namHoc;
       semester.score = newScoreIds;
@@ -349,7 +353,7 @@ class SemesterController {
       return res.redirect("/semester");
 
     } catch (err) {
-      console.error("❌ Lỗi updateSemester:", err);
+      console.error(" Lỗi updateSemester:", err);
       return res.status(500).send("Cập nhật học kỳ thất bại!");
     }
   }
@@ -359,7 +363,7 @@ class SemesterController {
       const userId = req.session?.user?._id;
       const semesterId = req.params.id;
 
-      // 1️⃣ Tìm học kỳ
+      //  Tìm học kỳ
       const semester = await Semester.findOne({
         _id: semesterId,
         user: userId
@@ -369,7 +373,7 @@ class SemesterController {
         return res.status(404).send("Không tìm thấy học kỳ cần xóa");
       }
       
-      // 2️⃣ GỠ HOÀN TOÀN DỮ LIỆU HỌC KỲ TRONG SCORE
+      //  GỠ HOÀN TOÀN DỮ LIỆU HỌC KỲ TRONG SCORE
       await Score.updateMany(
         { semester: semesterId },
         {
@@ -386,10 +390,10 @@ class SemesterController {
       );
 
 
-      // 3️⃣ Xóa Semester
+      //  Xóa Semester
       await Semester.findByIdAndDelete(semesterId);
 
-      // 4️⃣ Notification
+      //  Notification
       await Notification.create({
         recipient: userId,
         sender: userId,

@@ -38,19 +38,19 @@ class LoginController {
                 return res.redirect('/login-user');
             }
 
-            // ✅ Kiểm tra trạng thái tài khoản
+            //  Kiểm tra trạng thái tài khoản
             if (!user.isActive) {
                 req.flash('error_msg', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên!');
                 return res.redirect('/login-user');
             }
 
-            // ✅ Chỉ cho phép user có role là "user" đăng nhập
+            //  Chỉ cho phép user có role là "user" đăng nhập
             if (user.role !== 'user') {
                 req.flash('error_msg', 'Bạn không có quyền truy cập vào hệ thống người dùng!');
                 return res.redirect('/login-user');
             }
 
-            // ✅ Lưu session
+            //  Lưu session
             req.session.user = {
                 _id: user._id, // Giữ nguyên ObjectId
                 username: user.username,
@@ -60,13 +60,13 @@ class LoginController {
             req.session.userId = user._id;
             console.log("Lưu session:", req.session.user);
 
-            // ✅ Tạo thông báo chào mừng sử dụng model đầy đủ
+            //  Tạo thông báo chào mừng sử dụng model đầy đủ
             try {
                 const welcomeNotification = new Notification({
                     recipient: user._id, // Sử dụng recipient thay vì userId
                     sender: user._id, // Sử dụng sender
                     type: 'welcome', // Loại thông báo
-                    title: 'Chào mừng trở lại!', // ✅ Thêm title
+                    title: 'Chào mừng trở lại!', //  Thêm title
                     message: `Chào mừng ${user.username} đăng nhập vào hệ thống học tập! Chúc bạn có một ngày học hiệu quả.`,
                     relatedModel: 'System', // Model liên quan
                     relatedId: null, // Không có ID cụ thể

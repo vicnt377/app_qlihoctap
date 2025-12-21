@@ -46,7 +46,7 @@ class NotificationController {
     }
     }
 
-    // ✅ Lấy danh sách thông báo của user
+    //  Lấy danh sách thông báo của user
     async getUserNotifications(req, res) {
         try {
             // Disable cache cho API notifications
@@ -117,7 +117,7 @@ class NotificationController {
     }
 
 
-    // ✅ Đánh dấu thông báo đã đọc
+    //  Đánh dấu thông báo đã đọc
     async markAsRead(req, res) {
         try {
             const { notificationId } = req.params;
@@ -151,7 +151,7 @@ class NotificationController {
         }
     }
 
-    // ✅ Đánh dấu tất cả thông báo đã đọc
+    //  Đánh dấu tất cả thông báo đã đọc
     async markAllAsRead(req, res) {
         try {
             const userId = req.user._id;
@@ -178,34 +178,7 @@ class NotificationController {
         }
     }
 
-    // ✅ Xóa thông báo
-    async deleteNotification(req, res) {
-    try {
-        const { notificationId } = req.params;
-        const userId = req.user._id;
-
-        const notification = await Notification.findOne({
-        _id: notificationId,
-        recipient: userId,
-        isDeleted: false
-        });
-
-        if (!notification) {
-        req.session.alertMessage = "Không tìm thấy thông báo để xóa.";
-        return res.redirect("/notifications/page");
-        }
-
-        await notification.markAsDeleted();
-        req.session.alertMessage = "✅ Xóa thông báo thành công!";
-        res.redirect("/notifications/page");
-    } catch (error) {
-        console.error("Error deleting notification:", error);
-        req.session.alertMessage = "❌ Lỗi khi xóa thông báo.";
-        res.redirect("/notifications/page");
-    }
-    }
-
-    // ✅ Tạo thông báo mới (cho admin hoặc system)
+    //  Tạo thông báo mới (cho admin hoặc system)
     async createNotification(req, res) {
         try {
             const { recipientId, title, message, type, relatedModel, relatedId, metadata } = req.body;
@@ -247,47 +220,7 @@ class NotificationController {
         }
     }
 
-    // ✅ Tạo thông báo cho nhiều người dùng
-    async createMultipleNotifications(req, res) {
-        try {
-            const { recipientIds, title, message, type, relatedModel, relatedId, metadata } = req.body;
-            const senderId = req.user._id;
-            
-            // Kiểm tra quyền
-            const sender = await User.findById(senderId);
-            if (!sender || !sender.isAdmin) {
-                return res.status(403).json({
-                    success: false,
-                    message: 'Không có quyền tạo thông báo'
-                });
-            }
-            
-            const notifications = await Notification.createForMultipleRecipients(
-                recipientIds,
-                senderId,
-                title,
-                message,
-                type || 'info',
-                relatedModel || 'System',
-                relatedId,
-                metadata
-            );
-            
-            res.status(201).json({
-                success: true,
-                data: {
-                    count: notifications.length,
-                    notifications
-                }
-            });
-        } catch (error) {
-            console.error('Error creating multiple notifications:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi khi tạo thông báo'
-            });
-        }
-    }
+
 
 }
 

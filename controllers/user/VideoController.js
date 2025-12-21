@@ -123,7 +123,7 @@ class VideoController {
         return res.redirect("/login-user");
       }
 
-      console.log(`✅ User ${updatedUser.username} đã đăng ký video ${videoId}`);
+      console.log(` User ${updatedUser.username} đã đăng ký video ${videoId}`);
 
       // 3. Lấy thông tin video để hiển thị trong notification
       const video = await Video.findById(videoId);
@@ -184,7 +184,7 @@ class VideoController {
 
       await video.save();
 
-      // 🔔 Tạo notification
+      //  Tạo notification
       await Notification.create({
         recipient: user._id,              // người nhận chính là user
         sender: user._id,                 // có thể là hệ thống hoặc user
