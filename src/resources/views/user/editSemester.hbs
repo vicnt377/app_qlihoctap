@@ -37,7 +37,9 @@
               <tr>
                 <th class="text-center col-stt">STT</th>
                 <th class="text-center col-code">Mã học phần</th>
-                <th class="text-center col-name">Tên học phần</th>
+                <th class="text-center col-name">Tên học phần (<span class="text-warning ms-2 fw-bold" style="font-size: 1em;">
+                        <i class="fas fa-star-of-life"></i>
+                        </span> : Học phần điều kiện )</th>
                 <th class="text-center col-credit">Số tín chỉ</th>
                 <th class="text-center col-choose">Chọn</th>
               </tr>
@@ -52,6 +54,11 @@
                       {{HocPhan.tenHocPhan}}
                       {{#if isRetake}}
                         <span class="badge bg-danger ms-2">Học lại</span>
+                      {{/if}}
+                      {{#if HocPhan.laHocPhanDieuKien}}
+                        <span class="text-warning ms-2 fw-bold" style="font-size: 1em;">
+                          <i class="fas fa-star-of-life"></i>
+                        </span>
                       {{/if}}
                     </td>
                     <td class="text-center col-credit">{{HocPhan.soTinChi}}</td>

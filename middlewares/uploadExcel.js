@@ -10,6 +10,7 @@ const REQUIRED_COLUMNS = [
   'maHocPhan',
   'tenHocPhan',
   'soTinChi',
+  'laHocPhanDieuKien',
 ];
 
 // ================== TẠO THƯ MỤC ==================
@@ -39,6 +40,19 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 }).single('excelFile');
 
+function parseBoolean(value) {
+  if (typeof value === 'boolean') return value;
+
+  if (typeof value === 'number') return value === 1;
+
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    return ['true', '1', 'yes', 'y', 'có', 'co'].includes(v);
+  }
+
+  return false;
+}
+
 // ================== MIDDLEWARE CHÍNH ==================
 module.exports = (req, res, next) => {
   upload(req, res, err => {
@@ -53,10 +67,9 @@ module.exports = (req, res, next) => {
     try {
       const filePath = req.file.path;
 
-      // Đọc Excel
       const workbook = XLSX.readFile(filePath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(sheet);
+      let data = XLSX.utils.sheet_to_json(sheet);
 
       if (data.length === 0) {
         fs.unlinkSync(filePath);
@@ -77,29 +90,34 @@ module.exports = (req, res, next) => {
         });
       }
 
-      // ✅ KIỂM TRA DỮ LIỆU TỪNG DÒNG
-      for (let i = 0; i < data.length; i++) {
+      // ✅ KIỂM TRA & CHUẨN HÓA DỮ LIỆU
+      data = data.map((row, index) => {
         for (const field of REQUIRED_COLUMNS) {
           if (
-            data[i][field] === undefined ||
-            data[i][field] === null ||
-            data[i][field] === ''
+            row[field] === undefined ||
+            row[field] === null ||
+            row[field] === ''
           ) {
             fs.unlinkSync(filePath);
-            return res.status(400).json({
-              message: `Dòng ${i + 2} thiếu dữ liệu trường "${field}"`
-            });
+            throw new Error(`Dòng ${index + 2} thiếu dữ liệu "${field}"`);
           }
         }
-      }
 
-      // 👉 Gắn data vào req để controller dùng
+        return {
+          maHocPhan: row.maHocPhan.toString().trim(),
+          tenHocPhan: row.tenHocPhan.toString().trim(),
+          soTinChi: Number(row.soTinChi),
+          laHocPhanDieuKien: parseBoolean(row.laHocPhanDieuKien)
+        };
+      });
+
       req.excelData = data;
       next();
 
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: 'Lỗi đọc hoặc kiểm tra file Excel' });
+      return res.status(400).json({ message: error.message });
     }
   });
 };
+

@@ -120,7 +120,9 @@
               <tr>
                 <th class="text-center col-stt">STT</th>
                 <th class="text-center col-code">Mã học phần</th>
-                <th class="text-center col-name">Tên học phần</th>
+                <th class="text-center col-name">Tên học phần (<span class="text-warning ms-2 fw-bold" style="font-size: 1em;">
+                        <i class="fas fa-star-of-life"></i>
+                        </span> : Học phần điều kiện )</th>
                 <th class="text-center col-credit">Số tín chỉ</th>
                 <th class="text-center col-choose">Chọn</th>
               </tr>
@@ -133,12 +135,20 @@
                     <td class="text-center col-code"><code>{{maHocPhan}}</code></td>
                     <td class="text-center col-name">
                       {{tenHocPhan}}
+
+                      {{#if laHocPhanDieuKien}}
+                        <span class="text-warning ms-2 fw-bold" style="font-size: 1em;">
+                          <i class="fas fa-star-of-life"></i>
+                        </span>
+                      {{/if}}
+
                       {{#if isRetake}}
                         <span class="badge bg-danger ms-2">
                           Học lại
                         </span>
                       {{/if}}
                     </td>
+
                     <td class="text-center col-credit">{{soTinChi}}</td>
                     <td class="text-center col-choose"><input type="checkbox" name="selectedCourses" value="{{_id}}"></td>
                   </tr>
@@ -176,7 +186,9 @@
                 <tr>
                   <th class="text-center col-stt">STT</th>
                   <th class="text-center col-code">Mã học phần</th>
-                  <th class="text-center col-name">Tên học phần</th>
+                  <th class="text-center col-name">Tên học phần (<span class="text-warning ms-2 fw-bold" style="font-size: 1em;">
+                        <i class="fas fa-star-of-life"></i>
+                        </span> : Học phần điều kiện )</th>
                   <th class="text-center col-credit">Số tín chỉ</th>
                 </tr>
               </thead>
@@ -185,7 +197,13 @@
                   <tr>
                     <td class="text-center col-stt">{{inc @index}}</td>
                     <td class="text-center col-code"><code>{{HocPhan.maHocPhan}}</code></td>
-                    <td class="text-center col-name">{{HocPhan.tenHocPhan}}</td>
+                    <td class="text-center col-name">{{HocPhan.tenHocPhan}}
+                      {{#if HocPhan.laHocPhanDieuKien}}
+                        <span class="text-warning ms-2 fw-bold" style="font-size: 1em;">
+                          <i class="fas fa-star-of-life"></i>
+                        </span>
+                      {{/if}}
+                    </td>
                     <td class="text-center col-credit">{{HocPhan.soTinChi}}</td>
                   </tr>
                 {{/each}}
@@ -209,32 +227,73 @@
   <div class="modal-dialog">
     <form action="/course/add-course" method="POST" class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addCourseModalLabel"><strong>Thêm học phần mới</strong></h5>
+        <h5 class="modal-title" id="addCourseModalLabel">
+          <strong>Thêm học phần mới</strong>
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body m-2">
         <div class="mb-3">
           <label for="maHocPhan" class="form-label">Mã học phần</label>
-          <input type="text" class="form-control" id="maHocPhan" name="maHocPhan" required>
+          <input
+            type="text"
+            class="form-control"
+            id="maHocPhan"
+            name="maHocPhan"
+            required
+          >
         </div>
+
         <div class="mb-3">
           <label for="tenHocPhan" class="form-label">Tên học phần</label>
-          <input type="text" class="form-control" id="tenHocPhan" name="tenHocPhan" required>
+          <input
+            type="text"
+            class="form-control"
+            id="tenHocPhan"
+            name="tenHocPhan"
+            required
+          >
         </div>
+
         <div class="mb-3">
           <label for="soTinChi" class="form-label">Số tín chỉ</label>
-          <input type="number" class="form-control" id="soTinChi" name="soTinChi" min="1" required>
+          <input
+            type="number"
+            class="form-control"
+            id="soTinChi"
+            name="soTinChi"
+            min="1"
+            required
+          >
+        </div>
+
+        <!-- ✅ HỌC PHẦN ĐIỀU KIỆN -->
+        <div class="form-check mt-2">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="laHocPhanDieuKien"
+            name="laHocPhanDieuKien"
+          >
+          <label class="form-check-label" for="laHocPhanDieuKien">
+            Học phần điều kiện
+          </label>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
-        <button type="submit" class="btn btn-success btn-sm">Lưu</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          Hủy
+        </button>
+        <button type="submit" class="btn btn-success btn-sm">
+          Lưu
+        </button>
       </div>
     </form>
   </div>
 </div>
+
 </main>
 
 {{!-- Script tìm kiếm học phần --}}

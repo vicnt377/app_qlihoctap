@@ -286,15 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('subjectScoreChart');
   if (!canvas) return;
 
-  // ✅ 1. Labels TRƯỚC
+  // Labels TRƯỚC
   const labels = [
     {{#each scores}}
       "{{HocPhan.tenHocPhan}}",
     {{/each}}
   ];
 
-  // ✅ 2. Sau đó mới set height
-  const rowHeight = 12; // px / học phần
+  //  Sau đó mới set height
+  const rowHeight = 15; // px / học phần
   canvas.height = Math.max(400, labels.length * rowHeight);
 
   const rawData = [
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {{/each}}
   ];
 
-  // ✅ Chia điểm đạt / rớt
+  //  Chia điểm đạt / rớt
   const diemDat = rawData.map(d => d > 4 ? d : null);
   const diemRot = rawData.map(d => d <= 4 ? d : null);
 
