@@ -34,7 +34,7 @@ function getYearOfStudy(totalCredits) {
   if (totalCredits <= 70) return 2;
   if (totalCredits <= 105) return 3;
   if (totalCredits <= 141) return 4;
-  return 5;
+  if (totalCredits > 141) return 5;
 }
 
 // Lấy mức cảnh báo học vụ cho học kỳ dựa trên các tiêu chí
@@ -158,13 +158,13 @@ async getScore(req, res) {
     const user = await User.findById(userId).lean();
 
     // ===============================
-    //NHẬN BỘ LỌC TỪ QUERY
+    // BỘ LỌC
     // ===============================
     const selectedYear = req.query.year || 'Tất cả';
     const selectedSemester = req.query.semester || 'Tất cả';
 
     // ===============================
-    //  LẤY TOÀN BỘ HỌC KỲ (CHO FILTER)
+    // TOÀN BỘ HỌC KỲ (CHO FILTER)
     // ===============================
     const allSemesters = await Semester.find({ user: userId }).lean();
 
@@ -172,27 +172,23 @@ async getScore(req, res) {
     const semestersList = [...new Set(allSemesters.map(s => s.tenHocKy))];
 
     // ===============================
-    //  LỌC THEO BỘ LỌC
+    // ÁP DỤNG FILTER
     // ===============================
-    let filteredSemesterIds = allSemesters;
+    let filtered = allSemesters;
 
     if (selectedYear !== 'Tất cả') {
-      filteredSemesterIds = filteredSemesterIds.filter(
-        s => s.namHoc === selectedYear
-      );
+      filtered = filtered.filter(s => s.namHoc === selectedYear);
     }
 
     if (selectedSemester !== 'Tất cả') {
-      filteredSemesterIds = filteredSemesterIds.filter(
-        s => s.tenHocKy === selectedSemester
-      );
+      filtered = filtered.filter(s => s.tenHocKy === selectedSemester);
     }
 
     // ===============================
-    // LẤY DỮ LIỆU HỌC KỲ SAU KHI LỌC
+    // LẤY DỮ LIỆU SAU FILTER
     // ===============================
     const semesters = await Semester.find({
-      _id: { $in: filteredSemesterIds.map(s => s._id) }
+      _id: { $in: filtered.map(s => s._id) }
     })
       .populate({
         path: 'score',
@@ -204,9 +200,10 @@ async getScore(req, res) {
     let semestersWithScore = [];
 
     // ===============================
-    // BIẾN TÍCH LŨY TOÀN KHÓA
+    // BIẾN TOÀN KHÓA
     // ===============================
     let tongTinChiTichLuyTruoc = 0;
+
     let tongDiemGPA_TongKet = 0;
     let tongTinChiGPA_TongKet = 0;
 
@@ -214,7 +211,7 @@ async getScore(req, res) {
     let latestWarning = null;
 
     // ===============================
-    //  DUYỆT TỪNG HỌC KỲ
+    // DUYỆT HỌC KỲ
     // ===============================
     for (let i = 0; i < semesters.length; i++) {
       const s = semesters[i];
@@ -235,45 +232,47 @@ async getScore(req, res) {
         if (!sc.HocPhan) continue;
 
         const tc = sc.HocPhan.soTinChi;
-        const d = parseFloat(sc.diemSo);
+        const diem = parseFloat(sc.diemSo);
         const laDieuKien = sc.HocPhan.laHocPhanDieuKien;
 
         tongTinChiDangKyHK += tc;
 
-        if (isNaN(d)) {
+        if (isNaN(diem)) {
           allSubjectsScored = false;
           continue;
         }
 
-        if (d < 4.0) tinChiHongTrongHK += tc;
+        if (diem < 4.0) tinChiHongTrongHK += tc;
 
-        const d4 = convertTo4Scale(d);
+        const diem4 = convertTo4Scale(diem);
 
-        // ===== CPA =====
+        // ===== CPA (CÓ TÍNH HP ĐIỀU KIỆN) =====
         if (sc.tbchk) {
-          tongDiemCPA += d4 * tc;
+          tongDiemCPA += diem4 * tc;
           tongTinChiCPA += tc;
         }
 
-        // ===== TÍCH LŨY =====
-        if (sc.tichLuy && d >= 4.0) {
+        // ===== TÍCH LŨY (ĐIỂM ≥ 4.0 – KHÔNG PHÂN BIỆT) =====
+        if (sc.tichLuy && diem >= 4.0) {
           tinChiTichLuyHK += tc;
 
-          // GPA học kỳ (không tính HP điều kiện)
+          // GPA học kỳ (KHÔNG tính HP điều kiện)
           if (!laDieuKien) {
-            tongDiemGPA += d4 * tc;
+            tongDiemGPA += diem4 * tc;
             tongTinChiGPA += tc;
           }
 
-          // GPA toàn khóa
+          // GPA toàn khóa (KHÔNG tính HP điều kiện)
           if (!laDieuKien) {
-            tongDiemGPA_TongKet += d4 * tc;
+            tongDiemGPA_TongKet += diem4 * tc;
             tongTinChiGPA_TongKet += tc;
           }
         }
       }
 
-      // ===== TÍNH ĐIỂM =====
+      // ===============================
+      // TÍNH ĐIỂM
+      // ===============================
       const cpaHK = tongTinChiCPA
         ? Number((tongDiemCPA / tongTinChiCPA).toFixed(2))
         : null;
@@ -291,7 +290,9 @@ async getScore(req, res) {
         ? tongDiemGPA_TongKet / tongTinChiGPA_TongKet
         : 0;
 
-      // ===== CHƯA ĐỦ ĐIỀU KIỆN CẢNH BÁO =====
+      // ===============================
+      // CHƯA ĐỦ ĐIỀU KIỆN CẢNH BÁO
+      // ===============================
       if (tongTinChiDangKyHK === 0 || !allSubjectsScored) {
         semestersWithScore.push({
           ...s,
@@ -304,7 +305,9 @@ async getScore(req, res) {
         continue;
       }
 
-      // ===== CẢNH BÁO =====
+      // ===============================
+      // CẢNH BÁO HỌC VỤ (GIỮ LOGIC CŨ)
+      // ===============================
       const reasons = getWarningReasons({
         cpaHK,
         gpaTL,
@@ -345,15 +348,15 @@ async getScore(req, res) {
     }
 
     // ===============================
-    //TỔNG KẾT TOÀN KHÓA
+    // TỔNG KẾT TOÀN KHÓA
     // ===============================
     const gpaTongKet =
       tongTinChiGPA_TongKet > 0
-        ? (tongDiemGPA_TongKet / tongTinChiGPA_TongKet).toFixed(2)
+        ? Number((tongDiemGPA_TongKet / tongTinChiGPA_TongKet).toFixed(2))
         : null;
 
     const hocLucTongKet = gpaTongKet
-      ? xepLoaiHocLuc(parseFloat(gpaTongKet))
+      ? xepLoaiHocLuc(gpaTongKet)
       : null;
 
     let canhBaoHocVuTongKet = null;
@@ -363,12 +366,11 @@ async getScore(req, res) {
     }
 
     // ===============================
-    // RENDER VIEW
+    // RENDER
     // ===============================
     res.render('user/score', {
       semesters: semestersWithScore,
 
-      //  BỘ LỌC
       years,
       semestersList,
       selectedYear,
@@ -377,7 +379,7 @@ async getScore(req, res) {
       user: req.session.user,
       gpaTongKet,
       hocLucTongKet,
-      tongTinChiTongKet: tongTinChiGPA_TongKet,
+      tongTinChiTongKet: tongTinChiTichLuyTruoc,
       hasSemester: semesters.length > 0,
       canhBaoHocVuTongKet
     });

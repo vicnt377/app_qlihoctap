@@ -34,207 +34,213 @@ function convertTo4Scale(d) {
   return 0.0;
 }
 
-// Đánh giá tiến độ học tập (sớm, trễ, đúng)
-function evaluateProgressBySemester(totalCreditsDone, semesterCount) {
+function evaluateProgressBySemester(
+  totalCreditsDone,
+  semesterCount,
+  TOTAL_PROGRAM_CREDITS
+) {
   const MAX_CREDITS_PER_SEMESTER = 20;
+
+  // 🔒 ƯU TIÊN TUYỆT ĐỐI: ĐÃ HOÀN THÀNH → KHÔNG XÉT TRỄ
+  if (totalCreditsDone >= TOTAL_PROGRAM_CREDITS) {
+    return {
+      status: 'completed',
+      label: 'Đã hoàn thành chương trình',
+      color: 'success',
+      ratio: 100
+    };
+  }
+
+  // Chưa có học kỳ
+  if (semesterCount === 0) {
+    return {
+      status: 'on_time',
+      label: 'Chưa có dữ liệu học kỳ',
+      color: 'secondary',
+      ratio: 0
+    };
+  }
 
   const maxPossibleCredits = semesterCount * MAX_CREDITS_PER_SEMESTER;
   const ratio = totalCreditsDone / maxPossibleCredits;
 
+  // Học sớm
   if (ratio >= 0.9) {
     return {
       status: 'early',
       label: 'Học sớm tiến độ',
       color: 'success',
-      ratio: (ratio * 100).toFixed(1)
+      ratio: Number((ratio * 100).toFixed(1))
     };
   }
 
+  // Đúng tiến độ
   if (ratio >= 0.7) {
     return {
       status: 'on_time',
       label: 'Học đúng tiến độ',
       color: 'primary',
-      ratio: (ratio * 100).toFixed(1)
+      ratio: Number((ratio * 100).toFixed(1))
     };
   }
 
+  // ❗ CHỈ RƠI VÀO ĐÂY KHI CHƯA HOÀN THÀNH
   return {
     status: 'late',
     label: 'Học trễ tiến độ',
     color: 'danger',
-    ratio: (ratio * 100).toFixed(1)
+    ratio: Number((ratio * 100).toFixed(1))
   };
 }
 
+
+
 class ProgressController {
-    async getProgress(req, res) {
-        try {
-            const userId = req.user?._id || req.session?.user?._id;
-            if (!userId) return res.render('auth/login');
+  async getProgress(req, res) {
+    try {
+      const userId = req.user?._id || req.session?.user?._id;
+      if (!userId) return res.redirect('/login-user');
 
-            const user = await User.findById(userId).lean();
-            if (!user) return res.redirect('/login-user');
+      const user = await User.findById(userId).lean();
+      if (!user) return res.redirect('/login-user');
 
-            const scores = await Score.find({ user: userId })
-                .populate('HocPhan')
-                .lean();
+      const TOTAL_PROGRAM_CREDITS = user.totalCredits; // ✅ LẤY TỪ USER
 
-            let totalCredits = 0;
-            const maxCredits = user?.totalCredits || 0;
+      const scores = await Score.find({ user: userId })
+        .populate('HocPhan')
+        .lean();
 
-            let diemChuStats = {};
-            let monNo = [];
-            let completedScores = [];
+      let totalCredits = 0;
+      let diemChuStats = {};
+      let monNo = [];
+      let completedScores = [];
 
-            scores.forEach(score => {
-                if (!score.HocPhan) return;
+      scores.forEach(score => {
+        if (!score.HocPhan) return;
 
-                const tinChi = score.HocPhan.soTinChi;
-                const diemChu = score.diemChu?.toUpperCase();
+        const tinChi = score.HocPhan.soTinChi || 0;
+        const diemChu = score.diemChu?.toUpperCase();
 
-                //  Chỉ tính tín chỉ đã hoàn thành
-                if (score.tichLuy && diemChu && diemChu !== 'F') {
-                    totalCredits += tinChi;
-                    completedScores.push(score);
-                }
-
-                // Thống kê điểm chữ
-                if (diemChu) {
-                    diemChuStats[diemChu] = (diemChuStats[diemChu] || 0) + 1;
-
-                    if (diemChu === 'F') {
-                        monNo.push(score);
-                    }
-                }
-            });
-
-            const totalCreditsExceeded = totalCredits > maxCredits;
-            const hasSemesters = scores.length > 0;
-            const hasMonNo = monNo.length > 0;
-
-            // Xác định năm học
-            const yearOfStudy = getYearOfStudy(totalCredits);
-            const yearText = getYearText(yearOfStudy);
-
-            // ===== BIẾN PHỤC VỤ VẼ BIỂU ĐỒ =====
-            const semesters = await Semester.find({ user: userId })
-                .populate({
-                    path: 'score',
-                    populate: { path: 'HocPhan' }
-                })
-                .sort({ createdAt: 1 })
-                .lean();
-
-            const labels = [];
-            const diemTBHocKy = [];
-            const diemTBTichLuy = [];
-            const tinChiHocKy = [];
-            const tongTinChi = [];
-
-            let tongDiem = 0;
-            let tongTin = 0;
-
-            const diemChuToSo = { A: 4, B: 3, C: 2, D: 1, F: 0 };
-
-            semesters.forEach(sem => {
-                labels.push(`${sem.tenHocKy} - ${sem.namHoc}`);
-
-                let diemHK = 0;
-                let tinHK = 0;
-
-                sem.score.forEach(sc => {
-                    if (!sc.HocPhan || !sc.tichLuy) return;
-
-                    const tc = sc.HocPhan.soTinChi;
-                    const d10 = Number(sc.diemSo);
-
-                    if (isNaN(d10)) return;
-
-                    if (d10 < 4.0) return;
-
-                    const d4 = convertTo4Scale(d10);
-
-                    diemHK += d4 * tc;
-                    tinHK += tc;
-                });
-
-
-                const tbHK =
-                tinHK > 0
-                    ? Number((diemHK / tinHK).toFixed(2))
-                    : 0;
-
-                diemTBHocKy.push(
-                    tinHK > 0 ? Number((diemHK / tinHK).toFixed(2)) : null
-                );
-
-                tongDiem += diemHK;
-                tongTin += tinHK;
-
-                const tbTL =
-                tongTin > 0
-                    ? Number((tongDiem / tongTin).toFixed(2))
-                    : 0;
-
-                diemTBTichLuy.push(tbTL);
-
-                tinChiHocKy.push(tinHK);
-                tongTinChi.push(tongTin);
-            });
-
-            const diemChuTinChi = {};
-
-            scores.forEach(s => {
-            if (!s.HocPhan || !s.diemChu) return;
-
-            const diemChu = s.diemChu.toUpperCase();
-            const tinChi = s.HocPhan.soTinChi || 0;
-
-            diemChuTinChi[diemChu] = (diemChuTinChi[diemChu] || 0) + tinChi;
-            });
-
-            const semesterCount = semesters.length;
-
-            const progressStatus = evaluateProgressBySemester(
-            totalCredits,
-            semesterCount
-            );
-
-            res.render('user/progress', {
-                user,
-                scores,
-                totalCredits,
-                diemChuStats,
-                monNo,
-                totalCreditsExceeded,
-                maxCredits,
-                hasSemesters,
-                hasMonNo,
-                completedScores,
-                yearOfStudy,
-                yearText,
-
-                // Tiến độ học tập
-                progressStatus,
-                semesterCount,
-
-                // Dữ liệu biểu đồ
-                labels: JSON.stringify(labels),
-                diemTBHocKy: JSON.stringify(diemTBHocKy),
-                diemTBTichLuy: JSON.stringify(diemTBTichLuy),
-                tinChiHocKy: JSON.stringify(tinChiHocKy),
-                tongTinChi: JSON.stringify(tongTinChi),
-                diemChuTinChi: JSON.stringify(diemChuTinChi),
-
-            });
-
-        } catch (error) {
-            console.error("Lỗi lấy tiến độ:", error);
-            res.status(500).send("Lỗi server khi lấy tiến độ học tập.");
+        // ✅ Chỉ tính tín chỉ đã tích lũy
+        if (score.tichLuy && diemChu && diemChu !== 'F') {
+          totalCredits += tinChi;
+          completedScores.push(score);
         }
+
+        // Thống kê điểm chữ
+        if (diemChu) {
+          diemChuStats[diemChu] = (diemChuStats[diemChu] || 0) + 1;
+          if (diemChu === 'F') monNo.push(score);
+        }
+      });
+
+      const yearOfStudy = getYearOfStudy(totalCredits);
+      const yearText = getYearText(yearOfStudy);
+
+      // ===== HỌC KỲ =====
+      const semesters = await Semester.find({ user: userId })
+        .populate({
+          path: 'score',
+          populate: { path: 'HocPhan' }
+        })
+        .sort({ createdAt: 1 })
+        .lean();
+
+      const semesterCount = semesters.length;
+
+      // ===== TIẾN ĐỘ =====
+      const progressStatus = evaluateProgressBySemester(
+        totalCredits,
+        semesterCount,
+        TOTAL_PROGRAM_CREDITS
+      );
+
+      // ===== BIỂU ĐỒ =====
+      const labels = [];
+      const diemTBHocKy = [];
+      const diemTBTichLuy = [];
+      const tinChiHocKy = [];
+      const tongTinChi = [];
+
+      let tongDiem = 0;
+      let tongTin = 0;
+      
+        const diemChuTinChi = {};
+
+        scores.forEach(s => {
+        if (!s.HocPhan || !s.diemChu || !s.tichLuy) return;
+
+        const diemChu = s.diemChu.toUpperCase();
+        const tinChi = s.HocPhan.soTinChi || 0;
+
+        if (diemChu !== 'F') {
+            diemChuTinChi[diemChu] =
+            (diemChuTinChi[diemChu] || 0) + tinChi;
+        }
+        });
+
+      semesters.forEach(sem => {
+        labels.push(`${sem.tenHocKy} - ${sem.namHoc}`);
+
+        let diemHK = 0;
+        let tinHK = 0;
+
+        sem.score.forEach(sc => {
+          if (!sc.HocPhan || !sc.tichLuy) return;
+
+          const tc = sc.HocPhan.soTinChi;
+          const d10 = Number(sc.diemSo);
+          if (isNaN(d10) || d10 < 4.0) return;
+
+          const d4 = convertTo4Scale(d10);
+          diemHK += d4 * tc;
+          tinHK += tc;
+        });
+
+        const tbHK = tinHK > 0 ? Number((diemHK / tinHK).toFixed(2)) : null;
+        diemTBHocKy.push(tbHK);
+
+        tongDiem += diemHK;
+        tongTin += tinHK;
+
+        const tbTL = tongTin > 0 ? Number((tongDiem / tongTin).toFixed(2)) : null;
+        diemTBTichLuy.push(tbTL);
+
+        tinChiHocKy.push(tinHK);
+        tongTinChi.push(tongTin);
+      });
+
+      res.render('user/progress', {
+        user,
+        scores,
+        totalCredits,
+        TOTAL_PROGRAM_CREDITS,
+
+        diemChuStats,
+        monNo,
+        completedScores,
+
+        yearOfStudy,
+        yearText,
+
+        progressStatus,
+        semesterCount,
+
+        labels: JSON.stringify(labels),
+        diemTBHocKy: JSON.stringify(diemTBHocKy),
+        diemTBTichLuy: JSON.stringify(diemTBTichLuy),
+        tinChiHocKy: JSON.stringify(tinChiHocKy),
+        tongTinChi: JSON.stringify(tongTinChi),
+        diemChuTinChi: JSON.stringify(diemChuTinChi),
+      });
+
+    } catch (error) {
+      console.error('Lỗi lấy tiến độ:', error);
+      res.status(500).send('Lỗi server khi lấy tiến độ học tập');
     }
+  }
 }
+
 
 module.exports = new ProgressController();
 

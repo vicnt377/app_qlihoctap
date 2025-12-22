@@ -109,9 +109,9 @@ class SemesterController {
       );
 
       //  Dưới 8 tín chỉ
-      if (tongTinChiHocKy < 8) {
+      if (tongTinChiHocKy < 1) {
         return res.status(400).json({
-          message: `Mỗi học kỳ phải đăng ký tối thiểu 8 tín chỉ (hiện tại: ${tongTinChiHocKy} tín chỉ).`
+          message: `Mỗi học kỳ phải đăng ký tối thiểu 1 tín chỉ (hiện tại: ${tongTinChiHocKy} tín chỉ).`
         });
       }
       //  Vượt quá 20 tín chỉ

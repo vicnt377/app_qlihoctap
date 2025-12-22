@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     avatar: { type: String, default: '/img/avatar.png' },
     phone: { type: String },
     major: { type: String, required: true }, 
-    totalCredits: { type: Number, required: true}, // Tổng số tín chỉ đã đăng ký
+    totalCredits: { type: Number, required: true}, // Tổng số tín chỉ đào tạo
     isActive: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now },
     enrolledVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // Videos đã đăng ký

@@ -1,6 +1,11 @@
 <div class="dashboard-header">
   <h2 class="dashboard-title mb-0">Chỉnh Sửa Học Kỳ</h2>
 </div>
+{{#if messages.error}}
+<div class="alert alert-danger">
+  {{messages.error.[0]}}
+</div>
+{{/if}}
 
 <div class="container my-3">
   <a href="/semester" class="btn btn-primary btn-sm mb-3">

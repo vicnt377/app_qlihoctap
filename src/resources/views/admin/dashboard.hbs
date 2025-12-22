@@ -117,20 +117,20 @@
   </div>
 
   <div class="row g-4 mb-4">
-  <div class="col-lg-6">
+  {{!-- <div class="col-lg-6">
     <div class="chart-card">
       <div class="pie-wrapper">
         <canvas id="pieChart"></canvas>
       </div>
     </div>
-  </div>
-  <div class="col-lg-6">
+  </div> --}}
+  {{!-- <div class="col-lg-6"> --}}
     <div class="chart-card">
       <div class="chart-wrapper">
         <canvas id="barChart"></canvas>
       </div>
     </div>
-  </div>
+  {{!-- </div> --}}
 </div>
 
 </main>
@@ -142,7 +142,7 @@
 
 }
 .pie-wrapper {
-  width: 340px;
+  width: 100%;
   height: 340px;
   margin: 0 auto;
 }
@@ -197,7 +197,7 @@ new Chart(document.getElementById('lineChart'), {
 });
 
 // Pie chart
-new Chart(document.getElementById('pieChart'), {
+{{!-- new Chart(document.getElementById('pieChart'), {
   type: 'pie',
   data: {
     labels: ['Hoàn thành', 'Chưa hoàn thành'],
@@ -221,7 +221,7 @@ new Chart(document.getElementById('pieChart'), {
     }
   },
 
-});
+}); --}}
 
 // Bar chart chuyên ngành
 const majorLabels = {{json majorLabels}};
