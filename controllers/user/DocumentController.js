@@ -26,10 +26,13 @@ class DocumentController {
         user: userId,
         title: { $regex: regex }
       })
-        .sort({ createdAt: -1 })
-        .lean();
+      .sort({ createdAt: -1 })
+      .lean();
 
-      // TÀI LIỆU THAM KHẢO PUBLIC
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      // Tài liệu tham khảo
       const referenceDocs = await Document.find({
         visibility: 'public',
         user: { $ne: userId },
@@ -38,6 +41,11 @@ class DocumentController {
         .populate('user', 'username')
         .sort({ createdAt: -1 })
         .lean();
+        
+      // Gắn "mới" cho tài liệu nằm trong danh sách mới
+      referenceDocs.forEach(doc => {
+        doc.isNew = doc.createdAt >= threeDaysAgo;
+      });
 
       const successMessage = req.session.successMessage || null;
       const errorMessage = req.session.errorMessage || null;

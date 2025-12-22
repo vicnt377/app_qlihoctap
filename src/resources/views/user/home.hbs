@@ -118,7 +118,7 @@
         </div>
         <div class="card-body p-0">
           {{#if recentDocs.length}}
-            <div style="max-height: 250px; overflow-y: auto;">   <!-- ✅ cuộn dọc -->
+            <div style="max-height: 250px; overflow-y: auto;"> 
               <ul class="list-group list-group-flush">
                 {{#each recentDocs}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -130,12 +130,12 @@
                         {{formatDate this.createdAt}} • {{formatFileSize this.fileSize}}
                       </div>
                     </div>
-                    <div>
+                    {{!-- <div>
                       <a href="/document/preview/{{this._id}}" 
                         class="btn btn-sm btn-outline-orange" target="_blank">
                         Xem
                       </a>
-                    </div>
+                    </div> --}}
                   </li>
                 {{/each}}
               </ul>

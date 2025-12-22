@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 🔍 Kiểm tra kết nối Gmail
+// Kiểm tra kết nối Gmail
 transporter.verify(function (error, success) {
   if (error) {
     console.log("SMTP Error:", error);

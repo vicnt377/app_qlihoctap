@@ -8,15 +8,6 @@
         </h1>
         <p class=" mb-0">Quản lý và chia sẻ tài liệu học tập của bạn</p>
       </div>
-      {{!-- <div class="col-md-4 text-end">
-        <div class="stats-card">
-          <div class="stats-item">
-            <i class="fas fa-file-pdf text-orange"></i>
-            <span class="stats-number">{{#if documents}}{{documents.length}}{{else}}0{{/if}}</span>
-            <span class="stats-label">Tài liệu</span>
-          </div>
-        </div>
-      </div> --}}
     </div>
   </div>
 </div>
@@ -202,6 +193,7 @@
             Danh sách tài liệu tham khảo
           </h6>
         </div>
+
         <div class="card-body p-0">
           {{#if referenceDocs}}
             <div class="table-responsive">
@@ -214,35 +206,52 @@
                     <th scope="col" class="text-center">Thao tác</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {{#each referenceDocs}}
                     <tr>
+                      <!-- Tên tài liệu + cờ MỚI -->
                       <td>
                         <div class="d-flex align-items-center">
                           <div class="document-icon me-2">
                             <i class="{{getFileIcon this}}"></i>
                           </div>
                           <div>
-                            <h6 class="mb-0 fw-bold small">{{this.title}}</h6>
+                            <h6 class="mb-0 fw-bold small d-flex align-items-center">
+                              {{this.title}}
+
+                              {{#if this.isNew}}
+                                <span class="badge bg-danger ms-2">Mới</span>
+                              {{/if}}
+                            </h6>
                             <small class="text-muted">{{this.originalName}}</small>
                           </div>
                         </div>
                       </td>
+
+                      <!-- Người chia sẻ -->
                       <td>{{this.user.username}}</td>
+
+                      <!-- Ngày đăng -->
                       <td>
                         <span class="badge bg-light text-dark small">
-                          <i class="fas fa-clock me-1"></i>{{this.createdAt}}
+                          <i class="fas fa-clock me-1"></i>
+                          {{formatDate this.createdAt}}
                         </span>
                       </td>
+
+                      <!-- Thao tác -->
                       <td class="text-center">
                         <div class="btn-group" role="group">
-
-                          <button type="button" 
-                            class="btn btn-sm btn-outline-orange" 
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-orange"
                             onclick="previewDocument('{{this._id}}', '{{this.title}}')">
                             <i class="fas fa-eye"></i>
                           </button>
-                          <a href="/document/download/{{this._id}}"
+
+                          <a
+                            href="/document/download/{{this._id}}"
                             class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-download"></i>
                           </a>
@@ -257,12 +266,15 @@
             <div class="text-center py-4">
               <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
               <h6 class="text-muted mb-2">Chưa có tài liệu công khai nào</h6>
-              <p class="text-muted small">Hãy quay lại sau hoặc tự chia sẻ tài liệu của bạn</p>
+              <p class="text-muted small">
+                Hãy quay lại sau hoặc tự chia sẻ tài liệu của bạn
+              </p>
             </div>
           {{/if}}
         </div>
       </div>
     </div>
+
   </div>
 </main>
 

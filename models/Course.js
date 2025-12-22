@@ -6,6 +6,10 @@ const courseSchema = new mongoose.Schema({
   maHocPhan: { type: String, required: true },
   tenHocPhan: { type: String, required: true },
   soTinChi: { type: Number, required: true },
+  // laHocPhanDieuKien: {                        
+  //   type: Boolean,
+  //   default: false
+  // },
 }, { timestamps: true });
 
 // Unique index theo user + maHocPhan

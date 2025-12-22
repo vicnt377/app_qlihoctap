@@ -12,7 +12,10 @@
   </div>
 </div>
 <main class="container-fluid px-4 py-3">
+
+
   <div class="alert alert-{{progressStatus.color}}">
+    <p><strong>Trình độ: </strong>{{yearText}}</p>
     <strong>Tiến độ học tập:</strong>
     {{progressStatus.label}} <br>
     {{!-- Đã tích lũy {{totalCredits}} /
@@ -77,6 +80,11 @@
   width: 100% !important;
   height: 100% !important;
 }
+
+#subjectScoreChart {
+  min-height: 400px;
+}
+
 </style>
 
 <!-- Chart.js -->
@@ -278,11 +286,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('subjectScoreChart');
   if (!canvas) return;
 
+  // ✅ 1. Labels TRƯỚC
   const labels = [
     {{#each scores}}
       "{{HocPhan.tenHocPhan}}",
     {{/each}}
   ];
+
+  // ✅ 2. Sau đó mới set height
+  const rowHeight = 12; // px / học phần
+  canvas.height = Math.max(400, labels.length * rowHeight);
 
   const rawData = [
     {{#each scores}}
@@ -302,24 +315,39 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           label: 'Đạt',
           data: diemDat,
-          backgroundColor: 'rgba(33, 150, 243, 0.8)', // xanh
-          barThickness: 16,
-          maxBarThickness: 18
+          backgroundColor: 'rgba(33, 150, 243, 0.8)',
+          categoryPercentage: 0.8,
+          barPercentage: 0.9
         },
         {
           label: 'Rớt',
           data: diemRot,
-          backgroundColor: 'rgba(244, 67, 54, 0.85)', // đỏ
-          barThickness: 16,
-          maxBarThickness: 18,
+          backgroundColor: 'rgba(244, 67, 54, 0.85)',
+          categoryPercentage: 0.8,
+          barPercentage: 0.9,
           grouped: false
         }
       ]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       indexAxis: 'y',
       scales: {
-        x: { min: 0, max: 10 }
+        x: {
+          min: 0,
+          max: 10,
+          ticks: {
+            stepSize: 1
+          }
+        },
+        y: {
+          ticks: {
+            font: {
+              size: 11
+            }
+          }
+        }
       },
       plugins: {
         title: {
@@ -329,10 +357,19 @@ document.addEventListener('DOMContentLoaded', () => {
             size: 20,
             weight: 'bold'
           }
+        },
+        legend: {
+          labels: {
+            font: {
+              size: 12
+            }
+          }
         }
       }
     }
+
   });
 });
 </script>
+
 

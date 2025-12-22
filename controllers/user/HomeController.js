@@ -57,7 +57,7 @@ class HomeController {
 
       const videos = await Video.find({ category: user.major, daXoa: false }).lean();
 
-      // Lấy tài liệu public trong 3 ngày gần nhất
+      // TÀI LIỆU MỚI (3 ngày gần nhất)
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
@@ -65,11 +65,11 @@ class HomeController {
         visibility: 'public',
         createdAt: { $gte: threeDaysAgo }
       })
-        .populate('user', 'user')
+        .populate('user', 'username')
         .sort({ createdAt: -1 })
-        .limit(6) // tối đa 6 tài liệu
+        .limit(10)
         .lean();
-
+        
       const recentDocsCount = await Document.countDocuments({
         visibility: 'public',
         createdAt: { $gte: threeDaysAgo }
